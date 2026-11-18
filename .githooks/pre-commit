@@ -1,0 +1,13 @@
+#!/bin/sh
+# Incrementa automaticamente l'ultima cifra della versione (version.txt) a ogni commit
+# e la propaga in CIEID/Properties/AssemblyInfo.cs e Setup/CIEMiddleware.nsi.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+cur=$(tr -d '\r\n ' < version.txt)
+base=${cur%.*}
+rev=${cur##*.}
+new="$base.$((rev + 1))"
+printf '%s\n' "$new" > version.txt
+sed -b -i "s/\(Assembly\(File\)\?Version(\"\)[0-9.]*\(\")\)/\1$new\3/" CIEID/Properties/AssemblyInfo.cs
+sed -b -i "s/\(PRODUCT_VERSION \"\)[0-9.]*\(\"\)/\1$new\2/" Setup/CIEMiddleware.nsi
+git add version.txt CIEID/Properties/AssemblyInfo.cs Setup/CIEMiddleware.nsi
+echo "Versione: $cur -> $new"
