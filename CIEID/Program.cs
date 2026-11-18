@@ -18,6 +18,67 @@ namespace CIEID
 
         [DllImport("user32.dll", SetLastError = true)]
         static extern bool SetProcessDPIAware();
+
+        // Settings.Upgrade() ritrova solo le impostazioni della stessa cartella (stesso percorso dell'exe).
+        // Se l'elenco delle CIE abbinate è vuoto, lo recupera dall'installazione precedente più recente
+        // (altro percorso, es. Program Files (x86)) cercando i user.config in %LOCALAPPDATA%\IPZS.
+        private static void MigraElencoCie()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(Properties.Settings.Default.cieList) && Properties.Settings.Default.cieList != "0")
+                    return;
+
+                string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "IPZS");
+                if (!Directory.Exists(root))
+                    return;
+
+                string current = System.Configuration.ConfigurationManager
+                    .OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
+                string best = null;
+                DateTime bestTime = DateTime.MinValue;
+                foreach (string file in Directory.GetFiles(root, "user.config", SearchOption.AllDirectories))
+                {
+                    if (string.Equals(file, current, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    string value = LeggiElencoCie(file);
+                    DateTime time = File.GetLastWriteTimeUtc(file);
+                    if (value != null && time > bestTime)
+                    {
+                        best = value;
+                        bestTime = time;
+                    }
+                }
+
+                if (best != null)
+                {
+                    Properties.Settings.Default.cieList = best;
+                    Logger.Debug("Elenco CIE migrato da un'installazione precedente: " + best);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Debug("Migrazione elenco CIE non riuscita: " + ex.Message);
+            }
+        }
+
+        private static string LeggiElencoCie(string file)
+        {
+            try
+            {
+                var doc = System.Xml.Linq.XDocument.Load(file);
+                foreach (var setting in doc.Descendants("setting"))
+                {
+                    if ((string)setting.Attribute("name") == "cieList")
+                    {
+                        string v = (string)setting.Element("value");
+                        return string.IsNullOrWhiteSpace(v) || v == "0" ? null : v;
+                    }
+                }
+            }
+            catch { }
+            return null;
+        }
         static public Logger Logger;
 
         /// <summary>
@@ -55,6 +116,7 @@ namespace CIEID
             //Properties.Settings.Default.Save();
 
             Properties.Settings.Default.Upgrade();
+            MigraElencoCie();
             Properties.Settings.Default.Save();
 
             if (Properties.Settings.Default.firstTime)
