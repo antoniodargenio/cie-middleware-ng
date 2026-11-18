@@ -9,8 +9,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("CIE-Middleware-NG")]
 [assembly: AssemblyProduct("CIEID")]
-[assembly: AssemblyCopyright("Copyright © IPZS 2018")]
-[assembly: AssemblyTrademark("IPZS")]
+[assembly: AssemblyCopyright("Copyright © CIE-Middleware-NG")]
+[assembly: AssemblyTrademark("CIE-Middleware-NG")]
 [assembly: AssemblyCulture("")]
 
 // Se si imposta ComVisible su false, i tipi in questo assembly non saranno visibili
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 // È possibile specificare tutti i valori oppure impostare valori predefiniti per i numeri relativi alla revisione e alla build
 // usando l'asterisco '*' come illustrato di seguito:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.0.12")]
-[assembly: AssemblyFileVersion("2.0.0.12")]
+[assembly: AssemblyVersion("2.0.0.13")]
+[assembly: AssemblyFileVersion("2.0.0.13")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatform("windows")]

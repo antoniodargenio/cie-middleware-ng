@@ -3,7 +3,7 @@
 //  cie-pkcs11
 //
 //  Created by ugo chirico on 06/10/18.
-//  Copyright © 2018 IPZS. All rights reserved.
+//  Copyright © 2018 CIE-Middleware-NG. All rights reserved.
 //
 
 #include "PINManager.h"

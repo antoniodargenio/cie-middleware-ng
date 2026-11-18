@@ -435,7 +435,7 @@ CK_RV CK_ENTRY C_GetInfo(CK_INFO_PTR pInfo /* location that receives information
 
 	pInfo->cryptokiVersion.major = 2; /* Cryptoki interface ver */
 	pInfo->cryptokiVersion.minor = 10;   //12345678901234567890123456789012
-	memcpy_s((char*)pInfo->manufacturerID,32,"IPZS                            ", 32);
+	memcpy_s((char*)pInfo->manufacturerID,32,"CIE-Middleware-NG              ", 32);
 	pInfo->manufacturerID[4] = 0;
 
 	pInfo->flags = 0; /* must be zero */

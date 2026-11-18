@@ -2,7 +2,7 @@
 !include "x64.nsh"
 !include "Library.nsh"
 
-!define PRODUCT_VERSION "2.0.0.12"
+!define PRODUCT_VERSION "2.0.0.13"
 
 ;--------------------------------
 ;General
@@ -16,7 +16,7 @@
   !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\CIEPKI-NG"
   
   
-  BrandingText "Istituto Poligrafico e Zecca dello Stato"
+  BrandingText "CIE-Middleware-NG"
   ;Default installation folder
   ; Applicazione a 64 bit: installata in Program Files (non Program Files (x86))
   InstallDir "$PROGRAMFILES64\CIEPKI-NG"
@@ -28,7 +28,7 @@ VIAddVersionKey "ProductName" "CIE-Middleware-NG"
 VIAddVersionKey "Comments" "CIE-Middleware-NG"
 VIAddVersionKey "CompanyName" ""
 VIAddVersionKey "LegalTrademarks" ""
-VIAddVersionKey "LegalCopyright" "Copyright (C) IPZS 2018"
+VIAddVersionKey "LegalCopyright" "Copyright (C) CIE-Middleware-NG"
 VIAddVersionKey "FileDescription" "CIE-Middleware-NG"
 VIAddVersionKey "FileVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey "OriginalFilename" "CIE-Middleware-NG.exe"
@@ -108,7 +108,7 @@ Section "Install"
   ${EndIf}
 
   # RMDir /r "$LOCALAPPDATA\CIEID"
-  # RMDir /r "$%LOCALAPPDATA%\IPZS"
+  # RMDir /r "$%LOCALAPPDATA%\CIE-Middleware-NG"
  
   SetShellVarContext all
   RMDir /r "$SMPROGRAMS\CIE Middleware NG"
@@ -157,7 +157,7 @@ Section "Install"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "CIE Middleware NG"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\Uninstall.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$SYSDIR\CIEPKI-NG.dll,0"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "IPZS"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "CIE-Middleware-NG"
   WriteRegDWORD ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "NoModify" "1"
   ;WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "VersionMajor" "0"
   ;WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "VersionMinor" "1"
