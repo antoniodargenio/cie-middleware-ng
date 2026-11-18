@@ -3468,7 +3468,7 @@ namespace CIEID
             this.MaximizeBox = false;
             this.Name = "mainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "CIE ID";
+            this.Text = "CIE ID [build non ufficiale]";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.mainTabControl.ResumeLayout(false);
             this.CIEPairingTabPage.ResumeLayout(false);
