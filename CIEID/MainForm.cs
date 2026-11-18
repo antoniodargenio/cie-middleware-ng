@@ -99,6 +99,10 @@ namespace CIEID
             Logger.Info("Inizializzo form principale");
 
             InitializeComponent();
+            unofficialDisclaimerLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            CIEPickerTabPage.Resize += (s, e) => FitDisclaimerLabel();
+            this.DpiChanged += (s, e) => FitDisclaimerLabel();
+            this.Shown += (s, e) => FitDisclaimerLabel();
 
             enableTimestampCheckBox.Checked = Properties.Settings.Default.timestampEnabled;
             enableTimestampCheckBox.CheckedChanged += (s, e) =>
@@ -1780,6 +1784,22 @@ namespace CIEID
         {
             Logger.Info("downButton_Click() - Inizia funzione");
             pdfPreview.pageDown();
+        }
+
+        // Avviso 'versione non ufficiale': altezza calcolata sul testo reale (DPI/font alti)
+        // e label ancorata al bordo inferiore, cosi' il testo non viene mai tagliato.
+        private void FitDisclaimerLabel()
+        {
+            if (unofficialDisclaimerLabel == null || unofficialDisclaimerLabel.Parent == null)
+                return;
+            Control parent = unofficialDisclaimerLabel.Parent;
+            int width = parent.ClientSize.Width - unofficialDisclaimerLabel.Left * 2;
+            if (width <= 0)
+                return;
+            Size measured = TextRenderer.MeasureText(unofficialDisclaimerLabel.Text, unofficialDisclaimerLabel.Font,
+                new Size(width, 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+            int height = measured.Height + 6;
+            unofficialDisclaimerLabel.SetBounds(unofficialDisclaimerLabel.Left, parent.ClientSize.Height - height - 2, width, height);
         }
 
         private System.Windows.Forms.Timer placeCardBlinkTimer;
