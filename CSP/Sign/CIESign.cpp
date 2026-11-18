@@ -7,7 +7,7 @@ CIESign::CIESign(IAS *ias){
 	this->ias = ias;
 }
 
-uint16_t CIESign::sign(const char* inFilePath, const char* type, const char* pin, int page, float x, float y, float w, float h, const char* imagePathFile,const char* outFilePath)
+uint16_t CIESign::sign(const char* inFilePath, const char* type, const char* pin, int page, float x, float y, float w, float h, const char* imagePathFile,const char* outFilePath, const char* tsaUrl)
 {
 	uint16_t response;
 
@@ -51,6 +51,23 @@ uint16_t CIESign::sign(const char* inFilePath, const char* type, const char* pin
 		if (ret != 0)
 		{
 			throw ret;
+		}
+
+		// Marca temporale (RFC 3161) sulla firma: solo URL http/https, lunghezza limitata
+		if (tsaUrl != nullptr && tsaUrl[0] != 0)
+		{
+			if (strnlen(tsaUrl, 256) >= 256 ||
+				(_strnicmp(tsaUrl, "http://", 7) != 0 && _strnicmp(tsaUrl, "https://", 8) != 0))
+			{
+				ret = DISIGON_ERROR_TSA;
+				throw ret;
+			}
+
+			ret = disigon_sign_set(ctx, DISIGON_OPT_TSA_URL, (void*)tsaUrl);
+			if (ret != 0)
+			{
+				throw ret;
+			}
 		}
 
 		if (strcmp(type, "pdf") == 0)

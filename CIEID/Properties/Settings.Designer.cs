@@ -118,5 +118,29 @@ namespace CIEID.Properties {
                 this["proxyPort"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool timestampEnabled {
+            get {
+                return ((bool)(this["timestampEnabled"]));
+            }
+            set {
+                this["timestampEnabled"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://timestamp.digicert.com")]
+        public string timestampUrl {
+            get {
+                return ((string)(this["timestampUrl"]));
+            }
+            set {
+                this["timestampUrl"] = value;
+            }
+        }
     }
 }

@@ -75,7 +75,7 @@ namespace CIEID
         static extern int UnlockPIN(string szPUK, string szNewPIN, int[] attempts, ProgressCallback progressCallBack);
 
         [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
-        static extern int firmaConCIE(string inFilePath, string type, string pin, string pan, int page, float x, float y, float w, float h, string imagePathFile, string outFilePath, ProgressCallback progressCallBack, SignCompletedCallback signCompletedCallBack);
+        static extern int firmaConCIE(string inFilePath, string type, string pin, string pan, int page, float x, float y, float w, float h, string imagePathFile, string outFilePath, ProgressCallback progressCallBack, SignCompletedCallback signCompletedCallBack, string tsaUrl);
 
         [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
         static extern int estraiP7m(string inFilePath, string outFilePath);
@@ -98,6 +98,13 @@ namespace CIEID
             Logger.Info("Inizializzo form principale");
 
             InitializeComponent();
+
+            enableTimestampCheckBox.Checked = Properties.Settings.Default.timestampEnabled;
+            enableTimestampCheckBox.CheckedChanged += (s, e) =>
+            {
+                Properties.Settings.Default.timestampEnabled = enableTimestampCheckBox.Checked;
+                Properties.Settings.Default.Save();
+            };
 
             if ("unlock".Equals(arg))
             {
@@ -153,7 +160,9 @@ namespace CIEID
             {
                 if (retValue != 0)
                 {
-                    documentSuccessfullySignedLabel.Text = "Si è verificato un errore";
+                    documentSuccessfullySignedLabel.Text = (retValue == 30)
+                        ? "Marca temporale non ottenuta: verifica la connessione o disattiva la marca temporale"
+                        : "Si è verificato un errore";
                     Logger.Debug(documentSuccessfullySignedLabel.Text);
                     digitalSignatureCompletedPictureBox.Image = Properties.Resources.cross;
                     digitalSignatureCompletedPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -1924,23 +1933,26 @@ namespace CIEID
                 else
                     model = carouselControl.ActiveCieModel;
 
+                // Marca temporale: letta qui (thread UI) perche' la firma gira su un altro thread
+                string tsaUrl = enableTimestampCheckBox.Checked ? Properties.Settings.Default.timestampUrl : null;
+
                 int ret = 0;
                 if (enableGraphicSignatureCheckBox.Checked && (signOp == OperationSelectedState.PADES_SIGNATURE))
                 {
                     Logger.Debug("Pades con grafica");
                     Dictionary<string, float> signImageInfo = pdfPreview.getSignImageInfos();
                     ret = firmaConCIE(labelFileNamePathSigningOperation.Text, "pdf", PIN, (shouldSignWithoutCIEPairing) ? PANForOneShotSigning : model.Pan, (int)signImageInfo["pageNumber"], signImageInfo["x"], signImageInfo["y"], signImageInfo["w"], signImageInfo["h"],
-                                      pdfPreview.getSignImagePath(), pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted));
+                                      pdfPreview.getSignImagePath(), pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), tsaUrl);
                 }
                 else if (signOp == OperationSelectedState.PADES_SIGNATURE)
                 {
-                    Console.WriteLine("Pades senza grafica");
-                    ret = firmaConCIE(labelFileNamePathSigningOperation.Text, "pdf", PIN, (shouldSignWithoutCIEPairing) ? PANForOneShotSigning : model.Pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted));
+                    Logger.Debug("Pades senza grafica");
+                    ret = firmaConCIE(labelFileNamePathSigningOperation.Text, "pdf", PIN, (shouldSignWithoutCIEPairing) ? PANForOneShotSigning : model.Pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), tsaUrl);
                 }
                 else if (signOp == OperationSelectedState.CADES_SIGNATURE)
                 {
-                    Console.WriteLine("Cades");
-                    ret = firmaConCIE(labelFileNamePathSigningOperation.Text, "p7m", PIN, (shouldSignWithoutCIEPairing) ? PANForOneShotSigning : model.Pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted));
+                    Logger.Debug("Cades");
+                    ret = firmaConCIE(labelFileNamePathSigningOperation.Text, "p7m", PIN, (shouldSignWithoutCIEPairing) ? PANForOneShotSigning : model.Pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), tsaUrl);
                 }
 
                 this.Invoke((MethodInvoker)delegate

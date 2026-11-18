@@ -233,6 +233,7 @@ namespace CIEID
             this.txtPort = new System.Windows.Forms.TextBox();
             this.txtPassword = new System.Windows.Forms.TextBox();
             this.showPasswordCheckBox = new System.Windows.Forms.CheckBox();
+            this.enableTimestampCheckBox = new System.Windows.Forms.CheckBox();
             this.labelIPAddressProxyConfiguration = new System.Windows.Forms.Label();
             this.labelPasswordProxyConfiguration = new System.Windows.Forms.Label();
             this.txtUrl = new System.Windows.Forms.TextBox();
@@ -2331,6 +2332,7 @@ namespace CIEID
             // 
             // panelSigningBoxPINArea
             // 
+            this.panelSigningBoxPINArea.Controls.Add(this.enableTimestampCheckBox);
             this.panelSigningBoxPINArea.Controls.Add(this.pictureBox20);
             this.panelSigningBoxPINArea.Controls.Add(this.typePINLabel);
             this.panelSigningBoxPINArea.Controls.Add(this.documentSuccessfullySignedLabel);
@@ -2349,6 +2351,18 @@ namespace CIEID
             this.panelSigningBoxPINArea.Size = new System.Drawing.Size(495, 239);
             this.panelSigningBoxPINArea.TabIndex = 31;
             // 
+            // enableTimestampCheckBox
+            //
+            this.enableTimestampCheckBox.AutoSize = true;
+            this.enableTimestampCheckBox.Checked = true;
+            this.enableTimestampCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.enableTimestampCheckBox.Location = new System.Drawing.Point(202, 170);
+            this.enableTimestampCheckBox.Name = "enableTimestampCheckBox";
+            this.enableTimestampCheckBox.Size = new System.Drawing.Size(190, 17);
+            this.enableTimestampCheckBox.TabIndex = 32;
+            this.enableTimestampCheckBox.Text = "Aggiungi marca temporale";
+            this.enableTimestampCheckBox.UseVisualStyleBackColor = true;
+            //
             // pictureBox20
             // 
             this.pictureBox20.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox20.Image")));
@@ -3760,6 +3774,7 @@ namespace CIEID
         private Panel panelProxyConfig;
         private TextBox txtPassword;
         private CheckBox showPasswordCheckBox;
+        private CheckBox enableTimestampCheckBox;
         private Label labelIPAddressProxyConfiguration;
         private Label labelPasswordProxyConfiguration;
         private TextBox txtUrl;
