@@ -19,7 +19,7 @@ namespace CIEID
             Label label = new Label();
             label.Text = "AVVISO – VERSIONE NON UFFICIALE. Questo software è un derivato (fork) dell'applicazione originale, " +
                 "con modifiche alla sicurezza e alle funzionalità, realizzato a scopo didattico e di studio open source. " +
-                "Non è la versione ufficiale IPZS. L'utilizzo è a esclusivo rischio dell'utente; " +
+                "L'utilizzo è a esclusivo rischio dell'utente; " +
                 "lo sviluppatore declina ogni responsabilità.";
             label.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold);
             label.ForeColor = System.Drawing.Color.Red;

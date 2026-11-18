@@ -3187,7 +3187,7 @@ namespace CIEID
             this.unofficialDisclaimerLabel.Name = "unofficialDisclaimerLabel";
             this.unofficialDisclaimerLabel.Size = new System.Drawing.Size(631, 36);
             this.unofficialDisclaimerLabel.TabIndex = 20;
-            this.unofficialDisclaimerLabel.Text = "AVVISO – VERSIONE NON UFFICIALE. Questo software è un derivato (fork) dell\'applicazione originale, con modifiche alla sicurezza e alle funzionalità, realizzato a scopo didattico e di studio open source. Non è la versione ufficiale IPZS. L\'utilizzo è a esclusivo rischio dell\'utente; lo sviluppatore declina ogni responsabilità.";
+            this.unofficialDisclaimerLabel.Text = "AVVISO – VERSIONE NON UFFICIALE. Questo software è un derivato (fork) dell\'applicazione originale, con modifiche alla sicurezza e alle funzionalità, realizzato a scopo didattico e di studio open source. L\'utilizzo è a esclusivo rischio dell\'utente; lo sviluppatore declina ogni responsabilità.";
             this.unofficialDisclaimerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // tabConfigTimestamp
