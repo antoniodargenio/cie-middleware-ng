@@ -77,6 +77,40 @@ Export-CieSignedContent .tto.docx.p7m
 
 I PIN sono `SecureString` e, se omessi, vengono richiesti senza eco. Aiuto: `Get-Help Add-CieSignature -Full`.
 
+### Specifiche del modulo
+
+**Requisiti.** Windows a 64 bit, PowerShell 5.1 o 7 a 64 bit (il modulo lo verifica all'avvio di ogni comando), `CIEPKI-NG.dll` in `System32`. La verifica delle firme e l'estrazione dei .p7m non richiedono il lettore di smart card.
+
+**Architettura.** Script module (`.psm1` + manifest `.psd1`): le funzioni native di `CIEPKI-NG.dll` (`AbbinaCIE`, `ChangePIN`, `UnlockPIN`, `firmaConCIE`, `VerificaCIEAbilitata`, `DisabilitaCIE`, `estraiP7m`, `verificaConCIE`, `getVerifyInfo`) sono richiamate via P/Invoke con un tipo C# compilato al caricamento (`Add-Type`). Le operazioni lente (abbinamento, cambio PIN, sblocco, firma) girano su un thread dedicato: le callback di avanzamento della DLL non possono eseguire script, quindi PowerShell legge lo stato dal thread e lo mostra con `Write-Progress` (i messaggi dettagliati con `-Verbose`). La versione del manifest segue `version.txt` (propagata dall'hook `pre-commit`).
+
+**Elenco delle CIE.** La DLL non esporta una funzione per leggere il PAN della carta inserita, quindi il modulo tiene un proprio elenco in `%LOCALAPPDATA%\CIE-Middleware-NG\cie-powershell.json` (PAN, intestatario, seriale) e legge, in sola lettura, l'elenco dell'applicazione grafica dal suo `user.config`. `Get-Cie` unisce le due fonti e interroga la DLL per confermare che l'abbinamento sia attivo.
+
+| Comando | Parametri principali | Note |
+|---|---|---|
+| `Get-Cie` | `-Pan` | Restituisce `Pan`, `Owner`, `SerialNumber`, `Abbinata`. |
+| `Register-Cie` | `-Pin` | PIN di 8 cifre. Restituisce la CIE abbinata e la salva nell'elenco del modulo. |
+| `Unregister-Cie` | `-Pan` (anche da pipeline) | Conferma richiesta (`-Confirm`/`-WhatIf`). Non rimuove la CIE dall'elenco dell'applicazione. |
+| `Set-CiePin` | `-Pin`, `-NewPin` | Entrambi di 8 cifre; il nuovo PIN non può avere cifre uguali o consecutive (stesse regole dell'app). `-WhatIf` supportato. |
+| `Unlock-CiePin` | `-Puk`, `-NewPin` | PUK di 8 cifre; stesse regole sul nuovo PIN. |
+| `Add-CieSignature` | `-Path`, `-Pan`, `-Format Pades\|Cades`, `-OutFile`, `-Pin`, `-NoTimestamp`, `-TimestampUrl`, `-TimestampCredential`, `-SignatureImage`, `-Page`, `-X`, `-Y`, `-Width`, `-Height`, `-Force` | Vedi sotto. |
+| `Test-CieSignature` | `-Path`, `-ProxyUrl`, `-ProxyPort`, `-ProxyCredential` | Un oggetto per firmatario: `Nome`, `CodiceFiscale`, `DataFirma`, `FirmaValida`, `CertificatoOk`, `Revoca`, `EnteEmittente`. |
+| `Export-CieSignedContent` | `-Path`, `-OutFile`, `-Force` | Se manca `-OutFile` toglie `.p7m` e i marcatori `signed-`/`-signed`. |
+
+**Firma (`Add-CieSignature`).**
+- Formato: `Pades` per i `.pdf`, `Cades` per ogni altro file (si può forzare con `-Format`; PAdES su un non-PDF è un errore).
+- CIE: `-Pan`, oppure l'unica CIE abbinata; se ce n'è più di una `-Pan` è obbligatorio.
+- PIN: si possono indicare le sole ultime 4 cifre o il PIN intero (ne vengono usate le ultime 4).
+- Uscita predefinita: `<nome>-signed.pdf` per PAdES, `<file>.p7m` per CAdES; un file esistente non viene sovrascritto senza `-Force`.
+- Marca temporale: attiva di default (`http://timestamp.actalis.it`, come l'applicazione); `-NoTimestamp` la disattiva, `-TimestampUrl` indica un altro server, `-TimestampCredential` le credenziali.
+- Firma grafica (solo PAdES, con `-SignatureImage`): `-Page` parte da 1; `-X`, `-Y`, `-Width`, `-Height` sono frazioni della pagina (0-1) con origine in alto a sinistra; `-Y` è il bordo inferiore dell'immagine. Valori predefiniti: 0.55, 0.95, 0.40, 0.10.
+- Restituisce il `FileInfo` del file prodotto.
+
+**Sicurezza.** PIN e PUK sono `SecureString`, richiesti senza eco se omessi, convertiti in testo solo per la chiamata alla DLL e azzerati subito dopo. Le credenziali di marca temporale e proxy sono `PSCredential`. Il modulo non scrive PIN o credenziali su disco né nei log.
+
+**Errori.** Ogni errore è un `ErrorRecord` terminante con messaggio in italiano e `FullyQualifiedErrorId` `CIE_0x<codice>`, con il codice restituito dalla DLL (es. `0xA0` PIN errato con tentativi residui, `0xA4` carta bloccata, `0xE0` CIE assente, `0xF1` PAN diverso da quello indicato). I controlli sul formato dei PIN avvengono prima di toccare la carta, per non consumare tentativi.
+
+**Installazione e disinstallazione.** L'installer NSIS copia `.psd1` e `.psm1` in `Program Files\WindowsPowerShell\Modules\CIE-Middleware-NG` e li rimuove con la disinstallazione; l'elenco `cie-powershell.json` resta con i dati utente.
+
 ## Sviluppo
 
 ### Struttura della soluzione
