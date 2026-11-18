@@ -74,3 +74,5 @@ Setup/Debug/setup.vcxprojAssemblyReference.cache
 # Cartelle generate localmente
 CSP/CIEPKI/
 CacheLib/CacheLib/
+Setup/Debug/
+Setup/Redist/
