@@ -57,28 +57,28 @@ namespace CIEID
         delegate long CompletedCallback(string pan, string name, string ef_seriale);
         delegate long SignCompletedCallback(int retValue);
 
-        [DllImport("ciepki.dll")]
+        [DllImport("CIEPKI-NG.dll")]
         static extern int VerificaCIEAbilitata(string pan);
 
-        [DllImport("ciepki.dll")]
+        [DllImport("CIEPKI-NG.dll")]
         static extern int DisabilitaCIE(string pan);
 
-        [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern int isCIEEnrolled(StringBuilder pan);
 
-        [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern int AbbinaCIE(string szPAN, string szPIN, int[] attempts, ProgressCallback progressCallBack, CompletedCallback completedCallBack);
 
-        [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern int ChangePIN(string szPIN, string szNewPIN, int[] attempts, ProgressCallback progressCallBack);
 
-        [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern int UnlockPIN(string szPUK, string szNewPIN, int[] attempts, ProgressCallback progressCallBack);
 
-        [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern int firmaConCIE(string inFilePath, string type, string pin, string pan, int page, float x, float y, float w, float h, string imagePathFile, string outFilePath, ProgressCallback progressCallBack, SignCompletedCallback signCompletedCallBack, string tsaUrl, string tsaUsername, string tsaPassword);
 
-        [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern int estraiP7m(string inFilePath, string outFilePath);
 
         private bool shouldSignWithoutCIEPairing = false;

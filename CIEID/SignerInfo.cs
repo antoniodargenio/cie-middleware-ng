@@ -46,9 +46,9 @@ namespace CIEID
         };
 
 
-        [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern long verificaConCIE(string filePath, string proxyAddress, int proxyPort, string usrPass);
-        [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern long getVerifyInfo(int index, ref verifyInfo_t vInfo);
 
         public SignerInfo(string filePath, FlowLayoutPanel verifyPanel)
