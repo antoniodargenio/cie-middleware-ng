@@ -466,7 +466,8 @@ DWORD WINAPI CardGetProperty(
 	init_CSP_func
 
 	char szProperty[500];
-	wcstombs(szProperty, wszProperty, 500);
+	size_t nConv = 0;
+	wcstombs_s(&nConv, szProperty, sizeof(szProperty), wszProperty, _TRUNCATE);
 
 	LOG_DEBUG("[CSP] CardGetProperty - wszProperty: %s", szProperty);
 
