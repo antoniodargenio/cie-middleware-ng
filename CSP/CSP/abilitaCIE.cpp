@@ -171,6 +171,44 @@ extern "C" {
 			SecureWipeGuard(const SecureWipeGuard&) = delete;
 			SecureWipeGuard& operator=(const SecureWipeGuard&) = delete;
 		};
+
+		// Elenca i lettori PC/SC (multi-stringa in 'readers', terminata da doppio zero).
+		// Restituisce CKR_OK oppure CKR_TOKEN_NOT_PRESENT se non ci sono lettori.
+		static CK_RV ListaLettori(SCARDCONTEXT hSC, std::vector<char>& readers, DWORD& len, const char* ctx)
+		{
+			len = 0;
+			LONG res = SCardListReaders(hSC, nullptr, NULL, &len);
+			if (res != SCARD_S_SUCCESS) {
+				LOG_ERROR("%s - SCardListReaders error: %d", ctx, res);
+				return CKR_TOKEN_NOT_PRESENT;
+			}
+			if (len <= 1) {
+				LOG_ERROR("%s - nessun lettore disponibile (len: %d)", ctx, (int)len);
+				return CKR_TOKEN_NOT_PRESENT;
+			}
+			readers.assign(len + 1, 0);
+			res = SCardListReaders(hSC, nullptr, readers.data(), &len);
+			if (res != SCARD_S_SUCCESS) {
+				LOG_ERROR("%s - SCardListReaders error: %d", ctx, res);
+				return CKR_TOKEN_NOT_PRESENT;
+			}
+			return CKR_OK;
+		}
+
+		// Avvia la transazione sulla carta, con riconnessione e nuovi tentativi in caso di errore
+		static LONG IniziaTransazione(SCARDHANDLE hCard)
+		{
+			LONG res = SCardBeginTransaction(hCard);
+			for (int tentativi = 0; res != SCARD_S_SUCCESS && tentativi < 5; tentativi++)
+			{
+				DWORD protocol = 0;
+				SCardReconnect(hCard, SCARD_SHARE_SHARED, SCARD_PROTOCOL_Tx, SCARD_UNPOWER_CARD, &protocol);
+				res = SCardBeginTransaction(hCard);
+			}
+			if (res != SCARD_S_SUCCESS)
+				LOG_ERROR("Impossibile avviare la transazione con la carta: %lx", (unsigned long)res);
+			return res;
+		}
 	}
 
 	CK_RV CK_ENTRY __stdcall firmaConCIE(const char* inFilePath, const char* type, const char* pin, const char* pan, int page, float x, float y, float w, float h, const char* imagePathFile, const char* outFilePath, PROGRESS_CALLBACK progressCallBack, SIGN_COMPLETED_CALLBACK completedCallBack, const char* tsaUrl, const char* tsaUsername, const char* tsaPassword)
@@ -199,18 +237,10 @@ extern "C" {
 			LOG_DEBUG("firmaConCIE - Establish Context ok\n");
 
 			DWORD len = 0;
-			if (SCardListReaders(hSC, nullptr, NULL, &len) != SCARD_S_SUCCESS) {
-				LOG_ERROR("firmaConCIE - SCardListReaders list readers failed\n");
-				return CKR_TOKEN_NOT_PRESENT;
-			}
-
-			if (len <= 1)
-				return CKR_TOKEN_NOT_PRESENT;
-
-			std::vector<char> readers(len + 1, 0);
-
-			if (SCardListReaders(hSC, nullptr, readers.data(), &len) != SCARD_S_SUCCESS)
-				return CKR_TOKEN_NOT_PRESENT;
+			std::vector<char> readers;
+			CK_RV rvLettori = ListaLettori(hSC, readers, len, "firmaConCIE");
+			if (rvLettori != CKR_OK)
+				return rvLettori;
 
 			const char* curreader = readers.data();
 			bool foundCIE = false;
@@ -221,18 +251,9 @@ extern "C" {
 				if (!conn.hCard)
 					continue;
 
-				LONG res = SCardBeginTransaction(conn.hCard);
-				for (int tentativi = 0; res != SCARD_S_SUCCESS && tentativi < 5; tentativi++)
-				{
-					DWORD protocol = 0;
-					SCardReconnect(conn.hCard, SCARD_SHARE_SHARED, SCARD_PROTOCOL_Tx, SCARD_UNPOWER_CARD, &protocol);
-					res = SCardBeginTransaction(conn.hCard);
-				}
+				LONG res = IniziaTransazione(conn.hCard);
 				if (res != SCARD_S_SUCCESS)
-				{
-					LOG_ERROR("Impossibile avviare la transazione con la carta: %lx", (unsigned long)res);
 					continue;
-				}
 
 				BYTE atr[64] = { 0 };
 				DWORD atrLen = sizeof(atr);
@@ -367,24 +388,10 @@ extern "C" {
 
 			LOG_DEBUG("AbbinaCIE - Establish Context ok");
 
-			res = SCardListReaders(hSC, nullptr, NULL, &len);
-			if (res != SCARD_S_SUCCESS) {
-				LOG_ERROR("AbbinaCIE - SCardListReaders error: %d", res);
-				return CKR_TOKEN_NOT_PRESENT;
-			}
-
-			if (len <= 1) {
-				LOG_ERROR("AbbinaCIE - SCardListReaders error. Len: %d", len);
-				return CKR_TOKEN_NOT_PRESENT;
-			}
-
-			std::vector<char> readers(len + 1, 0);
-
-			res = SCardListReaders(hSC, nullptr, readers.data(), &len);
-			if (res != SCARD_S_SUCCESS) {
-				LOG_ERROR("AbbinaCIE - SCardListReaders error: %d", res);
-				return CKR_TOKEN_NOT_PRESENT;
-			}
+			std::vector<char> readers;
+			CK_RV rvLettori = ListaLettori(hSC, readers, len, "AbbinaCIE");
+			if (rvLettori != CKR_OK)
+				return rvLettori;
 			
 			const char *curreader = readers.data();
 			bool foundCIE = false;
@@ -395,18 +402,9 @@ extern "C" {
 				if (!conn.hCard)
 					continue;
 
-				res = SCardBeginTransaction(conn.hCard);
-				for (int tentativi = 0; res != SCARD_S_SUCCESS && tentativi < 5; tentativi++)
-				{
-					DWORD protocol = 0;
-					SCardReconnect(conn.hCard, SCARD_SHARE_SHARED, SCARD_PROTOCOL_Tx, SCARD_UNPOWER_CARD, &protocol);
-					res = SCardBeginTransaction(conn.hCard);
-				}
+				res = IniziaTransazione(conn.hCard);
 				if (res != SCARD_S_SUCCESS)
-				{
-					LOG_ERROR("Impossibile avviare la transazione con la carta: %lx", (unsigned long)res);
 					continue;
-				}
 
 				progressCallBack(5, "CIE Connessa");
 				LOG_INFO("AbbinaCIE - CIE Connected");
