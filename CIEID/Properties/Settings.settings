@@ -30,7 +30,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="timestampUrl" Type="System.String" Scope="User">
-      <Value Profile="(Default)">http://timestamp.digicert.com</Value>
+      <Value Profile="(Default)">http://timestamp.actalis.it</Value>
     </Setting>
   </Settings>
 </SettingsFile>

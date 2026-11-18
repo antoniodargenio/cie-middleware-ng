@@ -133,7 +133,7 @@ namespace CIEID.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://timestamp.digicert.com")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://timestamp.actalis.it")]
         public string timestampUrl {
             get {
                 return ((string)(this["timestampUrl"]));
