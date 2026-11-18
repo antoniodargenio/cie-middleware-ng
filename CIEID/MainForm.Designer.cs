@@ -425,7 +425,7 @@ namespace CIEID
             this.cancelButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.cancelButton.FlatAppearance.BorderSize = 0;
             this.cancelButton.ForeColor = System.Drawing.Color.White;
-            this.cancelButton.Location = new System.Drawing.Point(101, 484);
+            this.cancelButton.Location = new System.Drawing.Point(101, 440);
             this.cancelButton.Margin = new System.Windows.Forms.Padding(2);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(156, 30);
@@ -439,7 +439,7 @@ namespace CIEID
             this.pairButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.pairButton.FlatAppearance.BorderSize = 0;
             this.pairButton.ForeColor = System.Drawing.Color.White;
-            this.pairButton.Location = new System.Drawing.Point(392, 484);
+            this.pairButton.Location = new System.Drawing.Point(392, 440);
             this.pairButton.Margin = new System.Windows.Forms.Padding(2);
             this.pairButton.Name = "pairButton";
             this.pairButton.Size = new System.Drawing.Size(156, 30);

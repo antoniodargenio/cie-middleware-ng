@@ -100,7 +100,17 @@ namespace CIEID
 
             InitializeComponent();
             unofficialDisclaimerLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pairingDisclaimerLabel = new Label();
+            pairingDisclaimerLabel.Name = "pairingDisclaimerLabel";
+            pairingDisclaimerLabel.Text = unofficialDisclaimerLabel.Text;
+            pairingDisclaimerLabel.Font = unofficialDisclaimerLabel.Font;
+            pairingDisclaimerLabel.ForeColor = unofficialDisclaimerLabel.ForeColor;
+            pairingDisclaimerLabel.TextAlign = unofficialDisclaimerLabel.TextAlign;
+            pairingDisclaimerLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pairingDisclaimerLabel.SetBounds(unofficialDisclaimerLabel.Left, 490, unofficialDisclaimerLabel.Width, unofficialDisclaimerLabel.Height);
+            CIEPairingTabPage.Controls.Add(pairingDisclaimerLabel);
             CIEPickerTabPage.Resize += (s, e) => FitDisclaimerLabel();
+            CIEPairingTabPage.Resize += (s, e) => FitDisclaimerLabel();
             this.DpiChanged += (s, e) => FitDisclaimerLabel();
             this.Shown += (s, e) => FitDisclaimerLabel();
 
@@ -1788,18 +1798,26 @@ namespace CIEID
 
         // Avviso 'versione non ufficiale': altezza calcolata sul testo reale (DPI/font alti)
         // e label ancorata al bordo inferiore, cosi' il testo non viene mai tagliato.
+        private Label pairingDisclaimerLabel;
+
         private void FitDisclaimerLabel()
         {
-            if (unofficialDisclaimerLabel == null || unofficialDisclaimerLabel.Parent == null)
+            FitDisclaimerLabel(unofficialDisclaimerLabel);
+            FitDisclaimerLabel(pairingDisclaimerLabel);
+        }
+
+        private void FitDisclaimerLabel(Label label)
+        {
+            if (label == null || label.Parent == null)
                 return;
-            Control parent = unofficialDisclaimerLabel.Parent;
-            int width = parent.ClientSize.Width - unofficialDisclaimerLabel.Left * 2;
+            Control parent = label.Parent;
+            int width = parent.ClientSize.Width - label.Left * 2;
             if (width <= 0)
                 return;
-            Size measured = TextRenderer.MeasureText(unofficialDisclaimerLabel.Text, unofficialDisclaimerLabel.Font,
+            Size measured = TextRenderer.MeasureText(label.Text, label.Font,
                 new Size(width, 0), TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
             int height = measured.Height + 6;
-            unofficialDisclaimerLabel.SetBounds(unofficialDisclaimerLabel.Left, parent.ClientSize.Height - height - 2, width, height);
+            label.SetBounds(label.Left, parent.ClientSize.Height - height - 2, width, height);
         }
 
         private System.Windows.Forms.Timer placeCardBlinkTimer;
