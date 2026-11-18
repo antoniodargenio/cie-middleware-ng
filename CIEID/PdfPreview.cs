@@ -20,50 +20,52 @@ namespace CIEID
         private PictureBox pbPdfPreview;
         private MoveablePictureBox signPicture;
 
+        private const int MutoolTimeoutMs = 30000;
+
+        // Esegue mutool passando gli argomenti come lista (nessun problema di quoting/injection),
+        // con timeout, lettura asincrona dell'output e rilascio del processo.
+        private string runMutool(params string[] args)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = mutoolPath,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+            foreach (string a in args)
+                psi.ArgumentList.Add(a);
+
+            using (var proc = new Process { StartInfo = psi })
+            {
+                proc.Start();
+                var stdout = proc.StandardOutput.ReadToEndAsync();
+                var stderr = proc.StandardError.ReadToEndAsync();
+
+                if (!proc.WaitForExit(MutoolTimeoutMs))
+                {
+                    try { proc.Kill(true); } catch (Exception) { }
+                    throw new TimeoutException("mutool non ha risposto entro " + MutoolTimeoutMs + " ms");
+                }
+                proc.WaitForExit();
+                stderr.Wait();
+                return stdout.Result;
+            }
+        }
+
+        private static readonly Regex pagesRegex = new Regex(@"Pages: (\d+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         private int getPdfNumPages(string fileName)
         {
+            string output = runMutool("info", fileName);
+            Match m = pagesRegex.Match(output);
+            if (!m.Success)
+                return 0;
 
-            int pdf_page_number = 0;
-            var proc = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = mutoolPath,
-                    Arguments = string.Format("{0} \"{1}\"", "info", fileName),
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                }
-            };
-
-            proc.Start();
-
-            while (!proc.StandardOutput.EndOfStream)
-            {
-                string line = proc.StandardOutput.ReadLine();
-                //Console.WriteLine(line);
-
-                //Pattern espressione regolare
-                string pattern = "Pages: (\\d+)";
-
-                //Associo il pattern alla regex
-                Regex r = new Regex(pattern, RegexOptions.IgnoreCase);
-
-                //Trovo il matching
-                Match m = r.Match(line);
-                if (m.Success)
-                {
-                    //Ottengo il numero delle pagine dal primo gruppo
-                    pdf_page_number = int.Parse(m.Groups[1].Value);
-
-                    Console.WriteLine("------------> Numero di pagine del pdf: {0}", pdf_page_number);
-
-                    proc.Close();
-                    break;
-                }
-            }
+            int pdf_page_number = int.Parse(m.Groups[1].Value);
+            Program.Logger.Debug("Numero di pagine del pdf: " + pdf_page_number);
             return pdf_page_number;
-
         }
 
         public int getPdfPages()
@@ -94,16 +96,20 @@ namespace CIEID
                 System.IO.Directory.CreateDirectory(tmpFolderName);
             }
 
-            this.mutoolPath = Path.Combine(string.Format("{0}IPZS", Path.GetTempPath()), "mutool.exe");
-            Console.WriteLine("mutool path {0}", mutoolPath);
+            this.mutoolPath = Path.Combine(tmpFolderName, "mutool.exe");
 
-            if (!File.Exists(mutoolPath))
-                File.WriteAllBytes(mutoolPath, CIEID.Properties.Resources.mutool);
+            // Si riscrive l'eseguibile se manca o se differisce dalla risorsa incorporata
+            // (evita di eseguire un mutool.exe sostituito da terzi nella cartella temporanea).
+            byte[] mutoolBytes = CIEID.Properties.Resources.mutool;
+            if (!File.Exists(mutoolPath) || !File.ReadAllBytes(mutoolPath).AsSpan().SequenceEqual(mutoolBytes))
+                File.WriteAllBytes(mutoolPath, mutoolBytes);
 
             pdfNumPages = getPdfNumPages(filePath);
 
 
-            Bitmap signImage = new Bitmap(Image.FromFile(signImagePath), 90, 27);
+            Bitmap signImage;
+            using (Image original = loadImageNoLock(signImagePath))
+                signImage = new Bitmap(original, 90, 27);
             signImage.MakeTransparent();
 
             signPicture = new MoveablePictureBox();
@@ -175,62 +181,56 @@ namespace CIEID
 
         public void freeTempFolder()
         {
-            System.GC.Collect();
-            System.GC.WaitForPendingFinalizers();
-
-            string[] Files = Directory.GetFiles(tmpFolderName);
-
-            string prefix = ".png";
-
-            foreach (string file in Files)
+            foreach (string file in Directory.GetFiles(tmpFolderName, "*.png"))
             {
-                if (file.ToLower().Contains(prefix))
-                {
-                    File.Delete(file);
-                }
+                try { File.Delete(file); }
+                catch (IOException ex) { Program.Logger.Error("freeTempFolder - impossibile eliminare " + file + ": " + ex.Message); }
             }
+        }
+
+        // Carica un'immagine in memoria senza mantenere il file bloccato.
+        private static Image loadImageNoLock(string path)
+        {
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var tmp = Image.FromStream(fs))
+                return new Bitmap(tmp);
         }
 
         public void showPreview()
         {
-            var proc1 = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = mutoolPath,
-                    Arguments = string.Format("{0} \"{1}\" \"{2}\" {3}", "draw -o", tmpFolderName + "\\page%d.png", filePath, pageNumber),
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                }
-            };
-            
-            string img_file_name = string.Format("{0}\\page{1}.png", tmpFolderName, pageNumber);
+            string img_file_name = Path.Combine(tmpFolderName, string.Format("page{0}.png", pageNumber));
 
             if (!File.Exists(img_file_name))
             {
-                proc1.Start();
-                proc1.WaitForExit();
+                runMutool("draw", "-o", Path.Combine(tmpFolderName, "page%d.png"), filePath, pageNumber.ToString());
             }
 
-            Image img = Image.FromFile(img_file_name);
-            if(img.Width > img.Height)
+            bool landscape;
+            Bitmap croppedImage;
+            using (Image img = loadImageNoLock(img_file_name))
             {
-                pbPdfPreview.Width = pbPdfPreview.Parent.Width - 10;
-                pbPdfPreview.Height = pbPdfPreview.Parent.Height;
-                pbPdfPreview.Left = 5;
-                pbPdfPreview.Top = 0;
-            }
-            else
-            {
-                pbPdfPreview.Width = (pbPdfPreview.Parent.Width)/2;
-                pbPdfPreview.Height = pbPdfPreview.Parent.Height;
-                pbPdfPreview.Left = (pbPdfPreview.Parent.Width) / 4;
-                pbPdfPreview.Top = 0;
+                landscape = img.Width > img.Height;
+                if (landscape)
+                {
+                    pbPdfPreview.Width = pbPdfPreview.Parent.Width - 10;
+                    pbPdfPreview.Height = pbPdfPreview.Parent.Height;
+                    pbPdfPreview.Left = 5;
+                    pbPdfPreview.Top = 0;
+                }
+                else
+                {
+                    pbPdfPreview.Width = (pbPdfPreview.Parent.Width) / 2;
+                    pbPdfPreview.Height = pbPdfPreview.Parent.Height;
+                    pbPdfPreview.Left = (pbPdfPreview.Parent.Width) / 4;
+                    pbPdfPreview.Top = 0;
+                }
+
+                croppedImage = new Bitmap(img, pbPdfPreview.Width, pbPdfPreview.Height);
             }
 
-            Bitmap croppedImage = new Bitmap(img, pbPdfPreview.Width, pbPdfPreview.Height);
+            var old = pbPdfPreview.Image;
             pbPdfPreview.Image = croppedImage;
+            old?.Dispose();
             pbPdfPreview.SendToBack();
         }
 
