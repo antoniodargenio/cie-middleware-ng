@@ -2,7 +2,7 @@
 !include "x64.nsh"
 !include "Library.nsh"
 
-!define PRODUCT_VERSION "1.4.3.12"
+!define PRODUCT_VERSION "2.0.0.0"
 
 ;--------------------------------
 ;General
@@ -165,7 +165,7 @@ Section "Install"
   WriteRegDWORD ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "NoModify" "1"
   ;WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "VersionMajor" "0"
   ;WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "VersionMinor" "1"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "1.4.3.12"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   SetRegView lastused
 
   ExecWait 'schtasks.exe /create /xml "$INSTDIR\UpdateTask.xml" /tn "CIE Middleware Update" /f'
@@ -234,4 +234,4 @@ Section "Uninstall"
   MessageBox MB_YESNO "Per completare l'installazione e' necessario il riavvio del computer. Riavviare adesso?" IDNO noreboot2
   Reboot
   noreboot2:
-SectionEnd
+SectionEnd
