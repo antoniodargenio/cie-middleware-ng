@@ -396,7 +396,9 @@ namespace CIEID
                 int size_y = CIEPairingTabPage.Size.Height;
                 int remaining_space = (size_x - 2 * ((pairButton.Width))) / 3;
 
-                int height = size_y - pairButton.Height - 30;
+                FitDisclaimerLabel(pairingDisclaimerLabel);
+                int bottomLimit = pairingDisclaimerLabel != null ? pairingDisclaimerLabel.Top : size_y;
+                int height = bottomLimit - pairButton.Height - 10;
 
                 cancelButton.Location = new Point(remaining_space, height);
                 pairButton.Location = new Point(2 * remaining_space + cancelButton.Width, cancelButton.Location.Y);
@@ -407,7 +409,9 @@ namespace CIEID
                 int size_x = CIEPairingTabPage.Size.Width;
                 int size_y = CIEPairingTabPage.Size.Height;
                 int remaining_space = (size_x - ((pairButton.Width))) / 2;
-                int height = size_y - pairButton.Height - 30;
+                FitDisclaimerLabel(pairingDisclaimerLabel);
+                int bottomLimit = pairingDisclaimerLabel != null ? pairingDisclaimerLabel.Top : size_y;
+                int height = bottomLimit - pairButton.Height - 10;
 
                 pairButton.Location = new Point(remaining_space, height);
                 cancelButton.Visible = false;
