@@ -6,6 +6,10 @@ Questo repository è un **fork non ufficiale** del middleware CIE originale (pro
 
 **Questo software NON è la versione ufficiale distribuita dall'Istituto Poligrafico e Zecca dello Stato (IPZS)** e non è approvato, certificato, supportato né collegato in alcun modo all'IPZS, al Ministero dell'Interno o ad altre amministrazioni. Marchi e denominazioni appartengono ai rispettivi titolari.
 
+## Supporto
+
+Questa versione non è ufficialmente supportata dall'IPZS. Essendo un fork pubblico, riceve supporto dagli sviluppatori su GitHub (issue e pull request del repository del progetto).
+
 ## Esclusione di responsabilità
 
 Il software è fornito **"così com'è" (as is)**, senza garanzie di alcun tipo, esplicite o implicite, incluse a titolo esemplificativo garanzie di commerciabilità, idoneità a uno scopo particolare, sicurezza, assenza di errori e non violazione di diritti di terzi.

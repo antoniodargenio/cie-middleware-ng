@@ -115,6 +115,19 @@ namespace CIEID
             this.DpiChanged += (s, e) => FitDisclaimerLabel();
             this.Shown += (s, e) => FitDisclaimerLabel();
 
+            // Pagina Aiuto: precisa che il supporto non e' fornito dall'ente emittente ma dalla community.
+            Label helpSupportLabel = new Label();
+            helpSupportLabel.Name = "helpSupportLabel";
+            helpSupportLabel.Text = "Questa versione non è ufficialmente supportata dall'IPZS. " +
+                "Essendo un fork pubblico, riceve supporto dagli sviluppatori su GitHub. " +
+                "Le informazioni qui sotto si riferiscono al servizio CIE ufficiale.";
+            helpSupportLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Bold);
+            helpSupportLabel.ForeColor = Color.Red;
+            helpSupportLabel.TextAlign = ContentAlignment.MiddleCenter;
+            helpSupportLabel.SetBounds(9, 2, tabPageHelpWebBrowser.Width - 18, 40);
+            helpSupportLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            webBrowserHelp.SetBounds(0, 44, webBrowserHelp.Width, webBrowserHelp.Height - 44);
+            tabPageHelpWebBrowser.Controls.Add(helpSupportLabel);
             enableTimestampCheckBox.Checked = Properties.Settings.Default.timestampEnabled;
             enableTimestampCheckBox.CheckedChanged += (s, e) =>
             {
