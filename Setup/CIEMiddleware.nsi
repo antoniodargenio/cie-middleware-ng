@@ -88,7 +88,13 @@ Section "Install"
 
   SetOutPath $SYSDIR
        
-  ${If} ${RunningX64}	
+  ${If} ${RunningX64}
+    ; InstallLib sostituisce la DLL solo se la versione e' piu' recente: rimuovo prima quella
+    ; installata, cosi' una ricompilazione con la stessa versione viene comunque installata.
+    ${DisableX64FSRedirection}
+    ExecWait '"$SYSDIR\regsvr32.exe" /u /s "$SYSDIR\CIEPKI.dll"'
+    Delete /REBOOTOK "$SYSDIR\CIEPKI.dll"
+    ${EnableX64FSRedirection}
     !define LIBRARY_X64
 	!echo ${Config}
     !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "..\x64\${Config}\CIEPKI.dll" "$SYSDIR\CIEPKI.dll" $SYSDIR
@@ -197,6 +203,10 @@ Section "Uninstall"
   Delete "$INSTDIR\CIEID.runtimeconfig.json"
   Delete "$INSTDIR\Newtonsoft.Json.dll"
   Delete "$INSTDIR\System.Management.dll"
+  Delete "$INSTDIR\UpdateTask.xml"
+  ; file di versioni precedenti dell'installer
+  Delete "$INSTDIR\CIEID.exe.config"
+  Delete "$INSTDIR\Newtonsoft.Json.xml"
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
   
@@ -204,7 +214,7 @@ Section "Uninstall"
   ${If} ${RunningX64}	
 	SetRegView 64
   ${EndIf}
-  DeleteRegKey /ifempty HKLM "Software\CIEPKI"
+  DeleteRegKey HKLM "Software\CIEPKI"
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   SetRegView lastused
 
