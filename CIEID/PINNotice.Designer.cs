@@ -94,7 +94,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(376, 156);
             this.label2.TabIndex = 14;
-            this.label2.Text = "se utilizzi CIE ID anche su altre piattaforme (WIndows, Mac, Linux o altri dispos" +
+            this.label2.Text = "se utilizzi CIE ID anche su altre piattaforme (Windows, Mac, Linux o altri dispos" +
     "itivi Android), è necessario ripetere l\'abbinamento della CIE utilizzando il nuo" +
     "vo PIN su ogni piattaforma in uso.";
             this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
