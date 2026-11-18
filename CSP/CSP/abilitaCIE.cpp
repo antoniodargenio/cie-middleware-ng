@@ -82,6 +82,8 @@ extern "C" {
 
 	CK_RV CK_ENTRY __stdcall getNumberOfSign()
 	{
+		if (verifyResult.verifyInfo.pSignerInfos == nullptr)
+			return 0;
 		return (CK_RV)verifyResult.verifyInfo.pSignerInfos->nCount;
 	}
 
@@ -101,7 +103,7 @@ extern "C" {
 				// PAdES/detached: nessun attributo signingTime, si usa l'ora della marca temporale
 				// (GeneralizedTime YYYYMMDDHHMMSS[.f]Z -> formato atteso dall'interfaccia yyMMddHHmmssZ)
 				const char* ts = ((TS_INFO*)tmpSignerInfo.pTimeStamp)->szTimestamp;
-				if (strlen(ts) >= 14)
+				if (strlen(ts) >= 14 && strspn(ts, "0123456789") >= 14)
 				{
 					char conv[16];
 					memcpy(conv, ts + 2, 12);
@@ -110,7 +112,7 @@ extern "C" {
 					strcpy_s(vInfos->signingTime, 512, conv);
 				}
 			}
-			vInfos->CertRevocStatus = tmpSignerInfo.pRevocationInfo->nRevocationStatus;
+			vInfos->CertRevocStatus = tmpSignerInfo.pRevocationInfo != nullptr ? tmpSignerInfo.pRevocationInfo->nRevocationStatus : 0;
 			vInfos->isCertValid = (tmpSignerInfo.bitmask & VERIFIED_CERT_GOOD) == VERIFIED_CERT_GOOD;
 			vInfos->isSignValid = (tmpSignerInfo.bitmask & VERIFIED_SIGNATURE) == VERIFIED_SIGNATURE;
 		}
@@ -212,13 +214,16 @@ extern "C" {
 					continue;
 
 				LONG res = SCardBeginTransaction(conn.hCard);
-
-				while (res != SCARD_S_SUCCESS)
+				for (int tentativi = 0; res != SCARD_S_SUCCESS && tentativi < 5; tentativi++)
 				{
 					DWORD protocol = 0;
 					SCardReconnect(conn.hCard, SCARD_SHARE_SHARED, SCARD_PROTOCOL_Tx, SCARD_UNPOWER_CARD, &protocol);
-
 					res = SCardBeginTransaction(conn.hCard);
+				}
+				if (res != SCARD_S_SUCCESS)
+				{
+					LOG_ERROR("Impossibile avviare la transazione con la carta: %lx", (unsigned long)res);
+					continue;
 				}
 
 				BYTE atr[64] = { 0 };
@@ -382,12 +387,16 @@ extern "C" {
 					continue;
 
 				res = SCardBeginTransaction(conn.hCard);
-
-				while (res != SCARD_S_SUCCESS)
+				for (int tentativi = 0; res != SCARD_S_SUCCESS && tentativi < 5; tentativi++)
 				{
 					DWORD protocol = 0;
 					SCardReconnect(conn.hCard, SCARD_SHARE_SHARED, SCARD_PROTOCOL_Tx, SCARD_UNPOWER_CARD, &protocol);
 					res = SCardBeginTransaction(conn.hCard);
+				}
+				if (res != SCARD_S_SUCCESS)
+				{
+					LOG_ERROR("Impossibile avviare la transazione con la carta: %lx", (unsigned long)res);
+					continue;
 				}
 
 				progressCallBack(5, "CIE Connessa");

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "definitions.h"
 #include "pkcs11.h"
 
@@ -38,7 +39,7 @@ protected:
 	UUCByteArray	m_data;
 	int				m_nHashAlgo;
 	char			m_szAlias[MAX_PATH];
-	CTSAClient*		m_pTSAClient;
+	std::shared_ptr<CTSAClient>	m_pTSAClient;
 
 	
 };

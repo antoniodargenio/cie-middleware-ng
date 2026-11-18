@@ -183,6 +183,9 @@ uint16_t CIESign::sign(const char* inFilePath, const char* type, const char* pin
 	}
 	catch (...)
 	{
+		LOG_ERROR("CIESign::sign - eccezione non gestita");
+		if (ctx)
+			disigon_sign_cleanup(ctx);
 		return 1000;
 	}
 

@@ -1782,6 +1782,41 @@ namespace CIEID
             pdfPreview.pageDown();
         }
 
+        private System.Windows.Forms.Timer placeCardBlinkTimer;
+        private int placeCardBlinkTicks;
+
+        // Fa lampeggiare "Appoggia la carta sul lettore" per qualche secondo (carta non trovata durante la firma)
+        private void StartPlaceCardBlink()
+        {
+            StopPlaceCardBlink();
+            placeCardBlinkTicks = 0;
+            placeCIEOnReaderLabel.Show();
+            placeCardBlinkTimer = new System.Windows.Forms.Timer();
+            placeCardBlinkTimer.Interval = 400;
+            placeCardBlinkTimer.Tick += (s, e) =>
+            {
+                placeCardBlinkTicks++;
+                if (placeCardBlinkTicks >= 16)
+                {
+                    StopPlaceCardBlink();
+                    return;
+                }
+                placeCIEOnReaderLabel.Visible = !placeCIEOnReaderLabel.Visible;
+            };
+            placeCardBlinkTimer.Start();
+        }
+
+        private void StopPlaceCardBlink()
+        {
+            if (placeCardBlinkTimer != null)
+            {
+                placeCardBlinkTimer.Stop();
+                placeCardBlinkTimer.Dispose();
+                placeCardBlinkTimer = null;
+                placeCIEOnReaderLabel.Visible = true;
+            }
+        }
+
         private void ChangeSignPINObjects()
         {
             Logger.Info("ChangeSignPINObjects() - Inizia funzione");
@@ -1846,6 +1881,7 @@ namespace CIEID
         private void SignButton_Click(object sender, EventArgs e)
         {
             Logger.Info("SignButton_Click() - Inizia funzione");
+            StopPlaceCardBlink();
             string PIN = "";
             byte numDigitsPIN = (byte)((shouldSignWithoutCIEPairing) ? 8 : 4);
 
@@ -1868,12 +1904,12 @@ namespace CIEID
 
             if (signOp == OperationSelectedState.PADES_SIGNATURE)
             {
-                fileName = Path.GetFileNameWithoutExtension(labelFileNamePathSigningOperation.Text) + "-signed";
+                fileName = "signed-" + Path.GetFileNameWithoutExtension(labelFileNamePathSigningOperation.Text);
                 saveFileDialog1.Filter = "File (*.pdf) | *.pdf";
             }
             else
             {
-                fileName = Path.GetFileName(labelFileNamePathSigningOperation.Text) + "-signed";
+                fileName = "signed-" + Path.GetFileName(labelFileNamePathSigningOperation.Text);
                 fileName = fileName.Replace(".p7m", "");
                 saveFileDialog1.Filter = "File (*.p7m) | *.p7m";
             }
@@ -1986,6 +2022,7 @@ namespace CIEID
                 };
 
                 int ret = doSign(tsaUrl);
+                Logger.Info("Firma: firmaConCIE ha restituito 0x" + ret.ToString("X"));
 
                 // Marca temporale non ottenuta: si chiede all'utente come procedere (al massimo 3 tentativi)
                 for (int attempt = 0; ret == CARD_TSA_ERROR && attempt < 3; attempt++)
@@ -2020,13 +2057,15 @@ namespace CIEID
                     switch (ret)
                     {
                         case CKR_TOKEN_NOT_RECOGNIZED:
-                            MessageBox.Show("CIE non presente sul lettore", "Abilitazione CIE", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            Logger.Info("Firma: CIE non presente sul lettore");
                             ChangeSignPINObjects();
+                            StartPlaceCardBlink();
                             break;
 
                         case CKR_TOKEN_NOT_PRESENT:
-                            MessageBox.Show("CIE non presente sul lettore", "Abilitazione CIE", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            Logger.Info("Firma: CIE non presente sul lettore");
                             ChangeSignPINObjects();
+                            StartPlaceCardBlink();
                             break;
 
                         case CKR_PIN_INCORRECT:
@@ -2047,6 +2086,14 @@ namespace CIEID
                         case CARD_TSA_ERROR:
                             MessageBox.Show("La marca temporale non è stata ottenuta e il documento non è stato firmato.", "Marca temporale non disponibile", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             ChangeSignPINObjects();
+                            break;
+                        default:
+                            if (ret != 0)
+                            {
+                                Logger.Error("Firma: codice di ritorno non gestito 0x" + ret.ToString("X"));
+                                ChangeSignPINObjects();
+                                StartPlaceCardBlink();
+                            }
                             break;
                     }
 
@@ -2670,6 +2717,8 @@ namespace CIEID
             Logger.Info("ExtractP7MButton_Click() - Inizia funzione");
             string fileName = Path.GetFileNameWithoutExtension(fileNamePathVerifyLabel.Text);
 
+            if (fileName.StartsWith("signed-"))
+                fileName = fileName.Substring("signed-".Length);
             fileName = fileName.Replace("-signed", "");
 
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();

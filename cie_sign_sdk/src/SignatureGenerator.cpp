@@ -23,7 +23,7 @@ USE_LOG;
 using namespace std;
 
 CSignatureGeneratorBase::CSignatureGeneratorBase(CBaseSigner* pSigner)
-: m_pSigner(pSigner), m_pTSAClient(NULL), m_nHashAlgo(CKM_SHA1_RSA_PKCS)
+: m_pSigner(pSigner), m_nHashAlgo(CKM_SHA1_RSA_PKCS)
 {
 	m_szAlias[0] = 0;
 }
@@ -58,7 +58,7 @@ void CSignatureGeneratorBase::SetHashAlgo(int hashAlgo)
 
 void CSignatureGeneratorBase::SetTSA(char* szUrl, char* szUsername = NULL, char* szPassword = NULL)
 {
-	m_pTSAClient = new CTSAClient();
+	m_pTSAClient = std::make_shared<CTSAClient>();
 	m_pTSAClient->SetTSAUrl(szUrl);
 	if(szUsername)
 	{
@@ -68,11 +68,15 @@ void CSignatureGeneratorBase::SetTSA(char* szUrl, char* szUsername = NULL, char*
 
 void CSignatureGeneratorBase::SetTSAUsername(char* szUsername)
 {
+	if (!m_pTSAClient)
+		return;
 	m_pTSAClient->SetUsername(szUsername);
 }
 
 void CSignatureGeneratorBase::SetTSAPassword(char* szPassword)
 {
+	if (!m_pTSAClient)
+		return;
 	m_pTSAClient->SetPassword(szPassword);
 }
 
@@ -322,7 +326,7 @@ long CSignatureGenerator::Generate(UUCByteArray& pkcs7SignedData, BOOL bDetached
 	m_signerInfoGenerator.setSignature((BYTE*)signature.getContent(), signature.getLength());
 
 	// TSA
-	if (m_pTSAClient != NULL)
+	if (m_pTSAClient)
     {
 		CSignerInfo signerInfo = m_signerInfoGenerator.getSignerInfo();	
 	
