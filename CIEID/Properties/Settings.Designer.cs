@@ -142,5 +142,29 @@ namespace CIEID.Properties {
                 this["timestampUrl"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string timestampCustomUrl {
+            get {
+                return ((string)(this["timestampCustomUrl"]));
+            }
+            set {
+                this["timestampCustomUrl"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string timestampCredentials {
+            get {
+                return ((string)(this["timestampCredentials"]));
+            }
+            set {
+                this["timestampCredentials"] = value;
+            }
+        }
     }
 }

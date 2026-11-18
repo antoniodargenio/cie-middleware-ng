@@ -32,5 +32,11 @@
     <Setting Name="timestampUrl" Type="System.String" Scope="User">
       <Value Profile="(Default)">http://timestamp.actalis.it</Value>
     </Setting>
+    <Setting Name="timestampCustomUrl" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="timestampCredentials" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

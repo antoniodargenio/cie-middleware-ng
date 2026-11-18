@@ -7,7 +7,7 @@ CIESign::CIESign(IAS *ias){
 	this->ias = ias;
 }
 
-uint16_t CIESign::sign(const char* inFilePath, const char* type, const char* pin, int page, float x, float y, float w, float h, const char* imagePathFile,const char* outFilePath, const char* tsaUrl)
+uint16_t CIESign::sign(const char* inFilePath, const char* type, const char* pin, int page, float x, float y, float w, float h, const char* imagePathFile,const char* outFilePath, const char* tsaUrl, const char* tsaUsername, const char* tsaPassword)
 {
 	uint16_t response;
 
@@ -67,6 +67,28 @@ uint16_t CIESign::sign(const char* inFilePath, const char* type, const char* pin
 			if (ret != 0)
 			{
 				throw ret;
+			}
+
+			// Credenziali (Basic auth) opzionali per la TSA
+			if (tsaUsername != nullptr && tsaUsername[0] != 0)
+			{
+				if (strnlen(tsaUsername, 256) >= 256 || (tsaPassword != nullptr && strnlen(tsaPassword, 256) >= 256))
+				{
+					ret = DISIGON_ERROR_TSA;
+					throw ret;
+				}
+
+				ret = disigon_sign_set(ctx, DISIGON_OPT_TSA_USERNAME, (void*)tsaUsername);
+				if (ret != 0)
+				{
+					throw ret;
+				}
+
+				ret = disigon_sign_set(ctx, DISIGON_OPT_TSA_PASSWORD, (void*)(tsaPassword != nullptr ? tsaPassword : ""));
+				if (ret != 0)
+				{
+					throw ret;
+				}
 			}
 		}
 

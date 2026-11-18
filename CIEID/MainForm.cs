@@ -76,7 +76,7 @@ namespace CIEID
         static extern int UnlockPIN(string szPUK, string szNewPIN, int[] attempts, ProgressCallback progressCallBack);
 
         [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
-        static extern int firmaConCIE(string inFilePath, string type, string pin, string pan, int page, float x, float y, float w, float h, string imagePathFile, string outFilePath, ProgressCallback progressCallBack, SignCompletedCallback signCompletedCallBack, string tsaUrl);
+        static extern int firmaConCIE(string inFilePath, string type, string pin, string pan, int page, float x, float y, float w, float h, string imagePathFile, string outFilePath, ProgressCallback progressCallBack, SignCompletedCallback signCompletedCallBack, string tsaUrl, string tsaUsername, string tsaPassword);
 
         [DllImport("ciepki.dll", CallingConvention = CallingConvention.StdCall)]
         static extern int estraiP7m(string inFilePath, string outFilePath);
@@ -1936,13 +1936,32 @@ namespace CIEID
                     model = carouselControl.ActiveCieModel;
 
                 // Marca temporale: letta qui (thread UI) perche' la firma gira su un altro thread
-                string tsaUrl = enableTimestampCheckBox.Checked ? Properties.Settings.Default.timestampUrl : null;
+                string tsaUrl = null;
+                string savedTsaUser = null;
+                string savedTsaPass = null;
+                if (enableTimestampCheckBox.Checked)
+                {
+                    string customUrl = Properties.Settings.Default.timestampCustomUrl;
+                    if (!string.IsNullOrEmpty(customUrl))
+                    {
+                        tsaUrl = customUrl;
+                        TryGetSavedTsaCredentials(out savedTsaUser, out savedTsaPass);
+                    }
+                    else
+                    {
+                        tsaUrl = Properties.Settings.Default.timestampUrl;
+                    }
+                }
 
                 // Parametri letti una volta sola (thread UI) e riusati negli eventuali nuovi tentativi
                 string inputPath = labelFileNamePathSigningOperation.Text;
                 bool withGraphic = enableGraphicSignatureCheckBox.Checked && (signOp == OperationSelectedState.PADES_SIGNATURE);
                 Dictionary<string, float> graphicInfo = withGraphic ? pdfPreview.getSignImageInfos() : null;
                 string graphicImagePath = withGraphic ? pdfPreview.getSignImagePath() : null;
+
+                // Credenziali della TSA: solo se scelte nel dialogo di fallback (server personalizzato)
+                string tsaUser = savedTsaUser;
+                string tsaPass = savedTsaPass;
 
                 Func<string, int> doSign = delegate (string url)
                 {
@@ -1951,17 +1970,17 @@ namespace CIEID
                     {
                         Logger.Debug("Pades con grafica");
                         return firmaConCIE(inputPath, "pdf", PIN, pan, (int)graphicInfo["pageNumber"], graphicInfo["x"], graphicInfo["y"], graphicInfo["w"], graphicInfo["h"],
-                                          graphicImagePath, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url);
+                                          graphicImagePath, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url, tsaUser, tsaPass);
                     }
                     else if (signOp == OperationSelectedState.PADES_SIGNATURE)
                     {
                         Logger.Debug("Pades senza grafica");
-                        return firmaConCIE(inputPath, "pdf", PIN, pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url);
+                        return firmaConCIE(inputPath, "pdf", PIN, pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url, tsaUser, tsaPass);
                     }
                     else if (signOp == OperationSelectedState.CADES_SIGNATURE)
                     {
                         Logger.Debug("Cades");
-                        return firmaConCIE(inputPath, "p7m", PIN, pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url);
+                        return firmaConCIE(inputPath, "p7m", PIN, pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url, tsaUser, tsaPass);
                     }
                     return 0;
                 };
@@ -1974,18 +1993,26 @@ namespace CIEID
                     string failedUrl = tsaUrl;
                     bool proceed = false;
                     string chosen = null;
+                    string chosenUser = null;
+                    string chosenPass = null;
                     this.Invoke((MethodInvoker)delegate
                     {
-                        proceed = AskTimestampFallback(failedUrl, out chosen);
+                        proceed = AskTimestampFallback(failedUrl, out chosen, out chosenUser, out chosenPass);
                     });
 
                     if (!proceed)
                         break;
 
                     tsaUrl = chosen;
+                    tsaUser = chosenUser;
+                    tsaPass = chosenPass;
                     Logger.Info("Marca temporale non ottenuta, nuovo tentativo con: " + (tsaUrl ?? "(nessuna marca)"));
                     ret = doSign(tsaUrl);
                 }
+
+                // Le credenziali non servono piu': non restano in memoria piu del necessario
+                tsaUser = null;
+                tsaPass = null;
 
                 this.Invoke((MethodInvoker)delegate
                 {
@@ -2036,10 +2063,12 @@ namespace CIEID
 
         // Dialogo mostrato quando il server di marca temporale non risponde.
         // Restituisce false se l'utente annulla; chosenUrl = null significa firma senza marca (solo ora del PC).
-        private bool AskTimestampFallback(string failedUrl, out string chosenUrl)
+        private bool AskTimestampFallback(string failedUrl, out string chosenUrl, out string chosenUser, out string chosenPass)
         {
             const string digicertUrl = "http://timestamp.digicert.com";
             chosenUrl = null;
+            chosenUser = null;
+            chosenPass = null;
 
             using (Form dlg = new Form())
             {
@@ -2049,7 +2078,7 @@ namespace CIEID
                 dlg.MaximizeBox = false;
                 dlg.MinimizeBox = false;
                 dlg.ShowInTaskbar = false;
-                dlg.ClientSize = new Size(480, 270);
+                dlg.ClientSize = new Size(480, 340);
 
                 Label info = new Label();
                 info.AutoSize = false;
@@ -2084,23 +2113,53 @@ namespace CIEID
                 txtUrl.SetBounds(44, 184, 410, 24);
                 txtUrl.Enabled = false;
                 dlg.Controls.Add(txtUrl);
-                rbCustom.CheckedChanged += delegate { txtUrl.Enabled = rbCustom.Checked; if (rbCustom.Checked) txtUrl.Focus(); };
+
+                Label lblUser = new Label();
+                lblUser.Text = "Utente (facoltativo):";
+                lblUser.SetBounds(44, 216, 130, 20);
+                dlg.Controls.Add(lblUser);
+
+                TextBox txtTsaUser = new TextBox();
+                txtTsaUser.SetBounds(180, 213, 274, 24);
+                txtTsaUser.Enabled = false;
+                dlg.Controls.Add(txtTsaUser);
+
+                Label lblPass = new Label();
+                lblPass.Text = "Password:";
+                lblPass.SetBounds(44, 246, 130, 20);
+                dlg.Controls.Add(lblPass);
+
+                TextBox txtTsaPass = new TextBox();
+                txtTsaPass.SetBounds(180, 243, 274, 24);
+                txtTsaPass.UseSystemPasswordChar = true;
+                txtTsaPass.Enabled = false;
+                dlg.Controls.Add(txtTsaPass);
+
+                rbCustom.CheckedChanged += delegate
+                {
+                    txtUrl.Enabled = rbCustom.Checked;
+                    txtTsaUser.Enabled = rbCustom.Checked;
+                    txtTsaPass.Enabled = rbCustom.Checked;
+                    if (rbCustom.Checked) txtUrl.Focus();
+                };
 
                 Button ok = new Button();
                 ok.Text = "Procedi";
-                ok.SetBounds(298, 226, 80, 30);
+                ok.SetBounds(298, 290, 80, 30);
                 dlg.Controls.Add(ok);
 
                 Button cancel = new Button();
                 cancel.Text = "Annulla";
                 cancel.DialogResult = DialogResult.Cancel;
-                cancel.SetBounds(384, 226, 80, 30);
+                cancel.SetBounds(384, 290, 80, 30);
                 dlg.Controls.Add(cancel);
 
                 dlg.AcceptButton = ok;
                 dlg.CancelButton = cancel;
 
                 string result = null;
+                string resultUser = null;
+                string resultPass = null;
                 ok.Click += delegate
                 {
                     if (rbDigicert.Checked)
@@ -2118,7 +2177,17 @@ namespace CIEID
                             MessageBox.Show("Inserire un URL valido che inizi con http:// o https:// (massimo 255 caratteri).", "URL non valido", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             return;
                         }
+                        if (txtTsaUser.Text.Length >= 256 || txtTsaPass.Text.Length >= 256)
+                        {
+                            MessageBox.Show("Utente e password possono avere al massimo 255 caratteri.", "Credenziali non valide", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            return;
+                        }
                         result = u;
+                        if (txtTsaUser.Text.Length > 0)
+                        {
+                            resultUser = txtTsaUser.Text;
+                            resultPass = txtTsaPass.Text;
+                        }
                     }
                     else
                     {
@@ -2131,6 +2200,8 @@ namespace CIEID
                     return false;
 
                 chosenUrl = result;
+                chosenUser = resultUser;
+                chosenPass = resultPass;
                 return true;
             }
         }
@@ -2351,9 +2422,53 @@ namespace CIEID
                 rbLoggingLibDebug.Checked = (Program.LogLevelLib == LogLevel.DEBUG);
 
                 showIntroductionScreens.Checked = Properties.Settings.Default.firstTime;
+
+                LoadTsaSettings();
             }
 
             mainTabControl.SelectedIndex = 17;
+        }
+
+        private void LoadTsaSettings()
+        {
+            txtTsaUrl.Text = Properties.Settings.Default.timestampCustomUrl;
+            txtTsaUsername.Text = "";
+            txtTsaPassword.Text = "";
+            string tsaUser, tsaPass;
+            if (TryGetSavedTsaCredentials(out tsaUser, out tsaPass))
+            {
+                txtTsaUsername.Text = tsaUser;
+                txtTsaPassword.Text = tsaPass;
+            }
+        }
+
+        // Legge le credenziali TSA salvate (cifrate come quelle del proxy). Formato: cred=user:pass
+        private bool TryGetSavedTsaCredentials(out string user, out string pass)
+        {
+            user = null;
+            pass = null;
+            string enc = Properties.Settings.Default.timestampCredentials;
+            if (string.IsNullOrEmpty(enc))
+                return false;
+            try
+            {
+                string cred = new ProxyInfoManager().getDecryptedCredentials(enc);
+                if (cred != null && cred.StartsWith("cred="))
+                {
+                    string[] infos = cred.Substring(5).Split(new char[] { ':' }, 2);
+                    if (infos.Length == 2 && infos[0].Length > 0)
+                    {
+                        user = infos[0];
+                        pass = infos[1];
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Credenziali TSA salvate non leggibili: " + ex.Message);
+            }
+            return false;
         }
 
         private void ShowPasswordCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -2415,6 +2530,39 @@ namespace CIEID
                 Properties.Settings.Default.proxyPort = value;
             }
 
+            // Marca temporale personalizzata
+            string tsaCustomUrl = (txtTsaUrl.Text ?? "").Trim();
+            if (tsaCustomUrl.Length > 0)
+            {
+                Uri tsaUri;
+                if (tsaCustomUrl.Length > 255 || !Uri.TryCreate(tsaCustomUrl, UriKind.Absolute, out tsaUri)
+                    || (tsaUri.Scheme != Uri.UriSchemeHttp && tsaUri.Scheme != Uri.UriSchemeHttps))
+                {
+                    MessageBox.Show("L'indirizzo della TSA deve iniziare con http:// o https:// (max 255 caratteri)", "Indirizzo TSA non valido", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+            }
+            if (string.IsNullOrEmpty(txtTsaUsername.Text) != string.IsNullOrEmpty(txtTsaPassword.Text))
+            {
+                MessageBox.Show("Campo username o password della TSA mancante", "Credenziali TSA mancanti", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            if (txtTsaUsername.Text.Contains(":"))
+            {
+                MessageBox.Show("Lo username della TSA non può contenere il carattere ':'", "Credenziali TSA non valide", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            Properties.Settings.Default.timestampCustomUrl = tsaCustomUrl;
+            if (tsaCustomUrl.Length == 0 || string.IsNullOrEmpty(txtTsaUsername.Text))
+            {
+                Properties.Settings.Default.timestampCredentials = "";
+            }
+            else
+            {
+                Properties.Settings.Default.timestampCredentials = new ProxyInfoManager().getEncryptedCredentials(
+                    string.Format("cred={0}:{1}", txtTsaUsername.Text, txtTsaPassword.Text));
+            }
+
             Logger.Debug("SaveSettingsButton_Click() - Registra configurazione di log");
             LogLevel logLevelApp = Logger.DefaultLogLevel;
             LogLevel logLevelLib = Logger.DefaultLogLevel;
@@ -2463,6 +2611,12 @@ namespace CIEID
             showPasswordCheckBox.Enabled = false;
             showPasswordCheckBox.Checked = false;
 
+            txtTsaUrl.Enabled = false;
+            txtTsaUsername.Enabled = false;
+            txtTsaPassword.Enabled = false;
+            showTsaPasswordCheckBox.Enabled = false;
+            showTsaPasswordCheckBox.Checked = false;
+
             configLibraryLoggingGroupBox.Enabled = false;
             configApplicationLoggingGroupBox.Enabled = false;
 
@@ -2487,6 +2641,12 @@ namespace CIEID
             txtPort.Enabled = true;
             showPasswordCheckBox.Enabled = true;
             showPasswordCheckBox.Checked = false;
+
+            txtTsaUrl.Enabled = true;
+            txtTsaUsername.Enabled = true;
+            txtTsaPassword.Enabled = true;
+            showTsaPasswordCheckBox.Enabled = true;
+            showTsaPasswordCheckBox.Checked = false;
 
             configLibraryLoggingGroupBox.Enabled = true;
             configApplicationLoggingGroupBox.Enabled = true;

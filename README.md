@@ -31,7 +31,7 @@ Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware]
 - Rimossa la firma del codice dalla build (post-build di `CSP` e passi NSIS di `Setup`).
 
 ### Firma
-- **Marca temporale RFC 3161** opzionale su PAdES e CAdES. TSA predefinita: Actalis (`http://timestamp.actalis.it`), modificabile nelle impostazioni.
+- **Marca temporale RFC 3161** opzionale su PAdES e CAdES. TSA predefinita: Actalis (`http://timestamp.actalis.it`), sostituibile da Opzioni → "Marca temporale" con una TSA personalizzata ed eventuali credenziali (username/password, salvate cifrate) usate nella firma.
 - **Fallback se la TSA non risponde**: l'applicazione chiede se firmare senza marca, usare DigiCert, usare solo l'ora del PC oppure indicare un URL personalizzato. Il nuovo codice di ritorno `CARD_TSA_ERROR` (`0xF2`) segnala il fallimento della marca.
 - **Anteprima PDF** a schermo pieno durante la scelta della posizione della firma grafica, con nuova disposizione della schermata; al termine la finestra torna alle dimensioni normali.
 - **Firma grafica ridimensionabile** con una maniglia in basso a destra, proporzionale alla pagina.

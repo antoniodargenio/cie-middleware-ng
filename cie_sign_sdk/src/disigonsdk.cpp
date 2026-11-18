@@ -304,19 +304,22 @@ long disigon_sign_set(DISIGON_CTX ctx, int option, void* value)
 
     case DISIGON_OPT_TSA_URL:
         LOG_MSG((0, "disigon_sign_set", "Context: %p, Option: %s, Value: %s", ctx, "DISIGON_OPT_TSA_URL", (char*)value));
-        strcpy(pContext->szTSAUrl, (char*)value);
+        strncpy(pContext->szTSAUrl, (char*)value, sizeof(pContext->szTSAUrl) - 1);
+        pContext->szTSAUrl[sizeof(pContext->szTSAUrl) - 1] = 0;
         //pContext->pSignatureGenerator->SetTSA((char*)value, NULL, NULL);
         break;
 
     case DISIGON_OPT_TSA_USERNAME:
         LOG_MSG((0, "disigon_sign_set", "Context: %p, Option: %s, Value: %s", ctx, "DISIGON_OPT_TSA_USERNAME", (char*)value));
-        strcpy(pContext->szTSAUsername, (char*)value);
+        strncpy(pContext->szTSAUsername, (char*)value, sizeof(pContext->szTSAUsername) - 1);
+        pContext->szTSAUsername[sizeof(pContext->szTSAUsername) - 1] = 0;
         //pContext->pSignatureGenerator->SetTSAUsername((char*)value);
         break;
 
     case DISIGON_OPT_TSA_PASSWORD:
-        LOG_MSG((0, "disigon_sign_set", "Context: %p, Option: %s, Value: %s", ctx, "DISIGON_OPT_TSA_PASSWORD", (char*)value));
-        strcpy(pContext->szTSAPassword, (char*)value);
+        LOG_MSG((0, "disigon_sign_set", "Context: %p, Option: %s, Value: ***", ctx, "DISIGON_OPT_TSA_PASSWORD"));
+        strncpy(pContext->szTSAPassword, (char*)value, sizeof(pContext->szTSAPassword) - 1);
+        pContext->szTSAPassword[sizeof(pContext->szTSAPassword) - 1] = 0;
         //pContext->pSignatureGenerator->SetTSAPassword((char*)value);
         break;
 

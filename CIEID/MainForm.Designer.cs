@@ -258,6 +258,16 @@ namespace CIEID
             this.rbLoggingAppInfo = new System.Windows.Forms.RadioButton();
             this.rbLoggingAppNone = new System.Windows.Forms.RadioButton();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabConfigTimestamp = new System.Windows.Forms.TabPage();
+            this.labelTsaHeader = new System.Windows.Forms.Label();
+            this.labelTsaDescription = new System.Windows.Forms.Label();
+            this.labelTsaUrl = new System.Windows.Forms.Label();
+            this.txtTsaUrl = new System.Windows.Forms.TextBox();
+            this.labelTsaUser = new System.Windows.Forms.Label();
+            this.txtTsaUsername = new System.Windows.Forms.TextBox();
+            this.labelTsaPass = new System.Windows.Forms.Label();
+            this.txtTsaPassword = new System.Windows.Forms.TextBox();
+            this.showTsaPasswordCheckBox = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.showIntroductionScreens = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -345,6 +355,7 @@ namespace CIEID
             this.configLibraryLoggingGroupBox.SuspendLayout();
             this.configApplicationLoggingGroupBox.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.tabConfigTimestamp.SuspendLayout();
             this.panelSetButtonsInOptions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxLogo)).BeginInit();
             this.SuspendLayout();
@@ -2818,6 +2829,7 @@ namespace CIEID
             // tabControlPrefConfigurationOptions
             // 
             this.tabControlPrefConfigurationOptions.Controls.Add(this.tabConfigProxy);
+            this.tabControlPrefConfigurationOptions.Controls.Add(this.tabConfigTimestamp);
             this.tabControlPrefConfigurationOptions.Controls.Add(this.tabConfigLogging);
             this.tabControlPrefConfigurationOptions.Controls.Add(this.tabPage1);
             this.tabControlPrefConfigurationOptions.Location = new System.Drawing.Point(16, 8);
@@ -3165,6 +3177,115 @@ namespace CIEID
             this.rbLoggingAppNone.Text = "Nessuno";
             this.rbLoggingAppNone.UseVisualStyleBackColor = true;
             // 
+            // tabConfigTimestamp
+            //
+            this.tabConfigTimestamp.Controls.Add(this.labelTsaHeader);
+            this.tabConfigTimestamp.Controls.Add(this.labelTsaDescription);
+            this.tabConfigTimestamp.Controls.Add(this.labelTsaUrl);
+            this.tabConfigTimestamp.Controls.Add(this.txtTsaUrl);
+            this.tabConfigTimestamp.Controls.Add(this.labelTsaUser);
+            this.tabConfigTimestamp.Controls.Add(this.txtTsaUsername);
+            this.tabConfigTimestamp.Controls.Add(this.labelTsaPass);
+            this.tabConfigTimestamp.Controls.Add(this.txtTsaPassword);
+            this.tabConfigTimestamp.Controls.Add(this.showTsaPasswordCheckBox);
+            this.tabConfigTimestamp.Location = new System.Drawing.Point(4, 22);
+            this.tabConfigTimestamp.Name = "tabConfigTimestamp";
+            this.tabConfigTimestamp.Padding = new System.Windows.Forms.Padding(3);
+            this.tabConfigTimestamp.Size = new System.Drawing.Size(609, 451);
+            this.tabConfigTimestamp.TabIndex = 3;
+            this.tabConfigTimestamp.Text = "Marca temporale";
+            this.tabConfigTimestamp.UseVisualStyleBackColor = true;
+            //
+            // labelTsaHeader
+            //
+            this.labelTsaHeader.AutoSize = true;
+            this.labelTsaHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelTsaHeader.Location = new System.Drawing.Point(100, 14);
+            this.labelTsaHeader.Name = "labelTsaHeader";
+            this.labelTsaHeader.Size = new System.Drawing.Size(400, 36);
+            this.labelTsaHeader.TabIndex = 0;
+            this.labelTsaHeader.Text = "Server marca temporale";
+            //
+            // labelTsaDescription
+            //
+            this.labelTsaDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelTsaDescription.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.labelTsaDescription.Location = new System.Drawing.Point(56, 56);
+            this.labelTsaDescription.Name = "labelTsaDescription";
+            this.labelTsaDescription.Size = new System.Drawing.Size(500, 40);
+            this.labelTsaDescription.TabIndex = 1;
+            this.labelTsaDescription.Text = "Lascia vuoto l\'indirizzo per usare la TSA predefinita. Le credenziali sono facoltative.";
+            //
+            // labelTsaUrl
+            //
+            this.labelTsaUrl.AutoSize = true;
+            this.labelTsaUrl.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.labelTsaUrl.Location = new System.Drawing.Point(86, 110);
+            this.labelTsaUrl.Name = "labelTsaUrl";
+            this.labelTsaUrl.Size = new System.Drawing.Size(200, 20);
+            this.labelTsaUrl.TabIndex = 2;
+            this.labelTsaUrl.Text = "Indirizzo TSA personalizzata";
+            //
+            // txtTsaUrl
+            //
+            this.txtTsaUrl.Enabled = false;
+            this.txtTsaUrl.Location = new System.Drawing.Point(89, 136);
+            this.txtTsaUrl.MaxLength = 255;
+            this.txtTsaUrl.Name = "txtTsaUrl";
+            this.txtTsaUrl.Size = new System.Drawing.Size(400, 20);
+            this.txtTsaUrl.TabIndex = 3;
+            //
+            // labelTsaUser
+            //
+            this.labelTsaUser.AutoSize = true;
+            this.labelTsaUser.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.labelTsaUser.Location = new System.Drawing.Point(86, 180);
+            this.labelTsaUser.Name = "labelTsaUser";
+            this.labelTsaUser.Size = new System.Drawing.Size(83, 20);
+            this.labelTsaUser.TabIndex = 4;
+            this.labelTsaUser.Text = "Username";
+            //
+            // txtTsaUsername
+            //
+            this.txtTsaUsername.Enabled = false;
+            this.txtTsaUsername.Location = new System.Drawing.Point(89, 206);
+            this.txtTsaUsername.MaxLength = 255;
+            this.txtTsaUsername.Name = "txtTsaUsername";
+            this.txtTsaUsername.Size = new System.Drawing.Size(217, 20);
+            this.txtTsaUsername.TabIndex = 5;
+            //
+            // labelTsaPass
+            //
+            this.labelTsaPass.AutoSize = true;
+            this.labelTsaPass.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.labelTsaPass.Location = new System.Drawing.Point(86, 250);
+            this.labelTsaPass.Name = "labelTsaPass";
+            this.labelTsaPass.Size = new System.Drawing.Size(78, 20);
+            this.labelTsaPass.TabIndex = 6;
+            this.labelTsaPass.Text = "Password";
+            //
+            // txtTsaPassword
+            //
+            this.txtTsaPassword.Enabled = false;
+            this.txtTsaPassword.Location = new System.Drawing.Point(89, 276);
+            this.txtTsaPassword.MaxLength = 255;
+            this.txtTsaPassword.Name = "txtTsaPassword";
+            this.txtTsaPassword.Size = new System.Drawing.Size(217, 20);
+            this.txtTsaPassword.TabIndex = 7;
+            this.txtTsaPassword.UseSystemPasswordChar = true;
+            //
+            // showTsaPasswordCheckBox
+            //
+            this.showTsaPasswordCheckBox.AutoSize = true;
+            this.showTsaPasswordCheckBox.Enabled = false;
+            this.showTsaPasswordCheckBox.Location = new System.Drawing.Point(89, 304);
+            this.showTsaPasswordCheckBox.Name = "showTsaPasswordCheckBox";
+            this.showTsaPasswordCheckBox.Size = new System.Drawing.Size(120, 17);
+            this.showTsaPasswordCheckBox.TabIndex = 8;
+            this.showTsaPasswordCheckBox.Text = "Mostra password";
+            this.showTsaPasswordCheckBox.UseVisualStyleBackColor = true;
+            this.showTsaPasswordCheckBox.CheckedChanged += (s, e) => this.txtTsaPassword.UseSystemPasswordChar = !this.showTsaPasswordCheckBox.Checked;
+            //
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.label2);
@@ -3834,6 +3955,16 @@ namespace CIEID
         private Button collectLogBtn;
         private Button clearLogFolderBtn;
         private TabPage tabPage1;
+        private TabPage tabConfigTimestamp;
+        private Label labelTsaHeader;
+        private Label labelTsaDescription;
+        private Label labelTsaUrl;
+        private TextBox txtTsaUrl;
+        private Label labelTsaUser;
+        private TextBox txtTsaUsername;
+        private Label labelTsaPass;
+        private TextBox txtTsaPassword;
+        private CheckBox showTsaPasswordCheckBox;
         private Label label1;
         private Label label2;
         private CheckBox showIntroductionScreens;

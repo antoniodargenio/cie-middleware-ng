@@ -170,7 +170,7 @@ extern "C" {
 		};
 	}
 
-	CK_RV CK_ENTRY __stdcall firmaConCIE(const char* inFilePath, const char* type, const char* pin, const char* pan, int page, float x, float y, float w, float h, const char* imagePathFile, const char* outFilePath, PROGRESS_CALLBACK progressCallBack, SIGN_COMPLETED_CALLBACK completedCallBack, const char* tsaUrl)
+	CK_RV CK_ENTRY __stdcall firmaConCIE(const char* inFilePath, const char* type, const char* pin, const char* pan, int page, float x, float y, float w, float h, const char* imagePathFile, const char* outFilePath, PROGRESS_CALLBACK progressCallBack, SIGN_COMPLETED_CALLBACK completedCallBack, const char* tsaUrl, const char* tsaUsername, const char* tsaPassword)
 	{
 		if (!inFilePath || !type || !pin || !pan || !outFilePath || !progressCallBack || !completedCallBack)
 			return CKR_ARGUMENTS_BAD;
@@ -279,7 +279,7 @@ extern "C" {
 
 				std::unique_ptr<CIESign> cieSign(new CIESign(ias.get()));
 
-				uint16_t ret = cieSign->sign(inFilePath, type, fullPinCStr, page, x, y, w, h, imagePathFile, outFilePath, tsaUrl);
+				uint16_t ret = cieSign->sign(inFilePath, type, fullPinCStr, page, x, y, w, h, imagePathFile, outFilePath, tsaUrl, tsaUsername, tsaPassword);
 
 				if ((ret & (0x63C0)) == 0x63C0)
 				{
