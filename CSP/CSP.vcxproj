@@ -23,25 +23,25 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>CSP</RootNamespace>
     <ProjectName>CIEPKI</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
     <SpectreMitigation>false</SpectreMitigation>
@@ -52,7 +52,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>PGInstrument</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -117,7 +117,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CSP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)PKCS11</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)CSP\Sign;$(SolutionDir)CSP;$(SolutionDir)PKCS11</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
@@ -151,7 +151,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CSP_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)PKCS11</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)CSP\Sign;$(SolutionDir)CSP;$(SolutionDir)PKCS11</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
@@ -182,10 +182,10 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CSP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)PKCS11;F:\Projects\IPZS\cie-middleware\CSP\Sign</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)PKCS11;$(SolutionDir)CSP\Sign;$(SolutionDir)CSP</AdditionalIncludeDirectories>
       <OmitFramePointers />
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)PKCS11;F:\Projects\IPZS\cie-middleware\CSP\Sign</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)PKCS11;$(SolutionDir)CSP\Sign;$(SolutionDir)CSP</AdditionalIncludeDirectories>
       <OmitFramePointers />
     </ClCompile>
     <Link>
@@ -198,10 +198,6 @@
       <TargetMachine>MachineX86</TargetMachine>
       <ImageHasSafeExceptionHandlers />
     </Link>
-    <PostBuildEvent>
-      <Command>"$(SolutionDir)sign_sha256.bat" "$(TargetPath)"</Command>
-      <Command>"$(SolutionDir)sign_sha256.bat" "$(TargetPath)"</Command>
-    </PostBuildEvent>
     <Manifest>
       <AdditionalManifestFiles>custom.manifest</AdditionalManifestFiles>
     </Manifest>
@@ -242,10 +238,6 @@
     <Manifest>
       <AdditionalManifestFiles>custom.manifest</AdditionalManifestFiles>
     </Manifest>
-    <PostBuildEvent>
-      <Command>"$(SolutionDir)sign_sha256.bat" "$(TargetPath)"</Command>
-      <Command>"$(SolutionDir)sign_sha256.bat" "$(TargetPath)"</Command>
-    </PostBuildEvent>
     <PreBuildEvent>
       <Command>$(SolutionDir)cie_sign_sdk\build.bat</Command>
     </PreBuildEvent>
