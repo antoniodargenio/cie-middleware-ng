@@ -26,10 +26,12 @@
 
 using namespace CieIDLogger;
 
+// Codici di errore specifici dell'abbinamento/firma (oltre ai CKR_* di PKCS#11)
 #define CARD_ALREADY_ENABLED		0x000000F0;
 #define CARD_PAN_MISMATCH			(int)(0x000000F1)
 #define CARD_TSA_ERROR				(int)(0x000000F2)
 
+// Prototipo di AbbinaCIE, usato dal chiamante per caricarla dinamicamente
 typedef CK_RV(*AbilitaCIEfn)(const char*  szPAN,
 	const char*  szPIN,
 	int* attempts,
@@ -41,6 +43,7 @@ typedef CK_RV(*DisabilitaCIEfn)(const char*  szPAN);
 
 int TokenTransmitCallback(safeConnection *data, uint8_t *apdu, DWORD apduSize, uint8_t *resp, DWORD *respSize);
 
+// Dichiarazione: autenticazione sulla carta (PIN o PUK) con Extended Authentication; vedi la definizione piu' sotto
 DWORD CardAuthenticateEx(IAS*       ias,
 	DWORD       PinId,
 	DWORD       dwFlags,
@@ -54,6 +57,7 @@ DWORD CardAuthenticateEx(IAS*       ias,
 extern "C" {
 
 
+	// Esportata (usata da CIEID): restituisce 1 se la CIE con il PAN indicato risulta abbinata (cache presente), 0 altrimenti
 	CK_RV CK_ENTRY __stdcall VerificaCIEAbilitata(const char*  szPAN)
 	{
 
@@ -64,6 +68,7 @@ extern "C" {
 	}
 
 
+	// Esportata (usata da CIEID): elimina l'abbinamento (cache) della CIE con il PAN indicato
 	CK_RV CK_ENTRY __stdcall DisabilitaCIE(const char*  szPAN)
 	{
 
@@ -81,6 +86,8 @@ extern "C" {
 
 	VERIFY_RESULT verifyResult;
 
+	// Esportate (usate da CIEID per la verifica): numero di firme trovate nell'ultimo file verificato,
+	// informazioni su una firma (firmatario, esito, date) ed estrazione del documento da un file .p7m
 	CK_RV CK_ENTRY __stdcall getNumberOfSign()
 	{
 		if (verifyResult.verifyInfo.pSignerInfos == nullptr)
@@ -121,6 +128,7 @@ extern "C" {
 		return 0;
 	}
 
+	// Esportata: verifica le firme di un file (PAdES o CAdES), con eventuale proxy per scaricare le CRL
 	CK_RV CK_ENTRY __stdcall verificaConCIE(const char* inFilePath, const char* proxyAddress, int proxyPort, const char* usrPass)
 	{
 		CIEVerify verifier;
@@ -211,6 +219,9 @@ extern "C" {
 		}
 	}
 
+	// Esportata (usata da CIEID): firma un file con la CIE. Seleziona il lettore con la carta, verifica il PIN,
+	// calcola la firma PAdES (PDF, anche con firma grafica in pagina/posizione indicata) o CAdES (.p7m) e,
+	// se tsaUrl e' valorizzato, aggiunge la marca temporale RFC 3161. Riporta avanzamento ed esito tramite le callback.
 	CK_RV CK_ENTRY __stdcall firmaConCIE(const char* inFilePath, const char* type, const char* pin, const char* pan, int page, float x, float y, float w, float h, const char* imagePathFile, const char* outFilePath, PROGRESS_CALLBACK progressCallBack, SIGN_COMPLETED_CALLBACK completedCallBack, const char* tsaUrl, const char* tsaUsername, const char* tsaPassword)
 	{
 		if (!inFilePath || !type || !pin || !pan || !outFilePath || !progressCallBack || !completedCallBack)
@@ -359,6 +370,9 @@ extern "C" {
 		return SCARD_S_SUCCESS;
 	}
 
+	// Esportata (usata da CIEID): abbina la CIE. Cerca la carta nei lettori, verifica il PIN (restituisce i tentativi
+	// residui in 'attempts'), legge dalla carta il certificato di autenticazione e lo salva nella cache insieme alla
+	// prima parte del PIN. Si ferma al primo lettore con una CIE valida; riporta avanzamento ed esito con le callback.
 	CK_RV CK_ENTRY __stdcall AbbinaCIE(const char*  szPAN, const char*  szPIN, int* attempts, PROGRESS_CALLBACK progressCallBack, COMPLETED_CALLBACK completedCallBack)
 	{
 		LOG_INFO("***** Starting AbbinaCIE *****");
@@ -610,6 +624,8 @@ extern "C" {
 
 }
 
+// Autentica sulla carta il PIN (utente) o il PUK (sblocco) con scambio di chiavi Diffie-Hellman,
+// Extended Authentication (DAPP) e verifica del PIN; restituisce i tentativi residui in caso di PIN errato.
 DWORD CardAuthenticateEx(IAS*       ias,
 	DWORD       PinId,
 	DWORD       dwFlags,
@@ -692,6 +708,7 @@ DWORD CardAuthenticateEx(IAS*       ias,
 	return SCARD_S_SUCCESS;
 }
 
+// Callback che inoltra gli APDU alla carta tramite la connessione PC/SC; usata dalle librerie di firma
 int TokenTransmitCallback(safeConnection *conn, BYTE *apdu, DWORD apduSize, BYTE *resp, DWORD *respSize) {
 
 	LOG_DEBUG("TokenTransmitCallback - Apdu:");
@@ -777,11 +794,13 @@ extern "C" DWORD WINAPI CardAcquireContext(IN PCARD_DATA pCardData, __in DWORD d
 	#pragma comment(linker, "/export:AbilitaCIE=_AbilitaCIE@16")
 #endif
 
+// Parametri del thread dell'abbinamento (codice legacy dell'interfaccia nativa originale, non usato da CIEID)
 struct threadData {
 	HWND *progWin;
 	HDESK hDesk;
 };
 
+// Thread dell'abbinamento con interfaccia nativa (legacy: l'app CIEID usa AbbinaCIE)
 DWORD WINAPI _abilitaCIE(
 	LPVOID lpThreadParameter) {
 	init_CSP_func
@@ -1041,6 +1060,7 @@ int g_working = 0;
 #pragma comment(linker, "/section:Shared,RWS")
 
 
+// Click sull'icona nell'area di notifica: avvia l'applicazione CIEID per abbinare la CIE
 void TrayNotificationAbilitaCIE(CSystemTray* tray, WPARAM uID, LPARAM lEvent) 
 {
 	if (lEvent == WM_LBUTTONUP || lEvent == 0x405) {
@@ -1075,6 +1095,7 @@ void TrayNotificationAbilitaCIE(CSystemTray* tray, WPARAM uID, LPARAM lEvent)
 	}
 }
 
+// Punto d'ingresso rundll32 (legacy): mostra nell'area di notifica l'invito ad abilitare la CIE
 extern "C" int CALLBACK AbilitaCIE(
 	_In_ HINSTANCE hInstance,
 	_In_ HINSTANCE hPrevInstance,

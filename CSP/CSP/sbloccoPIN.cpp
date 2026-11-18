@@ -22,6 +22,7 @@ extern "C" DWORD WINAPI CardAcquireContext(IN PCARD_DATA pCardData, __in DWORD d
 #pragma comment(linker, "/export:SbloccoPIN=_SbloccoPIN@16")
 #endif
 
+// Thread dello sblocco PIN con interfaccia nativa (legacy: l'app CIEID usa UnlockPIN)
 DWORD WINAPI _sbloccoPIN(
 	DWORD threadId) {
 	init_func
@@ -173,6 +174,7 @@ DWORD WINAPI _sbloccoPIN(
 	return E_UNEXPECTED;
 }
 
+// Click sull'icona nell'area di notifica: avvia CIEID con il parametro 'unlock' per sbloccare il PIN
 void TrayNotification(CSystemTray* tray, WPARAM uID, LPARAM lEvent) {
 	if (lEvent == WM_LBUTTONUP || lEvent== 0x405) {
 
@@ -202,6 +204,7 @@ void TrayNotification(CSystemTray* tray, WPARAM uID, LPARAM lEvent) {
 	}
 }
 
+// Punto d'ingresso rundll32 (legacy): mostra nell'area di notifica l'invito a sbloccare la carta
 extern "C" int CALLBACK SbloccoPIN(
 	_In_ HINSTANCE hInstance,
 	_In_ HINSTANCE hPrevInstance,

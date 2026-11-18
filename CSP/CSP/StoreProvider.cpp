@@ -17,6 +17,8 @@
 #endif
 
 extern CModuleInfo moduleInfo;
+// Store provider dei certificati: espone nello store di sistema il certificato della CIE abbinata,
+// letto dalla cache, senza doverlo propagare esplicitamente
 extern "C" BOOL WINAPI CertDllOpenStoreProv(
 	_In_          LPCSTR                lpszStoreProvider,
 	_In_          DWORD                 dwEncodingType,
@@ -92,6 +94,7 @@ extern "C" BOOL WINAPI CertDllOpenStoreProv(
 	//return FALSE;
 }
 
+// Deregistrazione (disinstallazione): rimuove lo store provider e la registrazione della carta
 extern "C" HRESULT __stdcall DllUnregisterServer(void) {
 	//init_CSP_func
 	SCARDCONTEXT hSC;
@@ -120,6 +123,7 @@ extern "C" HRESULT __stdcall DllUnregisterServer(void) {
 	//return E_UNEXPECTED;
 }
 
+// Registra nel Windows Smart Card Database il nome della carta, l'ATR e la maschera, associandola al minidriver CIEPKI-NG
 LONG RegisterCard(SCARDCONTEXT hSC, const char *name, BYTE* ATR, int ATRLen, BYTE *Mask) {
 	//init_func
 	ByteDynArray ATRMask;
@@ -158,6 +162,7 @@ LONG RegisterCard(SCARDCONTEXT hSC, const char *name, BYTE* ATR, int ATRLen, BYT
 	//exit_func
 }
 
+// Registrazione (installazione): registra il minidriver della CIE e lo store provider dei certificati
 extern "C" HRESULT __stdcall DllRegisterServer(void) {
 	//init_CSP_func
 	SCARDCONTEXT hSC;

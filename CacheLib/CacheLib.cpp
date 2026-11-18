@@ -69,8 +69,10 @@ namespace {
 	}
 }
 
+// Cartella dei dati (cache) risolta una sola volta: %PROGRAMDATA%/CIEPKI-NG
 std::string commonData;
 
+// Restituisce la cartella della cache; e' separata da quella dell'installazione originale (coesistenza)
 std::string GetCardDir() {
 
 	if (commonData.empty()) {
@@ -101,6 +103,7 @@ bool GetCardPath(const char *PAN, char szPath[MAX_PATH]) {
 	return true;
 }
 
+// true se esiste il file di cache per il PAN indicato (cioe' la CIE e' stata abbinata)
 bool CacheExists(const char *PAN) {
 	char szPath[MAX_PATH];
 	if (!GetCardPath(PAN, szPath))
@@ -108,6 +111,7 @@ bool CacheExists(const char *PAN) {
 	return PathFileExists(szPath);
 }
 
+// Elimina il file di cache della CIE (disabilitazione); restituisce false se non esisteva
 bool CacheRemove(const char *PAN)
 {
 	char szPath[MAX_PATH];
@@ -122,6 +126,7 @@ bool CacheRemove(const char *PAN)
 }
 
 
+// Legge dalla cache il certificato di autenticazione (ancora cifrato); eccezione se la CIE non e' abilitata
 void CacheGetCertificate(const char *PAN, std::vector<uint8_t>&certificate)
 {
 	if (PAN == nullptr)
@@ -138,6 +143,7 @@ void CacheGetCertificate(const char *PAN, std::vector<uint8_t>&certificate)
 	certificate = std::move(cert);
 }
 
+// Legge dalla cache la prima parte del PIN (cifrata); eccezione se la CIE non e' abilitata
 void CacheGetPIN(const char *PAN, std::vector<uint8_t>&PIN) {
 	if (PAN == nullptr)
 		throw logged_error("Il PAN è necessario");
@@ -155,6 +161,9 @@ void CacheGetPIN(const char *PAN, std::vector<uint8_t>&PIN) {
 
 
 
+// Salva certificato e prima parte del PIN nel file di cache del PAN.
+// Alla prima scrittura crea la cartella e concede la lettura ai pacchetti dell'app (es. Edge, low integrity):
+// possono leggere il certificato ma non scrivere (abbinare).
 void CacheSetData(const char *PAN, uint8_t *certificate, int certificateSize, uint8_t *FirstPIN, int FirstPINSize) {
 	if (PAN == nullptr)
 		throw logged_error("Il PAN è necessario");

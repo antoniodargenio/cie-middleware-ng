@@ -3,10 +3,15 @@
 #include <string.h>
 
 
+// Firma di documenti con la CIE: costruttore, riceve l'oggetto IAS per la comunicazione con la carta
 CIESign::CIESign(IAS *ias){
 	this->ias = ias;
 }
 
+// Firma un file (type: PAdES per i PDF, CAdES per .p7m) con PIN, firma grafica opzionale (pagina, posizione e
+// dimensioni in coordinate relative alla pagina, immagine) e marca temporale opzionale (URL e credenziali TSA).
+// Usa le funzioni di firma dell'SDK (disigon_*). Restituisce 0 se riuscita, altrimenti un codice di errore DISIGON_*
+// (DISIGON_ERROR_TSA se la marca temporale non e' stata ottenuta; 1000 per eccezioni non gestite).
 uint32_t CIESign::sign(const char* inFilePath, const char* type, const char* pin, int page, float x, float y, float w, float h, const char* imagePathFile,const char* outFilePath, const char* tsaUrl, const char* tsaUsername, const char* tsaPassword)
 {
 	uint32_t response;
