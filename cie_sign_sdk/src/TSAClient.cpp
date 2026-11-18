@@ -19,9 +19,29 @@ long  GetTSAResponse(char* szTsaURL, char* szTsaUsername, char* szTsaPassword, U
 
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
 
+// Limiti di sicurezza per la richiesta alla TSA
+static const long TSA_CONNECT_TIMEOUT_SEC = 10;
+static const long TSA_TOTAL_TIMEOUT_SEC = 30;
+static const size_t TSA_MAX_RESPONSE_SIZE = 1024 * 1024; // 1 MB
+
+// Copia sicura in un buffer di dimensione fissa (tronca, termina sempre con 0)
+static void SafeCopy(char* dest, size_t destSize, const char* src)
+{
+	if (src == NULL)
+	{
+		dest[0] = 0;
+		return;
+	}
+
+	strncpy(dest, src, destSize - 1);
+	dest[destSize - 1] = 0;
+}
+
 CTSAClient::CTSAClient(void)
 {
-	m_szTSAUsername[0] = NULL;
+	m_szTSAUrl[0] = 0;
+	m_szTSAUsername[0] = 0;
+	m_szTSAPassword[0] = 0;
 }
 
 CTSAClient::~CTSAClient(void)
@@ -30,23 +50,23 @@ CTSAClient::~CTSAClient(void)
 
 void CTSAClient::SetTSAUrl(const char* szUrl)
 {
-	strcpy(m_szTSAUrl,szUrl);
+	SafeCopy(m_szTSAUrl, sizeof(m_szTSAUrl), szUrl);
 }
 
 void CTSAClient::SetCredential(const char* szUsername, const char* szPassword)
 {
-	strcpy(m_szTSAUsername, (char*)szUsername);
-	strcpy(m_szTSAPassword,(char*)szPassword);
+	SafeCopy(m_szTSAUsername, sizeof(m_szTSAUsername), szUsername);
+	SafeCopy(m_szTSAPassword, sizeof(m_szTSAPassword), szPassword);
 }
 
 void CTSAClient::SetUsername(const char* szUsername)
 {
-	strcpy(m_szTSAUsername, (char*)szUsername);
+	SafeCopy(m_szTSAUsername, sizeof(m_szTSAUsername), szUsername);
 }
 
 void CTSAClient::SetPassword(const char* szPassword)
 {
-	strcpy(m_szTSAPassword , (char*)szPassword);
+	SafeCopy(m_szTSAPassword, sizeof(m_szTSAPassword), szPassword);
 }
 
 long CTSAClient::GetTimeStampToken(UUCByteArray& digest, const char* szPolicyID, CTimeStampToken** ppTimeStampToken)
@@ -67,8 +87,13 @@ long CTSAClient::GetTimeStampToken(UUCByteArray& digest, const char* szPolicyID,
 		return nRet;
 #else
 
+	if(m_szTSAUrl[0] == 0)
+		return -1;
+
 	//general initilization
 	CURL* ctx = curl_easy_init();
+	if(ctx == NULL)
+		return -1;
 
 	//set URL
 	curl_easy_setopt(ctx, CURLOPT_URL, m_szTSAUrl);
@@ -93,8 +118,22 @@ long CTSAClient::GetTimeStampToken(UUCByteArray& digest, const char* szPolicyID,
 	// we pass our 'chunk' struct to the callback function
 	curl_easy_setopt(ctx, CURLOPT_WRITEDATA, (void *)&tsdata);
 
-	curl_easy_setopt(ctx, CURLOPT_SSL_VERIFYPEER, false);
-	curl_easy_setopt(ctx, CURLOPT_SSL_VERIFYHOST, false);
+	// Nota: la verifica del certificato TLS resta disattivata perche' la libcurl
+	// in uso (7.64.1) non include un bundle di CA. L'autenticita' della marca
+	// temporale non dipende dal trasporto: il token e' firmato dalla TSA.
+	curl_easy_setopt(ctx, CURLOPT_SSL_VERIFYPEER, 0L);
+	curl_easy_setopt(ctx, CURLOPT_SSL_VERIFYHOST, 0L);
+
+	// Solo HTTP/HTTPS, anche dopo eventuali redirect (niente file://, ftp:// ecc.)
+	curl_easy_setopt(ctx, CURLOPT_PROTOCOLS, (long)(CURLPROTO_HTTP | CURLPROTO_HTTPS));
+	curl_easy_setopt(ctx, CURLOPT_REDIR_PROTOCOLS, (long)(CURLPROTO_HTTP | CURLPROTO_HTTPS));
+	curl_easy_setopt(ctx, CURLOPT_FOLLOWLOCATION, 1L);
+	curl_easy_setopt(ctx, CURLOPT_MAXREDIRS, 3L);
+
+	// Timeout: una TSA che non risponde non deve bloccare la firma
+	curl_easy_setopt(ctx, CURLOPT_CONNECTTIMEOUT, TSA_CONNECT_TIMEOUT_SEC);
+	curl_easy_setopt(ctx, CURLOPT_TIMEOUT, TSA_TOTAL_TIMEOUT_SEC);
+	curl_easy_setopt(ctx, CURLOPT_NOSIGNAL, 1L);
 
 
 	struct curl_slist *headers = NULL;
@@ -115,21 +154,30 @@ long CTSAClient::GetTimeStampToken(UUCByteArray& digest, const char* szPolicyID,
 	//let's do it...
 	CURLcode ret = curl_easy_perform(ctx);
 
-	// Check for errors 
-    if(ret != CURLE_OK)
-	{
-		LOG_MSG((0, "HTTPRequest", "error: %x", ret));
+	long httpCode = 0;
+	if(ret == CURLE_OK)
+		curl_easy_getinfo(ctx, CURLINFO_RESPONSE_CODE, &httpCode);
 
-      fprintf(stderr, "curl_easy_perform() failed: %s\n",
-              curl_easy_strerror(ret));
-
-	  return ret;
-	}
-	
-	//clean up
+	//clean up (anche in caso di errore)
 	curl_slist_free_all(headers);
 	curl_easy_cleanup(ctx);
-	
+
+	// Check for errors
+	if(ret != CURLE_OK)
+	{
+		LOG_MSG((0, "HTTPRequest", "error: %x (%s)", ret, curl_easy_strerror(ret)));
+		return ret;
+	}
+
+	if(httpCode != 200)
+	{
+		LOG_ERR((0, "TSAClient", "HTTP status non valido: %ld", httpCode));
+		return -1;
+	}
+
+	if(tsdata.getLength() == 0)
+		return -1;
+
 #endif  // __ANDROID__
 
 	try
@@ -165,6 +213,11 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
 	UUCByteArray* pData = (UUCByteArray*)userp;
 
 	size_t realsize = size * nmemb;
+
+	// Risposta troppo grande: si interrompe il trasferimento
+	if(pData->getLength() + realsize > TSA_MAX_RESPONSE_SIZE)
+		return 0;
+
 	pData->append((BYTE*)contents, realsize);
 
 	/*

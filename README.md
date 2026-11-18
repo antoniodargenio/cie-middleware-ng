@@ -21,3 +21,33 @@ Allo stesso modo del CSP, anche il PKCS11 gestisce la carta in modalità **read-
 ## Setup
 Il modulo di installazione del Middleware si compila tramite il progetto **Setup**, che richiede l'installazione di [NSIS 3.02.1](https://sourceforge.net/projects/nsis/). Il setup installa sia la versione a 32 che a 64 bit, ed effettua la registrazione del CSP e dello Store provider. Il modulo PKCS11 non richiede registrazione, ma il nome del modulo (**CIEPKI.dll**) deve essere noto alle applicazioni che lo utilizzano.
 
+## Differenze rispetto alla versione originale
+
+Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware](https://github.com/italia/cie-middleware) (ultimo commit upstream di partenza: `8dd385e`). La finestra riporta il titolo "CIE ID [build non ufficiale]" e usa una palette verde per distinguerla dall'originale. Il formato della cache delle CIE abbinate è invariato, quindi le CIE già registrate da altre versioni restano utilizzabili.
+
+### Build e piattaforma
+- Toolset C++ v145 e Windows SDK 10.0.26100.0.
+- `CIEID` ed `EsempioCSP` migrati a progetti SDK-style per **.NET 10** (`net10.0-windows`); Newtonsoft.Json tramite `PackageReference`, `packages.config` rimosso.
+- Rimossa la firma del codice dalla build (post-build di `CSP` e passi NSIS di `Setup`).
+
+### Firma
+- **Marca temporale RFC 3161** opzionale su PAdES e CAdES. TSA predefinita: Actalis (`http://timestamp.actalis.it`), modificabile nelle impostazioni.
+- **Fallback se la TSA non risponde**: l'applicazione chiede se firmare senza marca, usare DigiCert, usare solo l'ora del PC oppure indicare un URL personalizzato. Il nuovo codice di ritorno `CARD_TSA_ERROR` (`0xF2`) segnala il fallimento della marca.
+- **Anteprima PDF** a schermo pieno durante la scelta della posizione della firma grafica, con nuova disposizione della schermata; al termine la finestra torna alle dimensioni normali.
+- **Firma grafica ridimensionabile** con una maniglia in basso a destra, proporzionale alla pagina.
+- Focus automatico sulla prima casella del PIN (firma e abbinamento).
+
+### Verifica
+- Nelle firme PAdES, che non hanno l'attributo *signing time*, l'ora di firma è quella della marca temporale. Senza marca viene mostrato "Firma senza marca temporale".
+
+### Abbinamento CIE
+- Una CIE già presente in cache non viene più rifiutata (`CARD_ALREADY_ENABLED`): PIN e certificato vengono riletti e la cache riscritta.
+- L'abbinamento si ferma al primo lettore riuscito, evitando `CKR_GENERAL_ERROR` con altri lettori (ad esempio YubiKey).
+- Supporto a CIE già registrate da altre versioni.
+
+### Sicurezza e robustezza
+- `firmaConCIE` e `AbbinaCIE`: validazione degli input, PIN azzerato in memoria (`SecureZeroMemory`), RAII (`unique_ptr`, `vector`) al posto di `malloc/free`, nessun leak sui ritorni anticipati, rilascio del contesto PC/SC e del certificato.
+- `CacheLib`: controllo di dimensioni e lunghezze in lettura, PAN validato (niente *path traversal*), scrittura atomica tramite file temporaneo e `MoveFileEx`.
+- `PdfPreview`: `mutool` eseguito con `ArgumentList` e timeout, risorse rilasciate, nessun blocco dei file immagine.
+- `TSAClient`: copie di stringhe con limiti, timeout (10 s connessione, 30 s totali), solo HTTP/HTTPS anche nei redirect, limite di 1 MB alla risposta, controllo dello stato HTTP e rilascio dell'handle curl anche in caso di errore. La verifica del certificato TLS resta disattivata (libcurl 7.64.1 senza bundle di CA); la marca temporale è comunque firmata dalla TSA.
+- `CIEID`: log strutturato (`Logger`) al posto di `Console.WriteLine` e dei `catch` vuoti.
