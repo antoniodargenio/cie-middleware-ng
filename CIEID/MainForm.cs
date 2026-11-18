@@ -128,6 +128,23 @@ namespace CIEID
             helpSupportLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             webBrowserHelp.SetBounds(0, 44, webBrowserHelp.Width, webBrowserHelp.Height - 44);
             tabPageHelpWebBrowser.Controls.Add(helpSupportLabel);
+            // Scheda Informazioni: via i loghi istituzionali, avviso sul trattamento dei dati del fork.
+            tabPageInformationWebBrowser.Controls.Remove(pictureBox8);
+            tabPageInformationWebBrowser.Controls.Remove(pictureBox9);
+            tabPageInformationWebBrowser.Controls.Remove(pictureBox10);
+            Label infoPrivacyLabel = new Label();
+            infoPrivacyLabel.Name = "infoPrivacyLabel";
+            infoPrivacyLabel.Text = "Questo fork effettua lo stesso trattamento dei dati del software originale, " +
+                "ma l'IPZS non è più il responsabile del trattamento dei dati. " +
+                "Per le informazioni sul trattamento dei dati personali vale quanto indicato di seguito per il software originale.";
+            infoPrivacyLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.5F, System.Drawing.FontStyle.Bold);
+            infoPrivacyLabel.ForeColor = Color.Red;
+            infoPrivacyLabel.TextAlign = ContentAlignment.MiddleCenter;
+            infoPrivacyLabel.SetBounds(9, 2, tabPageInformationWebBrowser.Width - 18, 52);
+            infoPrivacyLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            webBrowserInfo.SetBounds(0, 56, webBrowserInfo.Width, tabPageInformationWebBrowser.Height - 56);
+            webBrowserInfo.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tabPageInformationWebBrowser.Controls.Add(infoPrivacyLabel);
             enableTimestampCheckBox.Checked = Properties.Settings.Default.timestampEnabled;
             enableTimestampCheckBox.CheckedChanged += (s, e) =>
             {
