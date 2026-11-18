@@ -78,9 +78,6 @@ Il file `C:\ProgramData\CIEPKI-NG\config` accetta `LIB_LOG_LEVEL=n` (libreria) e
 ### Versionamento
 SemVer `MAJOR.MINOR.PATCH.BUILD`, sorgente unica `version.txt`. L'hook `.githooks/pre-commit` (attivare con `git config core.hooksPath .githooks`) incrementa BUILD a ogni commit senza mai azzerarlo e propaga la versione in `AssemblyInfo.cs`, nel file `.rc` e nello script NSIS; `./bump-version.sh major|minor|patch` modifica le prime tre cifre.
 
-### Repository
-Remoti: `github` (principale), `deb1` (mirror interno), `origin` (upstream italia/cie-middleware, sola lettura).
-
 ## Disclaimer
 
 Questa è una versione **non ufficiale**, a scopo didattico e di studio open source, utilizzata a rischio dell'utente. Vedere [DISCLAIMER.md](DISCLAIMER.md).
