@@ -46,7 +46,7 @@ Logger::Logger()
 
 	GetLocalTime(&stTime);
 	_dupenv_s(&buf, &sz, "PROGRAMDATA");
-	sprintf_s(pbLog, sizeof(pbLog), "%s/CIEPKI/CIEPKI_%04d-%02d-%02d.log", buf ? buf : ".", stTime.wYear, stTime.wMonth, stTime.wDay);
+	sprintf_s(pbLog, sizeof(pbLog), "%s/CIEPKI-NG/CIEPKI-NG_%04d-%02d-%02d.log", buf ? buf : ".", stTime.wYear, stTime.wMonth, stTime.wDay);
 	free(buf);
 	buf = nullptr;
 
@@ -161,7 +161,7 @@ int Logger::getLogConfig() {
 	
 	_dupenv_s(&buf, &sz, "PROGRAMDATA");
 
-	sprintf_s(pbPathConfig, sizeof(pbPathConfig), "%s/CIEPKI", buf ? buf : ".");
+	sprintf_s(pbPathConfig, sizeof(pbPathConfig), "%s/CIEPKI-NG", buf ? buf : ".");
 	free(buf);
 	buf = nullptr;
 	sprintf_s(pbConfig, sizeof(pbConfig), "%s/config", pbPathConfig);

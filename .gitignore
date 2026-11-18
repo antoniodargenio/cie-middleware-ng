@@ -32,7 +32,7 @@ x64/Release/
 /UpgradeLog.htm
 /.vs
 /Setup/x64/Release
-/Setup/CIE-Middleware.exe
+/Setup/CIE-Middleware-NG.exe
 /CSP/CSP/StoreProvider.cpp.bak
 /CSP/res/CIEPKI.APS
 /CSP/RCb02144
@@ -40,10 +40,10 @@ x64/Release/
 /CSP/Cryptopp/Win32
 /CacheLib_NoKeys
 /CacheLib_Keys
-/Setup/CIEMiddleware.nsi.bak
+/Setup/CIE-Middleware-NG.nsi.bak
 /Setup/setup.vcxproj.user
 /Setup/Debug/setup.log
-/Setup/Debug/CIE-Middleware.exe
+/Setup/Debug/CIE-Middleware-NG.exe
 /Setup/Release
 /Release
 /TestCIE/x64/Release/TestCIE.tlog

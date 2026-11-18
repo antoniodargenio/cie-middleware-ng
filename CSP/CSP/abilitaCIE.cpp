@@ -1057,7 +1057,7 @@ void TrayNotificationAbilitaCIE(CSystemTray* tray, WPARAM uID, LPARAM lEvent)
 
 		LOG_INFO("TrayNotificationAbilitaCIE - szProgramFilesDir %s", szProgramFilesDir);
 
-		if (!CreateProcess(NULL, (char*)std::string(szProgramFilesDir).append("\\CIEPKI\\CIEID").c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+		if (!CreateProcess(NULL, (char*)std::string(szProgramFilesDir).append("\\CIEPKI-NG\\CIEID").c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
 		{
 			DWORD dwerr = GetLastError();
 			LOG_ERROR("TrayNotificationAbilitaCIE - error run CIEID %x", dwerr);

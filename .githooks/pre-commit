@@ -1,7 +1,7 @@
 #!/bin/sh
 # Versione MAJOR.MINOR.PATCH.BUILD: qui sale solo BUILD (mai azzerato); major/minor/patch con ./bump-version.sh
 # Incrementa automaticamente l'ultima cifra della versione (version.txt) a ogni commit
-# e la propaga in CIEID/Properties/AssemblyInfo.cs e Setup/CIEMiddleware.nsi.
+# e la propaga in CIEID/Properties/AssemblyInfo.cs e Setup/CIE-Middleware-NG.nsi.
 cd "$(git rev-parse --show-toplevel)" || exit 1
 cur=$(tr -d '\r\n ' < version.txt)
 base=${cur%.*}
@@ -9,7 +9,7 @@ rev=${cur##*.}
 new="$base.$((rev + 1))"
 printf '%s\n' "$new" > version.txt
 sed -b -i "s/\(Assembly\(File\)\?Version(\"\)[0-9.]*\(\")\)/\1$new\3/" CIEID/Properties/AssemblyInfo.cs
-sed -b -i "s/\(PRODUCT_VERSION \"\)[0-9.]*\(\"\)/\1$new\2/" Setup/CIEMiddleware.nsi
+sed -b -i "s/\(PRODUCT_VERSION \"\)[0-9.]*\(\"\)/\1$new\2/" Setup/CIE-Middleware-NG.nsi
 python .githooks/set-rc-version.py "$new" || python3 .githooks/set-rc-version.py "$new"
-git add CSP/res/CIEPKI.rc version.txt CIEID/Properties/AssemblyInfo.cs Setup/CIEMiddleware.nsi
+git add CSP/res/CIEPKI.rc version.txt CIEID/Properties/AssemblyInfo.cs Setup/CIE-Middleware-NG.nsi
 echo "Versione: $cur -> $new"

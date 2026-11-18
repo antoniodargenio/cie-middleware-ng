@@ -58,7 +58,7 @@ namespace CIEID
             string programDataDir = System.Environment.GetEnvironmentVariable("PROGRAMDATA");
             string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            string logFilePath = $"{programDataDir}\\CIEPKI\\CIEID_{currentDate}.log";
+            string logFilePath = $"{programDataDir}\\CIEPKI-NG\\CIEID_{currentDate}.log";
             try
             {
                 StreamWriter streamWriter = new StreamWriter(logFilePath, append: true);

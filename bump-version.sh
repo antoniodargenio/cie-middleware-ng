@@ -16,6 +16,6 @@ esac
 new="$ma.$mi.$pa.$bu"
 printf '%s\n' "$new" > version.txt
 sed -b -i "s/\(Assembly\(File\)\?Version(\"\)[0-9.]*\(\")\)/\1$new\3/" CIEID/Properties/AssemblyInfo.cs
-sed -b -i "s/\(PRODUCT_VERSION \"\)[0-9.]*\(\"\)/\1$new\2/" Setup/CIEMiddleware.nsi
+sed -b -i "s/\(PRODUCT_VERSION \"\)[0-9.]*\(\"\)/\1$new\2/" Setup/CIE-Middleware-NG.nsi
 python .githooks/set-rc-version.py "$new" || python3 .githooks/set-rc-version.py "$new"
 echo "Versione: $new (il build, $bu, sale al prossimo commit)"

@@ -18,7 +18,7 @@
 void _tmain(int argc, _TCHAR* argv[])
 {
 	// carica la libreria del middleware
-	HMODULE mod = LoadLibrary("CIEPKI.dll");
+	HMODULE mod = LoadLibrary("CIEPKI-NG.dll");
 
 	// ottiene il puntatore alla funzione C_GetFunctionList, da cui si ottengono tutte le altre funzioni del PKCS11
 	CK_C_GetFunctionList GetFunctionList = (CK_C_GetFunctionList)GetProcAddress(mod, "C_GetFunctionList");

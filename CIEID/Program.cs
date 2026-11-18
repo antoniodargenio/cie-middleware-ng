@@ -21,7 +21,7 @@ namespace CIEID
 
         // Settings.Upgrade() ritrova solo le impostazioni della stessa cartella (stesso percorso dell'exe).
         // Se l'elenco delle CIE abbinate è vuoto, lo recupera dall'installazione precedente più recente
-        // (altro percorso, es. Program Files (x86)) cercando i user.config in %LOCALAPPDATA%\IPZS.
+        // (altro percorso, es. Program Files (x86)) cercando i user.config in %LOCALAPPDATA%\IPZS-NG.
         private static void MigraElencoCie()
         {
             try
@@ -29,7 +29,7 @@ namespace CIEID
                 if (!string.IsNullOrEmpty(Properties.Settings.Default.cieList) && Properties.Settings.Default.cieList != "0")
                     return;
 
-                string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "IPZS");
+                string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "IPZS-NG");
                 if (!Directory.Exists(root))
                     return;
 
@@ -137,7 +137,7 @@ namespace CIEID
             bool _writeLogConfigFile = false;
 
             string programDataDir = System.Environment.GetEnvironmentVariable("PROGRAMDATA");
-            string configFilePath = $"{programDataDir}\\CIEPKI\\config";
+            string configFilePath = $"{programDataDir}\\CIEPKI-NG\\config";
             try {
                 Console.WriteLine("Leggo file configurazione log");
                 string[] configFileLines = System.IO.File.ReadAllLines(configFilePath);
@@ -205,7 +205,7 @@ namespace CIEID
                 Console.WriteLine($"Directory di configurazione log non trovata, la creo");
                 try
                 {
-                    System.IO.Directory.CreateDirectory($"{programDataDir}\\CIEPKI");
+                    System.IO.Directory.CreateDirectory($"{programDataDir}\\CIEPKI-NG");
                     _writeLogConfigFile = true;
                 }
                 catch (Exception)
@@ -245,7 +245,7 @@ namespace CIEID
             Logger.Debug($"SaveLogConfigToFile(LogLevel, LogLevel) - logLevelApp: {logLevelApp}");
             Logger.Debug($"SaveLogConfigToFile(LogLevel, LogLevel) - logLevelLib: {logLevelLib}");
             string programDataDir = System.Environment.GetEnvironmentVariable("PROGRAMDATA");
-            string configFilePath = $"{programDataDir}\\CIEPKI\\config";
+            string configFilePath = $"{programDataDir}\\CIEPKI-NG\\config";
             string[] lines =
             {
                 $"LIB_LOG_LEVEL={(int)logLevelLib}", $"APP_LOG_LEVEL={(int)logLevelApp}",

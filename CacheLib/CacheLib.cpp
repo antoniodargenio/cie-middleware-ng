@@ -14,7 +14,7 @@
 
 /// Il contenuto del file di cache (certificato e prima parte del PIN) arriva GIA' CIFRATO dal chiamante
 /// (IAS::SetCache, AES con chiave derivata dalla carta: senza la CIE fisica non e' decifrabile).
-/// Questa libreria si limita a memorizzarlo in %PROGRAMDATA%\CIEPKI\<PAN>.cache; il formato del file
+/// Questa libreria si limita a memorizzarlo in %PROGRAMDATA%\CIEPKI-NG\<PAN>.cache; il formato del file
 /// resta invariato per mantenere la compatibilita' con le cache create da altre versioni.
 
 namespace {
@@ -75,7 +75,7 @@ std::string GetCardDir() {
 
 	if (commonData.empty()) {
 		char szPath[MAX_PATH];
-		DWORD n = ExpandEnvironmentStrings("%PROGRAMDATA%\\CIEPKI", szPath, MAX_PATH);
+		DWORD n = ExpandEnvironmentStrings("%PROGRAMDATA%\\CIEPKI-NG", szPath, MAX_PATH);
 		if (n == 0 || n > MAX_PATH)
 			throw logged_error("Impossibile determinare la cartella della cache");
 		commonData = szPath;

@@ -22,7 +22,7 @@ std::string GetCardDir() {
 
 	if (commonData[0] == 0) {
 		char szPath[MAX_PATH];
-		ExpandEnvironmentStrings("%PROGRAMDATA%\\CIEPKI", szPath, MAX_PATH);
+		ExpandEnvironmentStrings("%PROGRAMDATA%\\CIEPKI-NG", szPath, MAX_PATH);
 		commonData = szPath;
 	}
 	return commonData;

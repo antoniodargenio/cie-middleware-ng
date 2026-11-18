@@ -166,7 +166,7 @@ namespace CIEID
         {
             Logger.Info("getSignImagePath() - Inizia funzione");
             string appdataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            return string.Format("{0}\\IPZS\\{1}_default.png", appdataPath, efSeriale);
+            return string.Format("{0}\\IPZS-NG\\{1}_default.png", appdataPath, efSeriale);
         }
 
         long SignCompleted(int retValue)
@@ -2915,7 +2915,7 @@ namespace CIEID
                     {
                         using (ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Create, true))
                         {
-                            String[] files = Directory.GetFiles(@"C:\ProgramData\CIEPKI");
+                            String[] files = Directory.GetFiles(@"C:\ProgramData\CIEPKI-NG");
 
                             foreach (string fileName in files)
                             {
@@ -2966,7 +2966,7 @@ namespace CIEID
             if(MessageBox.Show("Avanzando con l'operazione, verranno eliminati tutti i file di log generati dal software CIE ID. Confermi di voler procedere?",
                                "Eliminazione log", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
             {
-                String[] files = Directory.GetFiles(@"C:\ProgramData\CIEPKI");
+                String[] files = Directory.GetFiles(@"C:\ProgramData\CIEPKI-NG");
 
                 foreach (string fileName in files)
                 {

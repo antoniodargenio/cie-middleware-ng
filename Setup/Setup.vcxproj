@@ -46,23 +46,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <NMakeBuildCommandLine>cd /d "$(ProjectDir)" &amp;&amp; "$(MSBuildProgramFiles32)\NSIS\makensis.exe" /DConfig=$(Configuration) "$(ProjectDir)CIEMiddleware.nsi"</NMakeBuildCommandLine>
-    <NMakeOutput>$(ProjectDir)$(Configuration)\CIE-Middleware.exe</NMakeOutput>
-    <NMakeCleanCommandLine>del "$(ProjectDir)$(Configuration)\CIE-Middleware.exe"</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>cd /d "$(ProjectDir)" &amp;&amp; "$(MSBuildProgramFiles32)\NSIS\makensis.exe" /DConfig=$(Configuration) "$(ProjectDir)CIE-Middleware-NG.nsi"</NMakeBuildCommandLine>
+    <NMakeOutput>$(ProjectDir)$(Configuration)\CIE-Middleware-NG.exe</NMakeOutput>
+    <NMakeCleanCommandLine>del "$(ProjectDir)$(Configuration)\CIE-Middleware-NG.exe"</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <NMakeBuildCommandLine>cd /d "$(ProjectDir)" &amp;&amp; "$(MSBuildProgramFiles32)\NSIS\makensis.exe" /DConfig=$(Configuration) "$(ProjectDir)CIEMiddleware.nsi"</NMakeBuildCommandLine>
-    <NMakeOutput>$(ProjectDir)$(Configuration)\CIE-Middleware.exe</NMakeOutput>
-    <NMakeCleanCommandLine>del "$(ProjectDir)$(Configuration)\CIE-Middleware.exe"</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>cd /d "$(ProjectDir)" &amp;&amp; "$(MSBuildProgramFiles32)\NSIS\makensis.exe" /DConfig=$(Configuration) "$(ProjectDir)CIE-Middleware-NG.nsi"</NMakeBuildCommandLine>
+    <NMakeOutput>$(ProjectDir)$(Configuration)\CIE-Middleware-NG.exe</NMakeOutput>
+    <NMakeCleanCommandLine>del "$(ProjectDir)$(Configuration)\CIE-Middleware-NG.exe"</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="CIEMiddleware.nsi" />
+    <None Include="CIE-Middleware-NG.nsi" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="UpdateTask.xml" />

@@ -98,22 +98,22 @@ extern "C" HRESULT __stdcall DllUnregisterServer(void) {
 	LOG_INFO("DllUnregisterServer - Unregistering CIE");
 
 	SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &hSC);
-	SCardForgetCardType(hSC, "CIE_1");
-	SCardForgetCardType(hSC, "CIE_2");
-	SCardForgetCardType(hSC, "CIE_3");
-	SCardForgetCardType(hSC, "CIE_4");
-	SCardForgetCardType(hSC, "CIE_5");
-	SCardForgetCardType(hSC, "CIE_6");
-	SCardForgetCardType(hSC, "CIE_7");
-	SCardForgetCardType(hSC, "CIE_8");
-	SCardForgetCardType(hSC, "CIE_9");
-	SCardForgetCardType(hSC, "CIE_10");
-	SCardForgetCardType(hSC, "CIE_11");
-	SCardForgetCardType(hSC, "CIE_12");
+	SCardForgetCardType(hSC, "CIE_NG_1");
+	SCardForgetCardType(hSC, "CIE_NG_2");
+	SCardForgetCardType(hSC, "CIE_NG_3");
+	SCardForgetCardType(hSC, "CIE_NG_4");
+	SCardForgetCardType(hSC, "CIE_NG_5");
+	SCardForgetCardType(hSC, "CIE_NG_6");
+	SCardForgetCardType(hSC, "CIE_NG_7");
+	SCardForgetCardType(hSC, "CIE_NG_8");
+	SCardForgetCardType(hSC, "CIE_NG_9");
+	SCardForgetCardType(hSC, "CIE_NG_10");
+	SCardForgetCardType(hSC, "CIE_NG_11");
+	SCardForgetCardType(hSC, "CIE_NG_12");
 	SCardReleaseContext(hSC);
 
-	CertUnregisterPhysicalStore(L"MY", CERT_SYSTEM_STORE_CURRENT_USER, L"CIEStore");
-	CryptUnregisterOIDFunction(0, CRYPT_OID_OPEN_STORE_PROV_FUNC, "CIECertProvider");
+	CertUnregisterPhysicalStore(L"MY", CERT_SYSTEM_STORE_CURRENT_USER, L"CIEStoreNG");
+	CryptUnregisterOIDFunction(0, CRYPT_OID_OPEN_STORE_PROV_FUNC, "CIECertProviderNG");
 	LOG_INFO("DllUnregisterServer - Unregistering CIE completed");
 	return S_OK;
 	//exit_CSP_func
@@ -181,83 +181,83 @@ extern "C" HRESULT __stdcall DllRegisterServer(void) {
 	BYTE ATR12[] =		{ 0x3B, 0x8F, 0x80, 0x01, 0x80, 0x31, 0x80, 0x65, 0x49, 0x54, 0x4A, 0x34, 0x4C, 0x12, 0x0F, 0xFF, 0x82, 0x90, 0x00, 0x85 };
 	LONG ris;
 	
-	if (ris = RegisterCard(hSC, "CIE_1", ATR, sizeof(ATR), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_1", ATR, sizeof(ATR), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_1 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_1 registration failed");
 		return E_UNEXPECTED;
 	}
-	if (ris = RegisterCard(hSC, "CIE_2", ATR2, sizeof(ATR2), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_2", ATR2, sizeof(ATR2), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_2 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_2 registration failed");
 		return E_UNEXPECTED;
 	}
-	if (ris = RegisterCard(hSC, "CIE_3", ATR3, sizeof(ATR3), ATR3_Mask) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_3", ATR3, sizeof(ATR3), ATR3_Mask) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_3 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_3 registration failed");
 		return E_UNEXPECTED;
 	}
-	if (ris = RegisterCard(hSC, "CIE_4", ATR4, sizeof(ATR4), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_4", ATR4, sizeof(ATR4), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_4 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_4 registration failed");
 		return E_UNEXPECTED;
 	}
-	if (ris = RegisterCard(hSC, "CIE_5", ATR5, sizeof(ATR5), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_5", ATR5, sizeof(ATR5), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_5 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_5 registration failed");
 		return E_UNEXPECTED;
 	}
-	if (ris = RegisterCard(hSC, "CIE_6", ATR6, sizeof(ATR6), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_6", ATR6, sizeof(ATR6), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_6 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_6 registration failed");
 		return E_UNEXPECTED;
 	}	
-	if (ris = RegisterCard(hSC, "CIE_7", ATR7, sizeof(ATR7), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_7", ATR7, sizeof(ATR7), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_7 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_7 registration failed");
 		return E_UNEXPECTED;
 	}	
-	if (ris = RegisterCard(hSC, "CIE_8", ATR8, sizeof(ATR8), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_8", ATR8, sizeof(ATR8), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_8 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_8 registration failed");
 		return E_UNEXPECTED;
 	}
-	if (ris = RegisterCard(hSC, "CIE_9", ATR9, sizeof(ATR9), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_9", ATR9, sizeof(ATR9), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_9 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_9 registration failed");
 		return E_UNEXPECTED;
 	}
-	if (ris = RegisterCard(hSC, "CIE_10", ATR10, sizeof(ATR10), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_10", ATR10, sizeof(ATR10), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_10 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_10 registration failed");
 		return E_UNEXPECTED;
 	}
-	if (ris = RegisterCard(hSC, "CIE_11", ATR11, sizeof(ATR11), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_11", ATR11, sizeof(ATR11), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_11 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_11 registration failed");
 		return E_UNEXPECTED;
 	}
-	if (ris = RegisterCard(hSC, "CIE_12", ATR12, sizeof(ATR12), nullptr) != SCARD_S_SUCCESS)
+	if (ris = RegisterCard(hSC, "CIE_NG_12", ATR12, sizeof(ATR12), nullptr) != SCARD_S_SUCCESS)
 	{
-		LOG_ERROR("RegisterCard - CIE_12 registration failed");
+		LOG_ERROR("RegisterCard - CIE_NG_12 registration failed");
 		return E_UNEXPECTED;
 	}
 
 	SCardReleaseContext(hSC);
 
 	{
-		CryptUnregisterOIDFunction(0, CRYPT_OID_OPEN_STORE_PROV_FUNC, "CIECertProvider");
+		CryptUnregisterOIDFunction(0, CRYPT_OID_OPEN_STORE_PROV_FUNC, "CIECertProviderNG");
 
 		auto modName = std::vector<WCHAR>(moduleInfo.szModuleFullPath.size() + 10);
 		swprintf_s(modName.data(), modName.size(), L"%S", moduleInfo.szModuleFullPath.c_str());
-		if (!CryptRegisterOIDFunction(0, CRYPT_OID_OPEN_STORE_PROV_FUNC, "CIECertProvider", modName.data(), CRYPT_OID_OPEN_STORE_PROV_FUNC))
+		if (!CryptRegisterOIDFunction(0, CRYPT_OID_OPEN_STORE_PROV_FUNC, "CIECertProviderNG", modName.data(), CRYPT_OID_OPEN_STORE_PROV_FUNC))
 			return E_UNEXPECTED;
 	}
 
-	CertUnregisterPhysicalStore(L"MY", CERT_STORE_DELETE_FLAG, L"CIEStore");
+	CertUnregisterPhysicalStore(L"MY", CERT_STORE_DELETE_FLAG, L"CIEStoreNG");
 
 	CERT_PHYSICAL_STORE_INFO PhysicalStoreInfo;
 	PhysicalStoreInfo.cbSize = sizeof(CERT_PHYSICAL_STORE_INFO);
-	PhysicalStoreInfo.pszOpenStoreProvider = "CIECertProvider";
+	PhysicalStoreInfo.pszOpenStoreProvider = "CIECertProviderNG";
 	PhysicalStoreInfo.dwFlags = 0;
 	PhysicalStoreInfo.dwOpenFlags = 0;
 	PhysicalStoreInfo.OpenParameters.pbData = NULL;
@@ -269,7 +269,7 @@ extern "C" HRESULT __stdcall DllRegisterServer(void) {
 	if (!CertRegisterPhysicalStore(
 		L"MY",
 		CERT_SYSTEM_STORE_CURRENT_USER,
-		L"CIEStore",
+		L"CIEStoreNG",
 		&PhysicalStoreInfo,
 		NULL
 		))

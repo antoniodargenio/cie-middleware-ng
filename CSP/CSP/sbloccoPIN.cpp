@@ -187,7 +187,7 @@ void TrayNotification(CSystemTray* tray, WPARAM uID, LPARAM lEvent) {
 
 		LOG_DEBUG("TrayNotification - szProgramFilesDir %s", szProgramFilesDir);
 
-		if (!CreateProcess(NULL, (char*)std::string(szProgramFilesDir).append("\\CIEPKI\\CIEID ").append("unlock").c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+		if (!CreateProcess(NULL, (char*)std::string(szProgramFilesDir).append("\\CIEPKI-NG\\CIEID ").append("unlock").c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
 		{
 			throw logged_error("Errore in creazione processo CIEID");
 		}

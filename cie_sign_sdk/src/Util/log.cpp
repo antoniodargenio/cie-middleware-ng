@@ -29,7 +29,7 @@ CLog Log;
 void initLog() 
 {
 	OutputDebugString("InitLog\n");
-	ExpandEnvironmentStrings("%PROGRAMDATA%\\CIEPKI\\", szLogDir, MAX_PATH);
+	ExpandEnvironmentStrings("%PROGRAMDATA%\\CIEPKI-NG\\", szLogDir, MAX_PATH);
 
 	if (!PathFileExists(szLogDir)) {
 
@@ -115,7 +115,7 @@ void CLog::initParam(bool enabled) {
 	
 	Enabled=enabled;
 
-	logFileName = "CIEPKI";
+	logFileName = "CIEPKI-NG";
 
 	SYSTEMTIME  stTime;
 	GetLocalTime(&stTime);

@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("CIEID")]
 [assembly: AssemblyDescription("CIEID")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("IPZS")]
+[assembly: AssemblyCompany("IPZS-NG")]
 [assembly: AssemblyProduct("CIEID")]
 [assembly: AssemblyCopyright("Copyright © IPZS 2018")]
 [assembly: AssemblyTrademark("IPZS")]
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 // È possibile specificare tutti i valori oppure impostare valori predefiniti per i numeri relativi alla revisione e alla build
 // usando l'asterisco '*' come illustrato di seguito:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.0.10")]
-[assembly: AssemblyFileVersion("2.0.0.10")]
+[assembly: AssemblyVersion("2.0.0.11")]
+[assembly: AssemblyFileVersion("2.0.0.11")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatform("windows")]
