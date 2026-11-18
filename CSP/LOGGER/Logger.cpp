@@ -46,7 +46,9 @@ Logger::Logger()
 
 	GetLocalTime(&stTime);
 	_dupenv_s(&buf, &sz, "PROGRAMDATA");
-	sprintf_s(pbLog, sizeof(pbLog), "%s/CIEPKI/CIEPKI_%04d-%02d-%02d.log", buf, stTime.wYear, stTime.wMonth, stTime.wDay);
+	sprintf_s(pbLog, sizeof(pbLog), "%s/CIEPKI/CIEPKI_%04d-%02d-%02d.log", buf ? buf : ".", stTime.wYear, stTime.wMonth, stTime.wDay);
+	free(buf);
+	buf = nullptr;
 
 	int log_level = getLogConfig();
 	
@@ -106,16 +108,10 @@ Logger::~Logger()
 
 Logger* Logger::getInstance() throw ()
 {
-	char* buf = nullptr;
-	size_t sz = 0;
-
 	if (m_Instance == 0)
 	{
 		m_Instance = new Logger();
 	}
-	_dupenv_s(&buf, &sz, "PROGRAMDATA");
-
-
 	int log_level = m_Instance->getLogConfig();
 
 	if (log_level == LOG_STATUS_DISABLED) {
@@ -159,13 +155,15 @@ int Logger::getLogConfig() {
 	char* buf = nullptr;
 	size_t sz = 0;
 	string sConfig;
-	int log_level;
+	int log_level = 2;
 	struct stat result;
 	char pbPathConfig[MAX_PATH];
 	
 	_dupenv_s(&buf, &sz, "PROGRAMDATA");
 
-	sprintf_s(pbPathConfig, sizeof(pbPathConfig), "%s/CIEPKI", buf);
+	sprintf_s(pbPathConfig, sizeof(pbPathConfig), "%s/CIEPKI", buf ? buf : ".");
+	free(buf);
+	buf = nullptr;
 	sprintf_s(pbConfig, sizeof(pbConfig), "%s/config", pbPathConfig);
 
 
@@ -192,10 +190,8 @@ int Logger::getLogConfig() {
 			m_ConfigFile >> sConfig;
 			m_ConfigFile.close();
 
-			sscanf(sConfig.data(), "LIB_LOG_LEVEL=%d", &log_level);
-
-			if (log_level < 0 && log_level > 5) {
-				log_level = 0;
+			if (sscanf_s(sConfig.c_str(), "LIB_LOG_LEVEL=%d", &log_level) != 1 || log_level < 0 || log_level > 5) {
+				log_level = 2;
 				sConfig = "LIB_LOG_LEVEL=2";
 				writeConfigFile(string(pbConfig), sConfig);
 			}
@@ -278,7 +274,8 @@ void Logger::debug(const char* fmt, ...) throw()
 	va_list args;
 	va_start(args, fmt);
 
-	vsprintf(buffer, fmt, args);
+	vsnprintf(buffer, sizeof(buffer), fmt, args);
+	buffer[sizeof(buffer) - 1] = 0;
 	va_end(args);
 
 	switch (m_LogType)
@@ -295,13 +292,13 @@ void Logger::debug(const char* fmt, ...) throw()
 
 void Logger::debug(string& text) throw()
 {
-	debug(text.data());
+	debug("%s", text.data());
 }
 
 void Logger::debug(ostringstream& stream) throw()
 {
 	string text = stream.str();
-	debug(text.data());
+	debug("%s", text.data());
 }
 
 
@@ -312,7 +309,8 @@ void Logger::info(const char* fmt, ...) throw()
 	va_list args;
 	va_start(args, fmt);
 
-	vsprintf(buffer, fmt, args);
+	vsnprintf(buffer, sizeof(buffer), fmt, args);
+	buffer[sizeof(buffer) - 1] = 0;
 	va_end(args);
 
 	switch (m_LogType)
@@ -329,13 +327,13 @@ void Logger::info(const char* fmt, ...) throw()
 
 void Logger::info(string& text) throw()
 {
-	info(text.data());
+	info("%s", text.data());
 }
 
 void Logger::info(ostringstream& stream) throw()
 {
 	string text = stream.str();
-	info(text.data());
+	info("%s", text.data());
 }
 
 
@@ -346,7 +344,8 @@ int Logger::error(const char* fmt, ...) throw()
 	va_list args;
 	va_start(args, fmt);
 
-	vsprintf(buffer, fmt, args);
+	vsnprintf(buffer, sizeof(buffer), fmt, args);
+	buffer[sizeof(buffer) - 1] = 0;
 	va_end(args);
 
 	switch (m_LogType)
@@ -365,13 +364,13 @@ int Logger::error(const char* fmt, ...) throw()
 
 int Logger::error(string& text) throw()
 {
-	return error(text.data());
+	return error("%s", text.data());
 }
 
 int Logger::error(ostringstream& stream) throw()
 {
 	string text = stream.str();
-	return error(text.data());
+	return error("%s", text.data());
 }
 
 
