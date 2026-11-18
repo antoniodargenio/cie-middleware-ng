@@ -70,9 +70,9 @@ Esempi:
 ```powershell
 Get-Cie
 Add-CieSignature .\contratto.pdf          # chiede il PIN (ultime 4 cifre) senza eco
-Add-CieSignature .tto.docx -NoTimestamp  # produce atto.docx.p7m
+Add-CieSignature .\atto.docx -NoTimestamp  # produce atto.docx.p7m
 Test-CieSignature .\contratto-signed.pdf | Format-List
-Export-CieSignedContent .tto.docx.p7m
+Export-CieSignedContent .\atto.docx.p7m
 ```
 
 I PIN sono `SecureString` e, se omessi, vengono richiesti senza eco. Aiuto: `Get-Help Add-CieSignature -Full`.
