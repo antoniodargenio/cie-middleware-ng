@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // Le informazioni generali relative a un assembly sono controllate dal seguente 
 // set di attributi. Modificare i valori di questi attributi per modificare le informazioni
 // associate a un assembly.
-[assembly: AssemblyTitle("CIEID")]
-[assembly: AssemblyDescription("CIEID")]
+[assembly: AssemblyTitle("CIE-Middleware-NG")]
+[assembly: AssemblyDescription("CIE-Middleware-NG")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("CIE-Middleware-NG")]
-[assembly: AssemblyProduct("CIEID")]
+[assembly: AssemblyProduct("CIE-Middleware-NG")]
 [assembly: AssemblyCopyright("Copyright © CIE-Middleware-NG")]
 [assembly: AssemblyTrademark("CIE-Middleware-NG")]
 [assembly: AssemblyCulture("")]
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 // È possibile specificare tutti i valori oppure impostare valori predefiniti per i numeri relativi alla revisione e alla build
 // usando l'asterisco '*' come illustrato di seguito:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.0.17")]
-[assembly: AssemblyFileVersion("2.0.0.17")]
+[assembly: AssemblyVersion("2.0.0.18")]
+[assembly: AssemblyFileVersion("2.0.0.18")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatform("windows")]

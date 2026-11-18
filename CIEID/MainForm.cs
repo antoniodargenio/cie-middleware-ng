@@ -115,6 +115,12 @@ namespace CIEID
             this.DpiChanged += (s, e) => FitDisclaimerLabel();
             this.Shown += (s, e) => FitDisclaimerLabel();
 
+            // Focus automatico sulla prima casella del PIN di abbinamento: all'avvio la scheda e' gia'
+            // selezionata (SelectedIndexChanged non scatta), quindi si usa la visibilita' della scheda.
+            CIEPairingTabPage.VisibleChanged += (s, e) => FocusPairingFirstPin();
+            this.Shown += (s, e) => FocusPairingFirstPin();
+            this.Activated += (s, e) => FocusPairingFirstPin();
+
             // Pagina Aiuto: precisa che il supporto non e' fornito dall'ente emittente ma dalla community.
             Label helpSupportLabel = new Label();
             helpSupportLabel.Name = "helpSupportLabel";
@@ -2839,6 +2845,20 @@ namespace CIEID
             shouldSignWithoutCIEPairing = true;
             ChangeSignPINObjects();
             DisplayFileSelectionTab();
+        }
+
+        private void FocusPairingFirstPin()
+        {
+            if (!IsHandleCreated || mainTabControl.SelectedTab != CIEPairingTabPage)
+                return;
+            // Se l'utente sta gia' scrivendo in una delle caselle non si sposta il focus
+            if (ActiveControl is TextBox active && active.Parent == CIEPairingTabPage && active != PINDigit_TextBox1)
+                return;
+            BeginInvoke((MethodInvoker)delegate
+            {
+                if (mainTabControl.SelectedTab == CIEPairingTabPage)
+                    PINDigit_TextBox1.Focus();
+            });
         }
 
         private void mainTabControl_SelectedIndexChanged(object sender, EventArgs e)

@@ -158,7 +158,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "CIE ID – AVVISO – VERSIONE NON UFFICIALE";
+            this.Text = "CIE Middleware NG – AVVISO – VERSIONE NON UFFICIALE";
             this.TopMost = true;
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxLogo)).EndInit();
             this.panel1.ResumeLayout(false);

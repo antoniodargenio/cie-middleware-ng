@@ -3616,7 +3616,7 @@ namespace CIEID
             this.MaximizeBox = false;
             this.Name = "mainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "CIE ID – AVVISO – VERSIONE NON UFFICIALE";
+            this.Text = "CIE Middleware NG – AVVISO – VERSIONE NON UFFICIALE";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.mainTabControl.ResumeLayout(false);
             this.CIEPairingTabPage.ResumeLayout(false);

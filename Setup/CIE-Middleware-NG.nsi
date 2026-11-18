@@ -2,7 +2,7 @@
 !include "x64.nsh"
 !include "Library.nsh"
 
-!define PRODUCT_VERSION "2.0.0.17"
+!define PRODUCT_VERSION "2.0.0.18"
 
 ;--------------------------------
 ;General
@@ -131,19 +131,19 @@ Section "Install"
 	createShortCut "$SMPROGRAMS\CIE Middleware NG\Disinstalla.lnk" "$INSTDIR\Uninstall.exe"
 	
 	
-	File "..\x64\${Config}\CIEID.exe"
-	File "..\x64\${Config}\CIEID.dll"
-	File "..\x64\${Config}\CIEID.dll.config"
-	File "..\x64\${Config}\CIEID.deps.json"
-	File "..\x64\${Config}\CIEID.runtimeconfig.json"
+	File "..\x64\${Config}\CIE-Middleware-NG.exe"
+	File "..\x64\${Config}\CIE-Middleware-NG.dll"
+	File "..\x64\${Config}\CIE-Middleware-NG.dll.config"
+	File "..\x64\${Config}\CIE-Middleware-NG.deps.json"
+	File "..\x64\${Config}\CIE-Middleware-NG.runtimeconfig.json"
 	File "..\x64\${Config}\Newtonsoft.Json.dll"
 	File "..\x64\${Config}\System.Management.dll"
 		
   SetOutPath $SYSDIR
 	
-	;createShortCut "$SMPROGRAMS\CIE Middleware NG\Cambio PIN.lnk" "$INSTDIR\CIEID.exe" 
-	;createShortCut "$SMPROGRAMS\CIE Middleware NG\Sblocco PIN.lnk" "$INSTDIR\CIEID.exe" 
-	createShortCut "$SMPROGRAMS\CIE Middleware NG\CIE ID.lnk" "$INSTDIR\CIEID.exe"
+	;createShortCut "$SMPROGRAMS\CIE Middleware NG\Cambio PIN.lnk" "$INSTDIR\CIE-Middleware-NG.exe" 
+	;createShortCut "$SMPROGRAMS\CIE Middleware NG\Sblocco PIN.lnk" "$INSTDIR\CIE-Middleware-NG.exe" 
+	createShortCut "$SMPROGRAMS\CIE Middleware NG\CIE Middleware NG.lnk" "$INSTDIR\CIE-Middleware-NG.exe"
 
 	;createShortCut "$SMPROGRAMS\CIE Middleware NG\Cambio PIN.lnk" "$SYSDIR\rundll32.exe" "CIEPKI-NG.dll CambioPIN" "$SYSDIR\CIEPKI-NG.dll" 0
 	;createShortCut "$SMPROGRAMS\CIE Middleware NG\Sblocco PIN.lnk" "$SYSDIR\rundll32.exe" "CIEPKI-NG.dll SbloccoPIN" "$SYSDIR\CIEPKI-NG.dll" 0
@@ -202,16 +202,16 @@ Section "Uninstall"
   ${If} $0 != ""
     RMDir /r "$0\CIEPKI-NG"
   ${EndIf}
-  Delete "$INSTDIR\CIEID.exe"
-  Delete "$INSTDIR\CIEID.dll"
-  Delete "$INSTDIR\CIEID.dll.config"
-  Delete "$INSTDIR\CIEID.deps.json"
-  Delete "$INSTDIR\CIEID.runtimeconfig.json"
+  Delete "$INSTDIR\CIE-Middleware-NG.exe"
+  Delete "$INSTDIR\CIE-Middleware-NG.dll"
+  Delete "$INSTDIR\CIE-Middleware-NG.dll.config"
+  Delete "$INSTDIR\CIE-Middleware-NG.deps.json"
+  Delete "$INSTDIR\CIE-Middleware-NG.runtimeconfig.json"
   Delete "$INSTDIR\Newtonsoft.Json.dll"
   Delete "$INSTDIR\System.Management.dll"
   Delete "$INSTDIR\UpdateTask.xml"
   ; file di versioni precedenti dell'installer
-  Delete "$INSTDIR\CIEID.exe.config"
+  Delete "$INSTDIR\CIE-Middleware-NG.exe.config"
   Delete "$INSTDIR\Newtonsoft.Json.xml"
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
