@@ -18,10 +18,8 @@
   
   BrandingText "Istituto Poligrafico e Zecca dello Stato"
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\CIEPKI"
-  
-  ;Get installation folder from registry if available
-  InstallDirRegKey HKLM "Software\CIEPKI" ""
+  ; Applicazione a 64 bit: installata in Program Files (non Program Files (x86))
+  InstallDir "$PROGRAMFILES64\CIEPKI"
 
   ;Request application privileges for Windows Vista
   RequestExecutionLevel admin
@@ -118,6 +116,11 @@ Section "Install"
   # Start Menu
 	createDirectory "$SMPROGRAMS\CIE Middleware"
 	
+  ; Migrazione: le versioni precedenti installavano in Program Files (x86)
+  ${If} ${FileExists} "$PROGRAMFILES32\CIEPKI\Uninstall.exe"
+    RMDir /r "$PROGRAMFILES32\CIEPKI"
+  ${EndIf}
+
   ;Create uninstaller
   createDirectory "$INSTDIR"
   ; Cartella dati condivisa (cache, log, config): creata dall'installer con ACL esplicita e proprietario

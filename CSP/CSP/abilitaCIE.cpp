@@ -1053,8 +1053,7 @@ void TrayNotificationAbilitaCIE(CSystemTray* tray, WPARAM uID, LPARAM lEvent)
 		si.cb = sizeof(STARTUPINFO);
 
 		char szProgramFilesDir[MAX_PATH];
-		if (!SHGetSpecialFolderPath(NULL, szProgramFilesDir, CSIDL_PROGRAM_FILESX86, 0))
-			SHGetSpecialFolderPath(NULL, szProgramFilesDir, CSIDL_PROGRAM_FILES, 0);
+		SHGetSpecialFolderPath(NULL, szProgramFilesDir, CSIDL_PROGRAM_FILES, 0);
 
 		LOG_INFO("TrayNotificationAbilitaCIE - szProgramFilesDir %s", szProgramFilesDir);
 
