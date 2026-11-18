@@ -93,6 +93,13 @@ Section "Install"
 	
   ;Create uninstaller
   createDirectory "$INSTDIR"
+  ; Cartella dati condivisa (cache, log, config): creata dall'installer con ACL esplicita e proprietario
+  ; Administrators, cosi' un utente non privilegiato non puo' crearla in anticipo e controllarla.
+  ; SID noti (indipendenti dalla lingua): SYSTEM, Administrators, Users, CREATOR OWNER, ALL APPLICATION PACKAGES
+  CreateDirectory "$%PROGRAMDATA%\CIEPKI"
+  nsExec::Exec 'icacls "$%PROGRAMDATA%\CIEPKI" /setowner *S-1-5-32-544 /C /Q'
+  nsExec::Exec 'icacls "$%PROGRAMDATA%\CIEPKI" /grant *S-1-5-18:(OI)(CI)F *S-1-5-32-544:(OI)(CI)F *S-1-5-32-545:(OI)(CI)RX *S-1-5-32-545:(AD,WD) *S-1-3-0:(OI)(CI)(IO)F *S-1-15-2-1:(OI)(CI)RX /C /Q'
+  nsExec::Exec 'icacls "$%PROGRAMDATA%\CIEPKI" /inheritance:r /C /Q'
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
   SetOutPath $INSTDIR    
