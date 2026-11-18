@@ -2,7 +2,7 @@
 !include "x64.nsh"
 !include "Library.nsh"
 
-!define PRODUCT_VERSION "2.0.0.8"
+!define PRODUCT_VERSION "2.0.0.9"
 
 ;--------------------------------
 ;General
@@ -155,7 +155,6 @@ Section "Install"
 	createShortCut "$SMPROGRAMS\CIE Middleware\Verifica aggiornamenti.lnk" "$SYSDIR\rundll32.exe" "CIEPKI.dll Update Display" "$SYSDIR\CIEPKI.dll" 0
 
   SetOutPath $INSTDIR
-  File UpdateTask.xml 
 	
   ${If} ${RunningX64}	
 	SetRegView 64
@@ -171,7 +170,8 @@ Section "Install"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   SetRegView lastused
 
-  ExecWait 'schtasks.exe /create /xml "$INSTDIR\UpdateTask.xml" /tn "CIE Middleware Update" /f'
+  ; Task di aggiornamento automatico non installato (contatterebbe il server ufficiale IPZS); rimuove quello delle versioni precedenti
+  ExecWait 'schtasks.exe /delete /tn "CIE Middleware Update" /f'
   
   IfRebootFlag 0 noreboot
   MessageBox MB_YESNO "Per completare l'installazione e' necessario il riavvio del computer. Riavviare adesso?" IDNO noreboot
