@@ -46,7 +46,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <NMakeBuildCommandLine>"$(ProgramFiles)\NSIS\makensis.exe" /DConfig=$(Configuration) "$(ProjectDir)CIEMiddleware.nsi"</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>cd /d "$(ProjectDir)" &amp;&amp; "$(MSBuildProgramFiles32)\NSIS\makensis.exe" /DConfig=$(Configuration) "$(ProjectDir)CIEMiddleware.nsi"</NMakeBuildCommandLine>
     <NMakeOutput>$(ProjectDir)$(Configuration)\CIE-Middleware.exe</NMakeOutput>
     <NMakeCleanCommandLine>del "$(ProjectDir)$(Configuration)\CIE-Middleware.exe"</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
@@ -54,7 +54,7 @@
   
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <NMakeBuildCommandLine>"$(ProgramFiles)\NSIS\makensis.exe" /DConfig=$(Configuration) "$(ProjectDir)CIEMiddleware.nsi"</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>cd /d "$(ProjectDir)" &amp;&amp; "$(MSBuildProgramFiles32)\NSIS\makensis.exe" /DConfig=$(Configuration) "$(ProjectDir)CIEMiddleware.nsi"</NMakeBuildCommandLine>
     <NMakeOutput>$(ProjectDir)$(Configuration)\CIE-Middleware.exe</NMakeOutput>
     <NMakeCleanCommandLine>del "$(ProjectDir)$(Configuration)\CIE-Middleware.exe"</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
