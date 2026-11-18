@@ -13,7 +13,7 @@ private:
 public:
 	CIESign(IAS *ias);
 
-	~CIESign();
+	~CIESign() = default;
 
 	//sign: (NSString*)nis url : (NSURL*)url type : (NSString*)type pin : (NSString*)pin page : (int)page x : (float)x y : (float)y w : (float)w h : (float)h response : (NSMutableString*)response
 	

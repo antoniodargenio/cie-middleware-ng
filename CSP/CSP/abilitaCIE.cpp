@@ -13,6 +13,8 @@
 #include "../PCSC/PCSC.h"
 #include <atlbase.h>
 #include <string>
+#include <memory>
+#include <vector>
 #include "PINManager.h"
 #include <shlobj_core.h>
 #include "../UI/SystemTray.h"
@@ -24,7 +26,7 @@
 using namespace CieIDLogger;
 
 #define CARD_ALREADY_ENABLED		0x000000F0;
-#define CARD_PAN_MISMATCH			(int)(0x000000F1);
+#define CARD_PAN_MISMATCH			(int)(0x000000F1)
 
 typedef CK_RV(*AbilitaCIEfn)(const char*  szPAN,
 	const char*  szPIN,
@@ -130,90 +132,94 @@ extern "C" {
 
 	}
 
+	namespace
+	{
+		// Rilascia il contesto PC/SC all'uscita dallo scope
+		struct ScardContextGuard
+		{
+			SCARDCONTEXT h;
+			explicit ScardContextGuard(SCARDCONTEXT ctx) : h(ctx) {}
+			~ScardContextGuard() { if (h) SCardReleaseContext(h); }
+			ScardContextGuard(const ScardContextGuard&) = delete;
+			ScardContextGuard& operator=(const ScardContextGuard&) = delete;
+		};
+
+		// Azzera un buffer sensibile (PIN) all'uscita dallo scope
+		struct SecureWipeGuard
+		{
+			void* p; size_t n;
+			SecureWipeGuard(void* ptr, size_t len) : p(ptr), n(len) {}
+			~SecureWipeGuard() { if (p && n) SecureZeroMemory(p, n); }
+			SecureWipeGuard(const SecureWipeGuard&) = delete;
+			SecureWipeGuard& operator=(const SecureWipeGuard&) = delete;
+		};
+	}
+
 	CK_RV CK_ENTRY __stdcall firmaConCIE(const char* inFilePath, const char* type, const char* pin, const char* pan, int page, float x, float y, float w, float h, const char* imagePathFile, const char* outFilePath, PROGRESS_CALLBACK progressCallBack, SIGN_COMPLETED_CALLBACK completedCallBack)
 	{
-		printf("page: %d, x: %f, y: %f, w: %f, h: %f", page, x, y, w, h);
+		if (!inFilePath || !type || !pin || !pan || !outFilePath || !progressCallBack || !completedCallBack)
+			return CKR_ARGUMENTS_BAD;
 
-		char* readers = NULL;
-		char* ATR = NULL;
 		try
 		{
-			std::map<uint8_t, ByteDynArray> hashSet;
-
-			DWORD len = 0;
-			ByteDynArray CertCIE;
-			ByteDynArray SOD;
-
-			SCARDCONTEXT hSC;
+			SCARDCONTEXT hSC = 0;
 
 			progressCallBack(1, "");
 
 			long nRet = SCardEstablishContext(SCARD_SCOPE_USER, nullptr, nullptr, &hSC);
 			if (nRet != SCARD_S_SUCCESS)
 				return CKR_DEVICE_ERROR;
+			ScardContextGuard scGuard(hSC);
 
 			LOG_DEBUG("firmaConCIE - Establish Context ok\n");
 
+			DWORD len = 0;
 			if (SCardListReaders(hSC, nullptr, NULL, &len) != SCARD_S_SUCCESS) {
 				LOG_ERROR("firmaConCIE - SCardListReaders list readers failed\n");
 				return CKR_TOKEN_NOT_PRESENT;
 			}
 
-			if (len == 1)
+			if (len <= 1)
 				return CKR_TOKEN_NOT_PRESENT;
 
-			readers = (char*)malloc(len);
+			std::vector<char> readers(len + 1, 0);
 
-			if (SCardListReaders(hSC, nullptr, (char*)readers, &len) != SCARD_S_SUCCESS) {
-				free(readers);
+			if (SCardListReaders(hSC, nullptr, readers.data(), &len) != SCARD_S_SUCCESS)
 				return CKR_TOKEN_NOT_PRESENT;
-			}
 
-			char *curreader = readers;
+			const char* curreader = readers.data();
 			bool foundCIE = false;
+			bool panMismatch = false;
 			for (; curreader[0] != 0; curreader += strnlen(curreader, len) + 1)
 			{
-
 				safeConnection conn(hSC, curreader, SCARD_SHARE_SHARED);
 				if (!conn.hCard)
 					continue;
 
-				LONG res = 0;
-
-				res = SCardBeginTransaction(conn.hCard);
+				LONG res = SCardBeginTransaction(conn.hCard);
 
 				while (res != SCARD_S_SUCCESS)
 				{
 					DWORD protocol = 0;
 					SCardReconnect(conn.hCard, SCARD_SHARE_SHARED, SCARD_PROTOCOL_Tx, SCARD_UNPOWER_CARD, &protocol);
-					
+
 					res = SCardBeginTransaction(conn.hCard);
 				}
 
-				DWORD atrLen = 40;
-				res = SCardGetAttrib(conn.hCard, SCARD_ATTR_ATR_STRING, (uint8_t*)ATR, &atrLen);
+				BYTE atr[64] = { 0 };
+				DWORD atrLen = sizeof(atr);
+				res = SCardGetAttrib(conn.hCard, SCARD_ATTR_ATR_STRING, atr, &atrLen);
 				if (res != SCARD_S_SUCCESS) {
-					free(readers);
-
 					LOG_ERROR("firmaConCIE - GetAttrib error: %d", res);
 					return CKR_DEVICE_ERROR;
 				}
 
-				ATR = (char*)malloc(atrLen);
-
-				if (SCardGetAttrib(conn.hCard, SCARD_ATTR_ATR_STRING, (uint8_t*)ATR, &atrLen) != SCARD_S_SUCCESS) {
-					free(readers);
-					free(ATR);
-					return CKR_DEVICE_ERROR;
-				}
-
-				ByteArray atrBa((BYTE*)ATR, atrLen);
+				ByteArray atrBa(atr, atrLen);
 
 				progressCallBack(20, "");
 
-				IAS* ias = new IAS((CToken::TokenTransmitCallback)TokenTransmitCallback, atrBa);
+				std::unique_ptr<IAS> ias(new IAS((CToken::TokenTransmitCallback)TokenTransmitCallback, atrBa));
 				ias->SetCardContext(&conn);
-				foundCIE = false;
 
 				ias->token.Reset();
 				ias->SelectAID_IAS();
@@ -227,30 +233,39 @@ extern "C" {
 
 				ByteDynArray IdServizi;
 				ias->ReadIdServizi(IdServizi);
-				ByteArray baPan = ByteArray((uint8_t*)pan, strlen(pan));
 
-				if (memcmp(baPan.data(), IdServizi.data(), IdServizi.size()) != 0)
+				// Il PAN richiesto deve avere esattamente la lunghezza dell'IdServizi letto dalla carta
+				if (strlen(pan) != IdServizi.size() || memcmp(pan, IdServizi.data(), IdServizi.size()) != 0)
 				{
-					return CARD_PAN_MISMATCH;
+					panMismatch = true;
+					continue;
 				}
 
-				foundCIE = true;
 				ByteDynArray FullPIN;
 				ByteArray LastPIN = ByteArray((uint8_t*)pin, strlen(pin));
 				ias->GetFirstPIN(FullPIN);
 				FullPIN.append(LastPIN);
+				SecureWipeGuard wipeFull(FullPIN.data(), FullPIN.size());
 				ias->token.Reset();
-				
+
+				if (FullPIN.size() < 8)
+				{
+					LOG_ERROR("firmaConCIE - PIN troppo corto");
+					return CKR_PIN_LEN_RANGE;
+				}
+
+				foundCIE = true;
 				progressCallBack(40, "");
 
 				char fullPinCStr[9];
 				memcpy(fullPinCStr, FullPIN.data(), 8);
 				fullPinCStr[8] = 0;
+				SecureWipeGuard wipeCStr(fullPinCStr, sizeof(fullPinCStr));
 
-				CIESign* cieSign = new CIESign(ias);
+				std::unique_ptr<CIESign> cieSign(new CIESign(ias.get()));
 
 				uint16_t ret = cieSign->sign(inFilePath, type, fullPinCStr, page, x, y, w, h, imagePathFile, outFilePath);
-				
+
 				if ((ret & (0x63C0)) == 0x63C0)
 				{
 					return CKR_PIN_INCORRECT;
@@ -265,39 +280,25 @@ extern "C" {
 				}
 
 				progressCallBack(100, "");
-				
-				LOG_DEBUG("firmaConCIE - cie_sign_sdk sign return: %d", ret);
-				
 
-				free(ias);
-				free(cieSign);
+				LOG_DEBUG("firmaConCIE - cie_sign_sdk sign return: %d", ret);
 
 				completedCallBack(ret);
+				break; // firma completata: non interrogare gli altri lettori
 			}
 
-			if (!foundCIE) {
-				free(ATR);
-				free(readers);
-				return CKR_TOKEN_NOT_RECOGNIZED;
-
-			}
+			if (!foundCIE)
+				return panMismatch ? CARD_PAN_MISMATCH : CKR_TOKEN_NOT_RECOGNIZED;
 		}
 		catch (std::exception &ex) {
 			OutputDebugString(ex.what());
-			if (ATR)
-				free(ATR);
 			LOG_ERROR("firmaConCIE - Eccezione: %s", ex.what());
-			if (readers)
-				free(readers);
-
-			LOG_ERROR("firmaConCIE - General error\n");
 			return CKR_GENERAL_ERROR;
 		}
-
-		if (ATR)
-			free(ATR);
-
-		free(readers);
+		catch (...) {
+			LOG_ERROR("firmaConCIE - Eccezione sconosciuta");
+			return CKR_GENERAL_ERROR;
+		}
 
 		return SCARD_S_SUCCESS;
 	}
@@ -305,10 +306,10 @@ extern "C" {
 	CK_RV CK_ENTRY __stdcall AbbinaCIE(const char*  szPAN, const char*  szPIN, int* attempts, PROGRESS_CALLBACK progressCallBack, COMPLETED_CALLBACK completedCallBack)
 	{
 		LOG_INFO("***** Starting AbbinaCIE *****");
-		LOG_DEBUG("szPAN:%s, pin len : %d, attempts : %d", szPAN, strlen(szPIN), *attempts);
+		if (!szPIN || !attempts || !progressCallBack || !completedCallBack || strnlen(szPIN, 8) < 4)
+			return CKR_ARGUMENTS_BAD;
+		LOG_DEBUG("szPAN:%s, pin len : %d, attempts : %d", szPAN ? szPAN : "(null)", (int)strlen(szPIN), *attempts);
 
-		char* readers = NULL;
-		char* ATR = NULL;
 		try
 		{
 
@@ -318,7 +319,7 @@ extern "C" {
 			ByteDynArray CertCIE;
 			ByteDynArray SOD;
 
-			SCARDCONTEXT hSC;
+			SCARDCONTEXT hSC = 0;
 			LONG res = 0;
 			
 			LOG_INFO("AbbinaCIE - Connecting to CIE...");
@@ -327,6 +328,7 @@ extern "C" {
 			long nRet = SCardEstablishContext(SCARD_SCOPE_USER, nullptr, nullptr, &hSC);
 			if (nRet != SCARD_S_SUCCESS)
 				return CKR_DEVICE_ERROR;
+			ScardContextGuard scGuard(hSC);
 
 			LOG_DEBUG("AbbinaCIE - Establish Context ok");
 
@@ -336,21 +338,20 @@ extern "C" {
 				return CKR_TOKEN_NOT_PRESENT;
 			}
 
-			if (len == 1) {
+			if (len <= 1) {
 				LOG_ERROR("AbbinaCIE - SCardListReaders error. Len: %d", len);
 				return CKR_TOKEN_NOT_PRESENT;
 			}
 
-			readers = (char*)malloc(len);
+			std::vector<char> readers(len + 1, 0);
 
-			res = SCardListReaders(hSC, nullptr, (char*)readers, &len);
+			res = SCardListReaders(hSC, nullptr, readers.data(), &len);
 			if (res != SCARD_S_SUCCESS) {
 				LOG_ERROR("AbbinaCIE - SCardListReaders error: %d", res);
-				free(readers);
 				return CKR_TOKEN_NOT_PRESENT;
 			}
 			
-			char *curreader = readers;
+			const char *curreader = readers.data();
 			bool foundCIE = false;
 			for (; curreader[0] != 0; curreader += strnlen(curreader, len) + 1)
 			{
@@ -371,25 +372,15 @@ extern "C" {
 				progressCallBack(5, "CIE Connessa");
 				LOG_INFO("AbbinaCIE - CIE Connected");
 
-				DWORD atrLen = 40;
-				res = SCardGetAttrib(conn.hCard, SCARD_ATTR_ATR_STRING, (uint8_t*)ATR, &atrLen);
+				BYTE ATR[64] = { 0 };
+				DWORD atrLen = sizeof(ATR);
+				res = SCardGetAttrib(conn.hCard, SCARD_ATTR_ATR_STRING, ATR, &atrLen);
 				if (res != SCARD_S_SUCCESS) {
-					free(readers);
-					LOG_ERROR("AbbinaCIE - SCardGetAttrib error, %d\n", res);
+					LOG_ERROR("AbbinaCIE - SCardGetAttrib error, %d", res);
 					return CKR_DEVICE_ERROR;
 				}
 
-				ATR = (char*)malloc(atrLen);
-
-				res = SCardGetAttrib(conn.hCard, SCARD_ATTR_ATR_STRING, (uint8_t*)ATR, &atrLen);
-				if (res != SCARD_S_SUCCESS) {
-					LOG_ERROR("AbbinaCIE - SCardGetAttrib error, %d\n", res);
-					free(readers);
-					free(ATR);
-					return CKR_DEVICE_ERROR;
-				}
-
-				ByteArray atrBa((BYTE*)ATR, atrLen);
+				ByteArray atrBa(ATR, atrLen);
 				
 				progressCallBack(10, "Verifica carta esistente");
 
@@ -459,22 +450,16 @@ extern "C" {
 				if (rs == SCARD_W_WRONG_CHV)
 				{
 					LOG_ERROR("AbbinaCIE - CardAuthenticateEx Wrong Pin");
-					free(ATR);
-					free(readers);
 					return CKR_PIN_INCORRECT;
 				}
 				else if (rs == SCARD_W_CHV_BLOCKED)
 				{
 					LOG_ERROR("AbbinaCIE - CardAuthenticateEx Pin locked");
-					free(ATR);
-					free(readers);
 					return CKR_PIN_LOCKED;
 				}
 				else if (rs != SCARD_S_SUCCESS)
 				{
 					LOG_ERROR("AbbinaCIE - CardAuthenticateEx Generic error, res:%d", rs);
-					free(ATR);
-					free(readers);
 					return CKR_GENERAL_ERROR;
 				}
 				
@@ -538,13 +523,16 @@ extern "C" {
 
 				PCCERT_CONTEXT cert = CertCreateCertificateContext(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, certCIEData.data(), (DWORD)certCIEData.size());
 
-				char szGivenName[MAX_PATH];
-				char szSurname[MAX_PATH];
+				char szGivenName[MAX_PATH] = { 0 };
+				char szSurname[MAX_PATH] = { 0 };
 
-				DWORD dwRes = CertGetNameString(cert, CERT_NAME_ATTR_TYPE, NULL, szOID_GIVEN_NAME, szGivenName, MAX_PATH);
-				
-				dwRes = CertGetNameString(cert, CERT_NAME_ATTR_TYPE, NULL, szOID_SUR_NAME, szSurname, MAX_PATH);
-				
+				if (cert)
+				{
+					CertGetNameString(cert, CERT_NAME_ATTR_TYPE, NULL, szOID_GIVEN_NAME, szGivenName, MAX_PATH);
+					CertGetNameString(cert, CERT_NAME_ATTR_TYPE, NULL, szOID_SUR_NAME, szSurname, MAX_PATH);
+					CertFreeCertificateContext(cert);
+				}
+
 				name = szGivenName;
 				surname = szSurname;
 
@@ -560,8 +548,6 @@ extern "C" {
 
 			if (!foundCIE) {
 				LOG_ERROR("AbbinaCIE - No CIE available");
-				free(ATR);
-				free(readers);
 				return CKR_TOKEN_NOT_RECOGNIZED;
 
 			}
@@ -569,20 +555,14 @@ extern "C" {
 		}
 		catch (std::exception &ex) {
 
-			if (ATR)
-				free(ATR);
 			LOG_ERROR("AbbinaCIE - Exception %s ", ex.what());
-
-			if (readers)
-				free(readers);
 
 			return CKR_GENERAL_ERROR;
 		}
-
-		if (ATR)
-			free(ATR);
-
-		free(readers);
+		catch (...) {
+			LOG_ERROR("AbbinaCIE - Unknown exception");
+			return CKR_GENERAL_ERROR;
+		}
 
 		LOG_INFO("AbbinaCIE - CIE paired successfully");
 		progressCallBack(100, "");
