@@ -410,7 +410,7 @@ namespace CIEID
             // 
             // cancelButton
             // 
-            this.cancelButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.cancelButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.cancelButton.FlatAppearance.BorderSize = 0;
             this.cancelButton.ForeColor = System.Drawing.Color.White;
             this.cancelButton.Location = new System.Drawing.Point(101, 484);
@@ -424,7 +424,7 @@ namespace CIEID
             // 
             // pairButton
             // 
-            this.pairButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.pairButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.pairButton.FlatAppearance.BorderSize = 0;
             this.pairButton.ForeColor = System.Drawing.Color.White;
             this.pairButton.Location = new System.Drawing.Point(392, 484);
@@ -614,7 +614,7 @@ namespace CIEID
             // signWithCIEWithoutPairingButton
             // 
             this.signWithCIEWithoutPairingButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.signWithCIEWithoutPairingButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.signWithCIEWithoutPairingButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.signWithCIEWithoutPairingButton.FlatAppearance.BorderSize = 0;
             this.signWithCIEWithoutPairingButton.ForeColor = System.Drawing.Color.White;
             this.signWithCIEWithoutPairingButton.Location = new System.Drawing.Point(338, 502);
@@ -630,7 +630,7 @@ namespace CIEID
             // selectSigningCIEButton
             // 
             this.selectSigningCIEButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.selectSigningCIEButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.selectSigningCIEButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.selectSigningCIEButton.FlatAppearance.BorderSize = 0;
             this.selectSigningCIEButton.ForeColor = System.Drawing.Color.White;
             this.selectSigningCIEButton.Location = new System.Drawing.Point(122, 502);
@@ -939,7 +939,7 @@ namespace CIEID
             // removeAllButton
             // 
             this.removeAllButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.removeAllButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.removeAllButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.removeAllButton.FlatAppearance.BorderSize = 0;
             this.removeAllButton.ForeColor = System.Drawing.Color.White;
             this.removeAllButton.Location = new System.Drawing.Point(239, 502);
@@ -954,7 +954,7 @@ namespace CIEID
             // addButton
             // 
             this.addButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.addButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.addButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.addButton.FlatAppearance.BorderSize = 0;
             this.addButton.ForeColor = System.Drawing.Color.White;
             this.addButton.Location = new System.Drawing.Point(435, 502);
@@ -969,7 +969,7 @@ namespace CIEID
             // deleteCIEButton
             // 
             this.deleteCIEButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.deleteCIEButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.deleteCIEButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.deleteCIEButton.FlatAppearance.BorderSize = 0;
             this.deleteCIEButton.ForeColor = System.Drawing.Color.White;
             this.deleteCIEButton.Location = new System.Drawing.Point(58, 502);
@@ -1020,7 +1020,7 @@ namespace CIEID
             // 
             // progressBar
             // 
-            this.progressBar.ForeColor = System.Drawing.Color.Blue;
+            this.progressBar.ForeColor = System.Drawing.Color.DarkGreen;
             this.progressBar.Location = new System.Drawing.Point(329, 296);
             this.progressBar.Margin = new System.Windows.Forms.Padding(2);
             this.progressBar.Name = "progressBar";
@@ -1106,7 +1106,7 @@ namespace CIEID
             // 
             // changePINButton
             // 
-            this.changePINButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.changePINButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.changePINButton.FlatAppearance.BorderSize = 0;
             this.changePINButton.ForeColor = System.Drawing.Color.White;
             this.changePINButton.Location = new System.Drawing.Point(249, 475);
@@ -1230,7 +1230,7 @@ namespace CIEID
             // 
             // progressBarChangePIN
             // 
-            this.progressBarChangePIN.ForeColor = System.Drawing.Color.Blue;
+            this.progressBarChangePIN.ForeColor = System.Drawing.Color.DarkGreen;
             this.progressBarChangePIN.Location = new System.Drawing.Point(329, 292);
             this.progressBarChangePIN.Margin = new System.Windows.Forms.Padding(2);
             this.progressBarChangePIN.Name = "progressBarChangePIN";
@@ -1316,7 +1316,7 @@ namespace CIEID
             // 
             // unlockPINButton
             // 
-            this.unlockPINButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.unlockPINButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.unlockPINButton.FlatAppearance.BorderSize = 0;
             this.unlockPINButton.ForeColor = System.Drawing.Color.White;
             this.unlockPINButton.Location = new System.Drawing.Point(249, 475);
@@ -1441,7 +1441,7 @@ namespace CIEID
             // 
             // progressBarUnlockPIN
             // 
-            this.progressBarUnlockPIN.ForeColor = System.Drawing.Color.Blue;
+            this.progressBarUnlockPIN.ForeColor = System.Drawing.Color.DarkGreen;
             this.progressBarUnlockPIN.Location = new System.Drawing.Point(329, 292);
             this.progressBarUnlockPIN.Margin = new System.Windows.Forms.Padding(2);
             this.progressBarUnlockPIN.Name = "progressBarUnlockPIN";
@@ -1632,7 +1632,7 @@ namespace CIEID
             // 
             this.customizeGraphicSignatureLabel.AutoSize = true;
             this.customizeGraphicSignatureLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.customizeGraphicSignatureLabel.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.customizeGraphicSignatureLabel.ForeColor = System.Drawing.Color.SeaGreen;
             this.customizeGraphicSignatureLabel.Location = new System.Drawing.Point(469, 452);
             this.customizeGraphicSignatureLabel.Name = "customizeGraphicSignatureLabel";
             this.customizeGraphicSignatureLabel.Size = new System.Drawing.Size(89, 17);
@@ -1686,7 +1686,7 @@ namespace CIEID
             // 
             this.selectDocument.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.selectDocument.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.selectDocument.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.selectDocument.FlatAppearance.BorderSize = 0;
             this.selectDocument.ForeColor = System.Drawing.Color.White;
             this.selectDocument.Location = new System.Drawing.Point(171, 229);
@@ -1760,7 +1760,7 @@ namespace CIEID
             // cancelOperationButton
             // 
             this.cancelOperationButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cancelOperationButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.cancelOperationButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.cancelOperationButton.FlatAppearance.BorderSize = 0;
             this.cancelOperationButton.ForeColor = System.Drawing.Color.White;
             this.cancelOperationButton.Location = new System.Drawing.Point(256, 484);
@@ -1907,7 +1907,7 @@ namespace CIEID
             // proceedWithSignatureButton
             // 
             this.proceedWithSignatureButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.proceedWithSignatureButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.proceedWithSignatureButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.proceedWithSignatureButton.Enabled = false;
             this.proceedWithSignatureButton.FlatAppearance.BorderSize = 0;
             this.proceedWithSignatureButton.ForeColor = System.Drawing.Color.White;
@@ -1935,7 +1935,7 @@ namespace CIEID
             // cancelSigningOperationButton
             // 
             this.cancelSigningOperationButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cancelSigningOperationButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.cancelSigningOperationButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.cancelSigningOperationButton.FlatAppearance.BorderSize = 0;
             this.cancelSigningOperationButton.ForeColor = System.Drawing.Color.White;
             this.cancelSigningOperationButton.Location = new System.Drawing.Point(101, 484);
@@ -2238,7 +2238,7 @@ namespace CIEID
             // proceedSignPreviewButton
             // 
             this.proceedSignPreviewButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.proceedSignPreviewButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.proceedSignPreviewButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.proceedSignPreviewButton.FlatAppearance.BorderSize = 0;
             this.proceedSignPreviewButton.ForeColor = System.Drawing.Color.White;
             this.proceedSignPreviewButton.Location = new System.Drawing.Point(233, 484);
@@ -2266,7 +2266,7 @@ namespace CIEID
             // 
             // closeButton
             // 
-            this.closeButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.closeButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.closeButton.FlatAppearance.BorderSize = 0;
             this.closeButton.ForeColor = System.Drawing.Color.White;
             this.closeButton.Location = new System.Drawing.Point(240, 484);
@@ -2281,7 +2281,7 @@ namespace CIEID
             // 
             // signButton
             // 
-            this.signButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.signButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.signButton.Enabled = false;
             this.signButton.FlatAppearance.BorderSize = 0;
             this.signButton.ForeColor = System.Drawing.Color.White;
@@ -2296,7 +2296,7 @@ namespace CIEID
             // 
             // cancelSigningOperationPINPanelButton
             // 
-            this.cancelSigningOperationPINPanelButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.cancelSigningOperationPINPanelButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.cancelSigningOperationPINPanelButton.FlatAppearance.BorderSize = 0;
             this.cancelSigningOperationPINPanelButton.ForeColor = System.Drawing.Color.White;
             this.cancelSigningOperationPINPanelButton.Location = new System.Drawing.Point(101, 484);
@@ -2364,7 +2364,7 @@ namespace CIEID
             this.enableTimestampCheckBox.UseVisualStyleBackColor = true;
             //
             // pictureBox20
-            // 
+            //
             this.pictureBox20.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox20.Image")));
             this.pictureBox20.Location = new System.Drawing.Point(14, 38);
             this.pictureBox20.Margin = new System.Windows.Forms.Padding(2);
@@ -2411,7 +2411,7 @@ namespace CIEID
             // 
             // signProgressBar
             // 
-            this.signProgressBar.ForeColor = System.Drawing.Color.Blue;
+            this.signProgressBar.ForeColor = System.Drawing.Color.DarkGreen;
             this.signProgressBar.Location = new System.Drawing.Point(202, 112);
             this.signProgressBar.Margin = new System.Windows.Forms.Padding(2);
             this.signProgressBar.Name = "signProgressBar";
@@ -2585,7 +2585,7 @@ namespace CIEID
             // generateCustomGraphicSignatureButton
             // 
             this.generateCustomGraphicSignatureButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.generateCustomGraphicSignatureButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.generateCustomGraphicSignatureButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.generateCustomGraphicSignatureButton.FlatAppearance.BorderSize = 0;
             this.generateCustomGraphicSignatureButton.ForeColor = System.Drawing.Color.White;
             this.generateCustomGraphicSignatureButton.Location = new System.Drawing.Point(425, 484);
@@ -2639,7 +2639,7 @@ namespace CIEID
             // selectFileForGraphicSignatureCustomizationButton
             // 
             this.selectFileForGraphicSignatureCustomizationButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.selectFileForGraphicSignatureCustomizationButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.selectFileForGraphicSignatureCustomizationButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.selectFileForGraphicSignatureCustomizationButton.FlatAppearance.BorderSize = 0;
             this.selectFileForGraphicSignatureCustomizationButton.ForeColor = System.Drawing.Color.White;
             this.selectFileForGraphicSignatureCustomizationButton.Location = new System.Drawing.Point(264, 484);
@@ -2654,7 +2654,7 @@ namespace CIEID
             // cancelCustomizationButton
             // 
             this.cancelCustomizationButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.cancelCustomizationButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.cancelCustomizationButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.cancelCustomizationButton.FlatAppearance.BorderSize = 0;
             this.cancelCustomizationButton.ForeColor = System.Drawing.Color.White;
             this.cancelCustomizationButton.Location = new System.Drawing.Point(92, 484);
@@ -2695,7 +2695,7 @@ namespace CIEID
             // extractP7MButton
             // 
             this.extractP7MButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.extractP7MButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.extractP7MButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.extractP7MButton.FlatAppearance.BorderSize = 0;
             this.extractP7MButton.ForeColor = System.Drawing.Color.White;
             this.extractP7MButton.Location = new System.Drawing.Point(85, 496);
@@ -2770,7 +2770,7 @@ namespace CIEID
             // closeVerifyButton
             // 
             this.closeVerifyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.closeVerifyButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.closeVerifyButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.closeVerifyButton.FlatAppearance.BorderSize = 0;
             this.closeVerifyButton.ForeColor = System.Drawing.Color.White;
             this.closeVerifyButton.Location = new System.Drawing.Point(388, 493);
@@ -2990,7 +2990,7 @@ namespace CIEID
             // clearLogFolderBtn
             // 
             this.clearLogFolderBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.clearLogFolderBtn.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.clearLogFolderBtn.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.clearLogFolderBtn.FlatAppearance.BorderSize = 0;
             this.clearLogFolderBtn.ForeColor = System.Drawing.Color.White;
             this.clearLogFolderBtn.Location = new System.Drawing.Point(326, 391);
@@ -3005,7 +3005,7 @@ namespace CIEID
             // collectLogBtn
             // 
             this.collectLogBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.collectLogBtn.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.collectLogBtn.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.collectLogBtn.FlatAppearance.BorderSize = 0;
             this.collectLogBtn.ForeColor = System.Drawing.Color.White;
             this.collectLogBtn.Location = new System.Drawing.Point(126, 391);
@@ -3223,7 +3223,7 @@ namespace CIEID
             // editSettingsButton
             // 
             this.editSettingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.editSettingsButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.editSettingsButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.editSettingsButton.FlatAppearance.BorderSize = 0;
             this.editSettingsButton.ForeColor = System.Drawing.Color.White;
             this.editSettingsButton.Location = new System.Drawing.Point(271, 2);
@@ -3238,7 +3238,7 @@ namespace CIEID
             // saveSettingsButton
             // 
             this.saveSettingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.saveSettingsButton.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.saveSettingsButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.saveSettingsButton.Enabled = false;
             this.saveSettingsButton.FlatAppearance.BorderSize = 0;
             this.saveSettingsButton.ForeColor = System.Drawing.Color.White;

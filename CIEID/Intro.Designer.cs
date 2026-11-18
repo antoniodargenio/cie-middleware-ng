@@ -82,7 +82,7 @@
             // 
             this.buttonContinue.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonContinue.BackColor = System.Drawing.Color.DodgerBlue;
+            this.buttonContinue.BackColor = System.Drawing.Color.SeaGreen;
             this.buttonContinue.Location = new System.Drawing.Point(326, 454);
             this.buttonContinue.Margin = new System.Windows.Forms.Padding(2);
             this.buttonContinue.Name = "buttonContinue";
@@ -198,7 +198,7 @@
             // 
             // buttonStart
             // 
-            this.buttonStart.BackColor = System.Drawing.Color.DodgerBlue;
+            this.buttonStart.BackColor = System.Drawing.Color.SeaGreen;
             this.buttonStart.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.buttonStart.FlatAppearance.BorderSize = 0;
             this.buttonStart.Location = new System.Drawing.Point(344, 454);

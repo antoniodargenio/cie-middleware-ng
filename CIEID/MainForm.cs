@@ -1561,7 +1561,7 @@ namespace CIEID
 
         private void SignOperationOptionPanel_MouseEnter(object sender, EventArgs e)
         {
-            signOptionChooserLabel.ForeColor = SystemColors.Highlight;
+            signOptionChooserLabel.ForeColor = Color.SeaGreen;
         }
 
         private void SignOperationOptionPanel_MouseLeave(object sender, EventArgs e)
@@ -1617,7 +1617,7 @@ namespace CIEID
 
         private void pnVerificaOp_MouseEnter(object sender, EventArgs e)
         {
-            verifyOptionChooserLabel.ForeColor = SystemColors.Highlight;
+            verifyOptionChooserLabel.ForeColor = Color.SeaGreen;
         }
 
         private void pnVerificaOp_MouseLeave(object sender, EventArgs e)
@@ -1638,7 +1638,7 @@ namespace CIEID
             {
                 if (enableGraphicSignatureCheckBox.Checked == true)
                 {
-                    enableGraphicSignatureCheckBox.ForeColor = SystemColors.Highlight;
+                    enableGraphicSignatureCheckBox.ForeColor = Color.SeaGreen;
                 }
                 else
                 {
@@ -1710,7 +1710,7 @@ namespace CIEID
         private void PanelChooseCades_MouseClick(object sender, EventArgs e)
         {
             Logger.Info("panelChooseCades_MouseClick() - Inizia funzione");
-            CAdESSignatureLabel.ForeColor = SystemColors.Highlight;
+            CAdESSignatureLabel.ForeColor = Color.SeaGreen;
             CAdESFormatDescriptionLabel.ForeColor = Color.Black;
 
             PAdESSignatureLabel.ForeColor = SystemColors.ControlDarkDark;

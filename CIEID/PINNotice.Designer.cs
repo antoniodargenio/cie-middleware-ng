@@ -112,7 +112,7 @@
             // 
             // buttonOK
             // 
-            this.buttonOK.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.buttonOK.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.buttonOK.FlatAppearance.BorderSize = 0;
             this.buttonOK.ForeColor = System.Drawing.Color.White;
             this.buttonOK.Location = new System.Drawing.Point(138, 331);

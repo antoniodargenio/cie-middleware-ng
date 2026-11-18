@@ -11,8 +11,8 @@ namespace CIEID.Controls
 {
     class CustomRadioButton : RadioButton
     {
-        private Color onColor = Color.FromArgb(0, 122, 255);
-        private Color offColor = Color.FromArgb(0, 122, 255);
+        private Color onColor = Color.FromArgb(0, 168, 107);
+        private Color offColor = Color.FromArgb(0, 168, 107);
 
         public CustomRadioButton()
         {
