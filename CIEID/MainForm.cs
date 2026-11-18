@@ -198,12 +198,12 @@ namespace CIEID
                 Properties.Settings.Default.cieList = JsonConvert.SerializeObject(CieColl.MyDictionary);
                 Properties.Settings.Default.Save();
 
-                Console.WriteLine("Immagine firma salvata in: {0}", defaultSignImagePath);
+                Logger.Debug(string.Format("Immagine firma salvata in: {0}", defaultSignImagePath));
 
                 TextInfo nameInfo = new CultureInfo("it-IT", false).TextInfo;
                 DrawText(nameInfo.ToTitleCase(name.ToLower()), Color.Black, defaultSignImagePath);
 
-                Console.WriteLine("CIE abbinate dopo aggiunta: " + Properties.Settings.Default.cieList);
+                Logger.Debug("CIE abbinate dopo aggiunta: " + Properties.Settings.Default.cieList);
 
                 return 0;
             }
@@ -424,7 +424,7 @@ namespace CIEID
             Properties.Settings.Default.cieList = JsonConvert.SerializeObject(CieColl.MyDictionary);
             Properties.Settings.Default.Save();
 
-            Console.WriteLine("Immagine firma salvata in: {0}", defaultSignImagePath);
+            Logger.Debug(string.Format("Immagine firma salvata in: {0}", defaultSignImagePath));
 
             TextInfo nameInfo = new CultureInfo("it-IT", false).TextInfo;
             DrawText(nameInfo.ToTitleCase(name.ToLower()), Color.Black, defaultSignImagePath);
@@ -458,7 +458,7 @@ namespace CIEID
 
             ConfigureHomeButtons(cieColl);
 
-            Console.WriteLine("Lista CIE abbinate: " + Properties.Settings.Default.cieList);
+            Logger.Debug("Lista CIE abbinate: " + Properties.Settings.Default.cieList);
 
             if (CieColl.MyDictionary.Count == 0)
             {
@@ -682,7 +682,7 @@ namespace CIEID
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Logger.Error("[ERROR] Abbinamento CIE - eccezione: " + ex);
             }
 
             return ret;
@@ -711,10 +711,9 @@ namespace CIEID
                         RemoveExistingGraphicSignature(model.SerialNumber);
                     }
 
-                    catch
+                    catch (Exception ex)
                     {
-                        Console.WriteLine("Failed to erase graphic signature");
-                        Logger.Debug("RemoveCIEFromCollection() - Failed to remove graphic signature image for CIE PAN: " + PAN);
+                        Logger.Error("RemoveCIEFromCollection() - Failed to remove graphic signature image for CIE PAN: " + PAN + " - " + ex.Message);
                     }
 
 
@@ -1261,13 +1260,13 @@ namespace CIEID
                 }
 
                 CieColl.removeCie(arrayCIE[i]);
-                Console.WriteLine("CIE con chiave " + arrayCIE[i] + " disabilitata");
+                Logger.Debug("CIE con chiave " + arrayCIE[i] + " disabilitata");
             }
 
             Properties.Settings.Default.cieList = JsonConvert.SerializeObject(CieColl.MyDictionary);
             Properties.Settings.Default.Save();
 
-            Console.WriteLine("Cie Rimanenti: " + Properties.Settings.Default.cieList);
+            Logger.Debug("Cie Rimanenti: " + Properties.Settings.Default.cieList);
 
             MessageBox.Show("CIE disabilitate con successo", "CIE disabilitate", MessageBoxButtons.OK, MessageBoxIcon.Information);
             SelectHome();
@@ -1356,13 +1355,13 @@ namespace CIEID
             if (CieColl.MyDictionary.Count > 0)
             {
                 ChangeHomeObjects();
-                Console.WriteLine("ChangeHomeObjects called");
+                Logger.Debug("ChangeHomeObjects called");
             }
 
             else
             {
                 SignWithCIEWithoutPairingButton_Click(null, null);
-                Console.WriteLine("SignCIEW/OPairing called");
+                Logger.Debug("SignCIEW/OPairing called");
             }
         }
 
@@ -1457,7 +1456,7 @@ namespace CIEID
         void PanelChooseDoc_dragEnter(object sender, DragEventArgs e)
         {
             Logger.Info("panelChooseDoc_dragEnter() - Inizia funzione");
-            Console.WriteLine("Panel_DragEnter");
+            Logger.Debug("Panel_DragEnter");
             panelChooseDoc.BackColor = Color.LightGray;
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
                 e.Effect = DragDropEffects.Copy;
@@ -1466,7 +1465,7 @@ namespace CIEID
         void PanelChooseDoc_dragLeave(object sender, EventArgs e)
         {
             Logger.Info("panelChooseDoc_dragLeave() - Inizia funzione");
-            Console.WriteLine("Panel_DragLeave");
+            Logger.Debug("Panel_DragLeave");
             panelChooseDoc.BackColor = Color.Transparent;
         }
 
@@ -1776,7 +1775,7 @@ namespace CIEID
         {
             Logger.Info("ChangeSignPINObjects() - Inizia funzione");
 
-            Console.WriteLine("ShouldSignWithoutPairing: " + shouldSignWithoutCIEPairing);
+            Logger.Debug("ShouldSignWithoutPairing: " + shouldSignWithoutCIEPairing);
 
             byte tagIndexStart = 9;
             byte tagIndexEnd = 17;
@@ -1874,7 +1873,7 @@ namespace CIEID
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 pathToSaveFile = Path.GetFullPath(saveFileDialog1.FileName);
-                Console.WriteLine("Path save file: {0}", pathToSaveFile);
+                Logger.Debug(string.Format("Path save file: {0}", pathToSaveFile));
             }
             else
                 return;
@@ -1928,7 +1927,7 @@ namespace CIEID
                 int ret = 0;
                 if (enableGraphicSignatureCheckBox.Checked && (signOp == OperationSelectedState.PADES_SIGNATURE))
                 {
-                    Console.WriteLine("Pades con grafica");
+                    Logger.Debug("Pades con grafica");
                     Dictionary<string, float> signImageInfo = pdfPreview.getSignImageInfos();
                     ret = firmaConCIE(labelFileNamePathSigningOperation.Text, "pdf", PIN, (shouldSignWithoutCIEPairing) ? PANForOneShotSigning : model.Pan, (int)signImageInfo["pageNumber"], signImageInfo["x"], signImageInfo["y"], signImageInfo["w"], signImageInfo["h"],
                                       pdfPreview.getSignImagePath(), pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted));
@@ -2011,7 +2010,7 @@ namespace CIEID
             if (openFile.ShowDialog() == DialogResult.OK)
             {
                 string file_name = openFile.FileName;
-                Console.WriteLine("PNG Selected file: {0}", file_name);
+                Logger.Debug(string.Format("PNG Selected file: {0}", file_name));
 
                 var model = carouselControl.ActiveCieModel;
 
@@ -2098,7 +2097,7 @@ namespace CIEID
         private void SelectSigningCIEButton_Click(object sender, EventArgs e)
         {
             Logger.Info("SelectSigningCIEButton_Click() - Inizia funzione");
-            Console.WriteLine("Disabling flag");
+            Logger.Debug("Disabling flag");
             shouldSignWithoutCIEPairing = false;
             DisplayFileSelectionTab();
         }
@@ -2111,7 +2110,7 @@ namespace CIEID
 
             string defaultSignImagePath = getSignImagePath(model.SerialNumber);
 
-            Console.WriteLine("Immagine firma salvata in: {0}", defaultSignImagePath);
+            Logger.Debug(string.Format("Immagine firma salvata in: {0}", defaultSignImagePath));
 
             TextInfo nameInfo = new CultureInfo("it-IT", false).TextInfo;
             DrawText(nameInfo.ToTitleCase(model.Owner.ToLower()), Color.Black, defaultSignImagePath);
@@ -2374,9 +2373,9 @@ namespace CIEID
             {
                 pathToSaveFile = Path.GetFullPath(saveFileDialog1.FileName);
 
-                Console.WriteLine("File extension: {0}", fileExt);
+                Logger.Debug(string.Format("File extension: {0}", fileExt));
                 long res = estraiP7m(fileNamePathVerifyLabel.Text, pathToSaveFile);
-                Console.WriteLine("Res: {0}", (UInt32)res);
+                Logger.Debug(string.Format("Res: {0}", (UInt32)res));
 
                 if (res == 0)
                 {
@@ -2404,7 +2403,7 @@ namespace CIEID
 
         private void mainTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Console.WriteLine("mainTabControl_SelectedIndex: " + mainTabControl.SelectedIndex.ToString());
+            Logger.Debug("mainTabControl_SelectedIndex: " + mainTabControl.SelectedIndex.ToString());
 
             if (mainTabControl.SelectedIndex == 0 || mainTabControl.SelectedIndex == 1)
                 shouldSignWithoutCIEPairing = false;
@@ -2489,7 +2488,6 @@ namespace CIEID
 
                     catch(Exception ex)
                     {
-                        Console.WriteLine("ClearLogFolder - Exception: " + ex.Message);
                         Logger.Error("[ERROR] ClearLogFolderBtn_Click() - Si è verificato un errore durante l'operazione: " + ex.Message);
                         res = false;
                     }

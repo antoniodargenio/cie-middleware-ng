@@ -26,14 +26,11 @@ namespace CIEID
                 break;
             }
 
-            Console.WriteLine("Seed generated -> {0} ", seed);
-
             SHA256 hash = SHA256.Create();
 
             this.key = hash.ComputeHash(Encoding.UTF8.GetBytes(seed));
             this.IV = Encoding.ASCII.GetBytes(@"9/\~V).A,lY&=t2b");
 
-            Console.WriteLine("Generated key -> {0}", Convert.ToBase64String(key));
             aesCipher =  new AesCBCcs(key, IV);
         }
 
