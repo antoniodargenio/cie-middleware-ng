@@ -126,7 +126,10 @@ namespace CIEID
             helpSupportLabel.TextAlign = ContentAlignment.MiddleCenter;
             helpSupportLabel.SetBounds(9, 2, tabPageHelpWebBrowser.Width - 18, 40);
             helpSupportLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            webBrowserHelp.SetBounds(0, 44, webBrowserHelp.Width, webBrowserHelp.Height - 44);
+            tabPageHelpWebBrowser.Controls.Remove(pictureBox11);
+            tabPageHelpWebBrowser.Controls.Remove(pictureBox13);
+            webBrowserHelp.SetBounds(0, 44, webBrowserHelp.Width, tabPageHelpWebBrowser.Height - 44);
+            webBrowserHelp.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabPageHelpWebBrowser.Controls.Add(helpSupportLabel);
             // Scheda Informazioni: via i loghi istituzionali, avviso sul trattamento dei dati del fork.
             tabPageInformationWebBrowser.Controls.Remove(pictureBox8);
