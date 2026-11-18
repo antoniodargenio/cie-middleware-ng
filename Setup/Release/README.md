@@ -1,2 +1,2 @@
-NSI setup will automatically delete cache folder (C:\ProgramData\CIEPKI-NG) upon install.
-Any card registration (Abilitazione CIE) should be done again after install.
+L'installer NSIS elimina la cartella della cache (C:\ProgramData\CIEPKI-NG) durante l'installazione.
+Dopo l'installazione ogni abbinamento CIE (Abilitazione CIE) va rifatto.

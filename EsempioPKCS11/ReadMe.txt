@@ -1,40 +1,26 @@
 ========================================================================
-    CONSOLE APPLICATION : EsempioPKCS11 Project Overview
+    APPLICAZIONE CONSOLE : EsempioPKCS11
 ========================================================================
 
-AppWizard has created this EsempioPKCS11 application for you.
+Esempio di utilizzo del modulo PKCS#11 (CIEPKI-NG.dll) da un'applicazione
+console C++. Generato con la procedura guidata di Visual Studio e poi adattato.
 
-This file contains a summary of what you will find in each of the files that
-make up your EsempioPKCS11 application.
-
+File del progetto:
 
 EsempioPKCS11.vcxproj
-    This is the main project file for VC++ projects generated using an Application Wizard.
-    It contains information about the version of Visual C++ that generated the file, and
-    information about the platforms, configurations, and project features selected with the
-    Application Wizard.
+    File di progetto principale (piattaforme, configurazioni, opzioni).
 
 EsempioPKCS11.vcxproj.filters
-    This is the filters file for VC++ projects generated using an Application Wizard. 
-    It contains information about the association between the files in your project 
-    and the filters. This association is used in the IDE to show grouping of files with
-    similar extensions under a specific node (for e.g. ".cpp" files are associated with the
-    "Source Files" filter).
+    Associa i file ai filtri mostrati in Esplora soluzioni.
 
 EsempioPKCS11.cpp
-    This is the main application source file.
-
-/////////////////////////////////////////////////////////////////////////////
-Other standard files:
+    Sorgente principale: carica la libreria PKCS#11 e invoca le funzioni di esempio.
 
 StdAfx.h, StdAfx.cpp
-    These files are used to build a precompiled header (PCH) file
-    named EsempioPKCS11.pch and a precompiled types file named StdAfx.obj.
+    Generano l'header precompilato EsempioPKCS11.pch e StdAfx.obj.
 
 /////////////////////////////////////////////////////////////////////////////
-Other notes:
+Note:
 
-AppWizard uses "TODO:" comments to indicate parts of the source code you
-should add to or customize.
-
-/////////////////////////////////////////////////////////////////////////////
+I commenti "TODO:" indicano le parti da completare o personalizzare.
+Il nome del modulo da caricare e' CIEPKI-NG.dll (installata in System32).

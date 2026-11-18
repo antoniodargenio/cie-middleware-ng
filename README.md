@@ -1,4 +1,4 @@
-# MIDDLEWARE CSP-PKCS11 PER LA CIE 3.0 [![Build status](https://ci.appveyor.com/api/projects/status/dpc0ditjn04ylw6y?svg=true)](https://ci.appveyor.com/project/italia/cie-middleware)
+# CIE MIDDLEWARE NG (CSP-PKCS11 PER LA CIE 3.0) — build non ufficiale
 
 
 ## CASO D’USO
@@ -6,7 +6,7 @@
 Il middleware CIE è una libreria software che implementa le interfacce crittografiche standard **PKCS#11** e **CSP**. Esso consente agli applicativi integranti di utilizzare il certificato di autenticazione e la relativa chiave privata memorizzati sul chip della CIE astraendo dalle modalità di comunicazione di basso livello. 
 
 ## ARCHITETTURA
-La libreria è sviluppata in C++ su Visual Studio 2017 Community; per compilare il modulo di installazione (progetto **Setup**) è inoltre necessario [NSIS 3.02.1](https://sourceforge.net/projects/nsis/). Allo stato attuale è utilizzabile esclusivamente in ambiente Windows. Entrambe le interfacce sono esposte della stessa libreria (CIEPKI-NG.dll), che viene compilata dal progetto CSP. La libreria viene compilata sia in versione a 32 bit che a 64 bit.
+La libreria è sviluppata in C++ su Visual Studio 2022 o successivo (toolset v145); l'applicazione **CIEID** è in C# su .NET 10 (WinForms); per compilare il modulo di installazione (progetto **Setup**) è inoltre necessario [NSIS](https://nsis.sourceforge.io/). Allo stato attuale è utilizzabile esclusivamente in ambiente Windows. Entrambe le interfacce sono esposte della stessa libreria (CIEPKI-NG.dll), che viene compilata dal progetto CSP. La libreria viene compilata sia in versione a 32 bit che a 64 bit.
 
 L’interfaccia CSP è conforme alla versione 7 delle specifiche dei Minidriver pubblicate da Microsoft a [questo](http://download.microsoft.com/download/7/E/7/7E7662CF-CBEA-470B-A97E-CE7CE0D98DC2/sc-minidriver_specs_V7.docx) indirizzo.
 L’interfaccia PKCS11 è conforme alla specifica [RSA 2.11](https://www.cryptsoft.com/pkcs11doc/v211/).
@@ -19,11 +19,11 @@ Il modulo CSP implementa anche uno store provider per i certificati, in modo tal
 Allo stesso modo del CSP, anche il PKCS11 gestisce la carta in modalità **read-only**. Pertanto le operazioni di creazione, modifica e distruzione di qualsiasi oggetto restituiranno un errore.
 
 ## Setup
-Il modulo di installazione del Middleware si compila tramite il progetto **Setup**, che richiede l'installazione di [NSIS 3.02.1](https://sourceforge.net/projects/nsis/). Il setup installa sia la versione a 32 che a 64 bit, ed effettua la registrazione del CSP e dello Store provider. Il modulo PKCS11 non richiede registrazione, ma il nome del modulo (**CIEPKI-NG.dll**) deve essere noto alle applicazioni che lo utilizzano.
+Il modulo di installazione del Middleware si compila tramite il progetto **Setup**, che richiede l'installazione di [NSIS](https://nsis.sourceforge.io/). Il setup installa sia la versione a 32 che a 64 bit, ed effettua la registrazione del CSP e dello Store provider. Il modulo PKCS11 non richiede registrazione, ma il nome del modulo (**CIEPKI-NG.dll**) deve essere noto alle applicazioni che lo utilizzano.
 
 ## Differenze rispetto alla versione originale
 
-Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware](https://github.com/italia/cie-middleware) (ultimo commit upstream di partenza: `8dd385e`). La finestra riporta il titolo "CIE ID [build non ufficiale]" e usa una palette verde per distinguerla dall'originale. Il formato della cache delle CIE abbinate è invariato, quindi le CIE già registrate da altre versioni restano utilizzabili.
+Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware](https://github.com/italia/cie-middleware) (ultimo commit upstream di partenza: `8dd385e`). La finestra riporta il titolo "CIE Middleware NG [build non ufficiale]" e usa una palette verde per distinguerla dall'originale. Il formato della cache delle CIE abbinate è invariato, quindi le CIE già registrate da altre versioni restano utilizzabili.
 
 **Supporto.** Questa versione non è ufficialmente supportata dall'IPZS. Essendo un fork pubblico, riceve supporto dagli sviluppatori su GitHub (issue e pull request del repository del progetto).
 
@@ -53,6 +53,36 @@ Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware]
 - `PdfPreview`: `mutool` eseguito con `ArgumentList` e timeout, risorse rilasciate, nessun blocco dei file immagine.
 - `TSAClient`: copie di stringhe con limiti, timeout (10 s connessione, 30 s totali), solo HTTP/HTTPS anche nei redirect, limite di 1 MB alla risposta, controllo dello stato HTTP e rilascio dell'handle curl anche in caso di errore. Il certificato TLS della TSA viene verificato (catena e nome host) usando le CA radice/intermedie dell'archivio certificati di Windows; le credenziali TSA vengono inviate solo se l'URL è `https://`, altrimenti la richiesta è rifiutata.
 - `CIEID`: log strutturato (`Logger`) al posto di `Console.WriteLine` e dei `catch` vuoti.
+
+## Sviluppo
+
+### Struttura della soluzione
+`CIE-Middleware-NG.sln` contiene:
+- `CSP` — libreria nativa `CIEPKI-NG.dll` (minidriver CSP + modulo PKCS#11 + funzioni di abbinamento, firma e cambio/sblocco PIN usate da CIEID);
+- `CIEID` — applicazione WinForms .NET 10 (eseguibile `CIE-Middleware-NG.exe`, namespace `CIEID`), chiama la DLL via P/Invoke;
+- `CacheLib`, `cie_sign_sdk` (terze parti, non modificare), `PKCS11`, `Setup` (installer NSIS), `EsempioCSP`, `EsempioPCSC`, `EsempioPKCS11`.
+
+Il codice del fork (CIEID, CSP, CacheLib) è commentato in italiano. Attenzione: il nome della DLL nei `DllImport` di `CIEID/MainForm.cs` deve coincidere con il file installato (`CIEPKI-NG.dll`), altrimenti l'abbinamento si blocca.
+
+### Compilazione
+```
+MSBuild.exe CIE-Middleware-NG.sln -p:Configuration=Release -p:Platform=x64 -m -v:q -nologo
+cd Setup
+makensis.exe -V2 -DConfig=Release CIE-Middleware-NG.nsi
+```
+L'installer risultante è `Setup/Release/CIE-Middleware-NG.exe` (installazione silenziosa con `/S`).
+
+### Coesistenza con l'originale
+Il fork convive con l'installazione originale: file in `C:\Program Files\CIEPKI-NG`, DLL `CIEPKI-NG.dll` in System32, dati e cache in `C:\ProgramData\CIEPKI-NG`.
+
+### Diagnostica e log
+Il file `C:\ProgramData\CIEPKI-NG\config` accetta `LIB_LOG_LEVEL=n` (libreria) e `APP_LOG_LEVEL=n` (applicazione), con 0 = disattivato, 1 = debug, 2 = info, 3 = solo errori. I log sono `CIE-Middleware-NG_{data}.log` (app) e `CIEPKI-NG_{data}.log` (libreria); la scheda Impostazioni permette di raccoglierli o eliminarli.
+
+### Versionamento
+SemVer `MAJOR.MINOR.PATCH.BUILD`, sorgente unica `version.txt`. L'hook `.githooks/pre-commit` (attivare con `git config core.hooksPath .githooks`) incrementa BUILD a ogni commit senza mai azzerarlo e propaga la versione in `AssemblyInfo.cs`, nel file `.rc` e nello script NSIS; `./bump-version.sh major|minor|patch` modifica le prime tre cifre.
+
+### Repository
+Remoti: `github` (principale), `deb1` (mirror interno), `origin` (upstream italia/cie-middleware, sola lettura).
 
 ## Disclaimer
 
