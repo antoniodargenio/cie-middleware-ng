@@ -17,7 +17,7 @@ L'utilizzo avviene **a esclusivo rischio e pericolo dell'utente**. Lo sviluppato
 - Per usi ufficiali, professionali o aventi valore legale utilizzare esclusivamente il software ufficiale fornito dall'IPZS.
 - Le firme prodotte con questo software potrebbero non essere accettate da terzi; verificarne sempre la validità con strumenti ufficiali.
 - Il software interagisce con una carta d'identità elettronica reale: un uso errato (ad esempio inserimenti ripetuti di PIN errati) può bloccare il PIN o la carta.
-- La verifica del certificato TLS verso i server di marca temporale (TSA) è disattivata (vedere README); la marca temporale è comunque firmata dalla TSA.
+- Il certificato TLS dei server di marca temporale (TSA) è verificato con l'archivio certificati di Windows; le credenziali TSA non vengono mai inviate su connessioni `http://` non cifrate.
 - Le credenziali eventualmente configurate (proxy, TSA) sono salvate cifrate con una chiave derivata dalla macchina e non vanno considerate un sistema di custodia sicuro.
 
 ## Licenza

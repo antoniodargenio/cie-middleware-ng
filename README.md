@@ -49,7 +49,7 @@ Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware]
 - `firmaConCIE` e `AbbinaCIE`: validazione degli input, PIN azzerato in memoria (`SecureZeroMemory`), RAII (`unique_ptr`, `vector`) al posto di `malloc/free`, nessun leak sui ritorni anticipati, rilascio del contesto PC/SC e del certificato.
 - `CacheLib`: controllo di dimensioni e lunghezze in lettura, PAN validato (niente *path traversal*), scrittura atomica tramite file temporaneo e `MoveFileEx`.
 - `PdfPreview`: `mutool` eseguito con `ArgumentList` e timeout, risorse rilasciate, nessun blocco dei file immagine.
-- `TSAClient`: copie di stringhe con limiti, timeout (10 s connessione, 30 s totali), solo HTTP/HTTPS anche nei redirect, limite di 1 MB alla risposta, controllo dello stato HTTP e rilascio dell'handle curl anche in caso di errore. La verifica del certificato TLS resta disattivata (libcurl 7.64.1 senza bundle di CA); la marca temporale è comunque firmata dalla TSA.
+- `TSAClient`: copie di stringhe con limiti, timeout (10 s connessione, 30 s totali), solo HTTP/HTTPS anche nei redirect, limite di 1 MB alla risposta, controllo dello stato HTTP e rilascio dell'handle curl anche in caso di errore. Il certificato TLS della TSA viene verificato (catena e nome host) usando le CA radice/intermedie dell'archivio certificati di Windows; le credenziali TSA vengono inviate solo se l'URL è `https://`, altrimenti la richiesta è rifiutata.
 - `CIEID`: log strutturato (`Logger`) al posto di `Console.WriteLine` e dei `catch` vuoti.
 
 ## Disclaimer
