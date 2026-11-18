@@ -1,4 +1,5 @@
 #!/bin/sh
+# Versione MAJOR.MINOR.PATCH.BUILD: qui sale solo BUILD (mai azzerato); major/minor/patch con ./bump-version.sh
 # Incrementa automaticamente l'ultima cifra della versione (version.txt) a ogni commit
 # e la propaga in CIEID/Properties/AssemblyInfo.cs e Setup/CIEMiddleware.nsi.
 cd "$(git rev-parse --show-toplevel)" || exit 1
