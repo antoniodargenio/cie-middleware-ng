@@ -61,11 +61,27 @@ VIProductVersion "${PRODUCT_VERSION}"
 ;--------------------------------
 ;Installer Sections
 
-Section "Visual Studio Runtime"
-  SetOutPath "$INSTDIR"
-  File "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.16.27012\vcredist_x64.exe"
-  ExecWait "$INSTDIR\vcredist_x64.exe /install /quiet" 
-  Delete "$INSTDIR\vcredist_x64.exe"
+; Runtime opzionali: se i redistributable sono presenti in Setup\Redist vengono inclusi nell'installer.
+; - vc_redist.x64.exe: Microsoft Visual C++ Redistributable 2015-2022 x64 (richiesto da CIEPKI.dll)
+; - windowsdesktop-runtime-win-x64.exe: .NET Desktop Runtime 10 x64 (richiesto da CIEID)
+!define VCREDIST_FILE "${__FILEDIR__}\Redist\vc_redist.x64.exe"
+!define DOTNET_FILE "${__FILEDIR__}\Redist\windowsdesktop-runtime-win-x64.exe"
+
+Section "Runtime"
+  InitPluginsDir
+  SetOutPath "$PLUGINSDIR"
+  !if /FileExists "${VCREDIST_FILE}"
+    File "${VCREDIST_FILE}"
+    ExecWait '"$PLUGINSDIR\vc_redist.x64.exe" /install /quiet /norestart'
+  !else
+    !warning "vc_redist.x64.exe non trovato in Setup\Redist: il runtime C++ NON sara' incluso nell'installer"
+  !endif
+  !if /FileExists "${DOTNET_FILE}"
+    File "${DOTNET_FILE}"
+    ExecWait '"$PLUGINSDIR\windowsdesktop-runtime-win-x64.exe" /install /quiet /norestart'
+  !else
+    !warning "windowsdesktop-runtime-win-x64.exe non trovato in Setup\Redist: il runtime .NET NON sara' incluso nell'installer"
+  !endif
 SectionEnd
 
 Section "Install"
@@ -77,9 +93,7 @@ Section "Install"
 	!echo ${Config}
     !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "..\x64\${Config}\CIEPKI.dll" "$SYSDIR\CIEPKI.dll" $SYSDIR
     !undef LIBRARY_X64
-    #!insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "..\Win32\${Config}\CIEPKI.dll" "$SYSDIR\CIEPKI.dll" $SYSDIR
   ${Else}
-    #!insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "..\Win32\${Config}\CIEPKI.dll" "$SYSDIR\CIEPKI.dll" $SYSDIR
   ${EndIf}
 
   # RMDir /r "$LOCALAPPDATA\CIEID"
@@ -107,9 +121,12 @@ Section "Install"
 	
 	
 	File "..\x64\${Config}\CIEID.exe"
-	File "..\x64\${Config}\CIEID.exe.config"
+	File "..\x64\${Config}\CIEID.dll"
+	File "..\x64\${Config}\CIEID.dll.config"
+	File "..\x64\${Config}\CIEID.deps.json"
+	File "..\x64\${Config}\CIEID.runtimeconfig.json"
 	File "..\x64\${Config}\Newtonsoft.Json.dll"
-	File "..\x64\${Config}\Newtonsoft.Json.xml"
+	File "..\x64\${Config}\System.Management.dll"
 		
   SetOutPath $SYSDIR
 	
@@ -173,6 +190,13 @@ Section "Uninstall"
 
   RMDir /r "$LOCALAPPDATA\IPZS"
   RMDir /r "$%PROGRAMDATA%\CIEPKI"
+  Delete "$INSTDIR\CIEID.exe"
+  Delete "$INSTDIR\CIEID.dll"
+  Delete "$INSTDIR\CIEID.dll.config"
+  Delete "$INSTDIR\CIEID.deps.json"
+  Delete "$INSTDIR\CIEID.runtimeconfig.json"
+  Delete "$INSTDIR\Newtonsoft.Json.dll"
+  Delete "$INSTDIR\System.Management.dll"
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
   
