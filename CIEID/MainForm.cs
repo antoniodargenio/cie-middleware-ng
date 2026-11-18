@@ -30,6 +30,7 @@ namespace CIEID
         public const int CKR_PIN_LEN_RANGE = 0x000000A2;
         public const int CARD_ALREADY_ENABLED = 0x000000F0;
         public const int CARD_PAN_MISMATCH = 0x000000F1;
+        public const int CARD_TSA_ERROR = 0x000000F2;
         public const UInt32 INVALID_FILE_TYPE = 0x84000005;
 
         /* CKR_PIN_EXPIRED and CKR_PIN_LOCKED are new for v2.0 */
@@ -1750,6 +1751,7 @@ namespace CIEID
                     pdfPreview.pdfPreviewRemoveObjects();
                 }
 
+                EnterPreviewFullscreen();
                 pdfPreview = new PdfPreview(panePreview, labelFileNamePathInDragSignatureBox.Text, signImagePath);
                 if (pdfPreview.getPdfPages() <= 1)
                 {
@@ -1936,23 +1938,53 @@ namespace CIEID
                 // Marca temporale: letta qui (thread UI) perche' la firma gira su un altro thread
                 string tsaUrl = enableTimestampCheckBox.Checked ? Properties.Settings.Default.timestampUrl : null;
 
-                int ret = 0;
-                if (enableGraphicSignatureCheckBox.Checked && (signOp == OperationSelectedState.PADES_SIGNATURE))
+                // Parametri letti una volta sola (thread UI) e riusati negli eventuali nuovi tentativi
+                string inputPath = labelFileNamePathSigningOperation.Text;
+                bool withGraphic = enableGraphicSignatureCheckBox.Checked && (signOp == OperationSelectedState.PADES_SIGNATURE);
+                Dictionary<string, float> graphicInfo = withGraphic ? pdfPreview.getSignImageInfos() : null;
+                string graphicImagePath = withGraphic ? pdfPreview.getSignImagePath() : null;
+
+                Func<string, int> doSign = delegate (string url)
                 {
-                    Logger.Debug("Pades con grafica");
-                    Dictionary<string, float> signImageInfo = pdfPreview.getSignImageInfos();
-                    ret = firmaConCIE(labelFileNamePathSigningOperation.Text, "pdf", PIN, (shouldSignWithoutCIEPairing) ? PANForOneShotSigning : model.Pan, (int)signImageInfo["pageNumber"], signImageInfo["x"], signImageInfo["y"], signImageInfo["w"], signImageInfo["h"],
-                                      pdfPreview.getSignImagePath(), pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), tsaUrl);
-                }
-                else if (signOp == OperationSelectedState.PADES_SIGNATURE)
+                    string pan = (shouldSignWithoutCIEPairing) ? PANForOneShotSigning : model.Pan;
+                    if (withGraphic)
+                    {
+                        Logger.Debug("Pades con grafica");
+                        return firmaConCIE(inputPath, "pdf", PIN, pan, (int)graphicInfo["pageNumber"], graphicInfo["x"], graphicInfo["y"], graphicInfo["w"], graphicInfo["h"],
+                                          graphicImagePath, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url);
+                    }
+                    else if (signOp == OperationSelectedState.PADES_SIGNATURE)
+                    {
+                        Logger.Debug("Pades senza grafica");
+                        return firmaConCIE(inputPath, "pdf", PIN, pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url);
+                    }
+                    else if (signOp == OperationSelectedState.CADES_SIGNATURE)
+                    {
+                        Logger.Debug("Cades");
+                        return firmaConCIE(inputPath, "p7m", PIN, pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url);
+                    }
+                    return 0;
+                };
+
+                int ret = doSign(tsaUrl);
+
+                // Marca temporale non ottenuta: si chiede all'utente come procedere (al massimo 3 tentativi)
+                for (int attempt = 0; ret == CARD_TSA_ERROR && attempt < 3; attempt++)
                 {
-                    Logger.Debug("Pades senza grafica");
-                    ret = firmaConCIE(labelFileNamePathSigningOperation.Text, "pdf", PIN, (shouldSignWithoutCIEPairing) ? PANForOneShotSigning : model.Pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), tsaUrl);
-                }
-                else if (signOp == OperationSelectedState.CADES_SIGNATURE)
-                {
-                    Logger.Debug("Cades");
-                    ret = firmaConCIE(labelFileNamePathSigningOperation.Text, "p7m", PIN, (shouldSignWithoutCIEPairing) ? PANForOneShotSigning : model.Pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), tsaUrl);
+                    string failedUrl = tsaUrl;
+                    bool proceed = false;
+                    string chosen = null;
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        proceed = AskTimestampFallback(failedUrl, out chosen);
+                    });
+
+                    if (!proceed)
+                        break;
+
+                    tsaUrl = chosen;
+                    Logger.Info("Marca temporale non ottenuta, nuovo tentativo con: " + (tsaUrl ?? "(nessuna marca)"));
+                    ret = doSign(tsaUrl);
                 }
 
                 this.Invoke((MethodInvoker)delegate
@@ -1984,6 +2016,11 @@ namespace CIEID
                             MessageBox.Show("CIE selezionata diversa da quella presente sul lettore", "CIE non corrispondente", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             ChangeSignPINObjects();
                             break;
+
+                        case CARD_TSA_ERROR:
+                            MessageBox.Show("La marca temporale non è stata ottenuta e il documento non è stato firmato.", "Marca temporale non disponibile", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            ChangeSignPINObjects();
+                            break;
                     }
 
                     if (shouldSignWithoutCIEPairing)
@@ -1995,6 +2032,107 @@ namespace CIEID
             };
 
             new Thread(processTaskThread).Start();
+        }
+
+        // Dialogo mostrato quando il server di marca temporale non risponde.
+        // Restituisce false se l'utente annulla; chosenUrl = null significa firma senza marca (solo ora del PC).
+        private bool AskTimestampFallback(string failedUrl, out string chosenUrl)
+        {
+            const string digicertUrl = "http://timestamp.digicert.com";
+            chosenUrl = null;
+
+            using (Form dlg = new Form())
+            {
+                dlg.Text = "Marca temporale non disponibile";
+                dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
+                dlg.StartPosition = FormStartPosition.CenterParent;
+                dlg.MaximizeBox = false;
+                dlg.MinimizeBox = false;
+                dlg.ShowInTaskbar = false;
+                dlg.ClientSize = new Size(480, 270);
+
+                Label info = new Label();
+                info.AutoSize = false;
+                info.SetBounds(16, 12, 448, 52);
+                info.Text = "Il server di marca temporale non ha risposto" +
+                            (string.IsNullOrEmpty(failedUrl) ? "." : " (" + failedUrl + ").") +
+                            "\nCome vuoi procedere?";
+                dlg.Controls.Add(info);
+
+                RadioButton rbNone = new RadioButton();
+                rbNone.Text = "Firma senza marca temporale";
+                rbNone.SetBounds(24, 72, 430, 24);
+                rbNone.Checked = true;
+                dlg.Controls.Add(rbNone);
+
+                RadioButton rbDigicert = new RadioButton();
+                rbDigicert.Text = "Usa DigiCert (" + digicertUrl + ")";
+                rbDigicert.SetBounds(24, 100, 430, 24);
+                dlg.Controls.Add(rbDigicert);
+
+                RadioButton rbLocal = new RadioButton();
+                rbLocal.Text = "Solo ora del PC (nessuna marca, orario locale)";
+                rbLocal.SetBounds(24, 128, 430, 24);
+                dlg.Controls.Add(rbLocal);
+
+                RadioButton rbCustom = new RadioButton();
+                rbCustom.Text = "Server personalizzato (URL):";
+                rbCustom.SetBounds(24, 156, 430, 24);
+                dlg.Controls.Add(rbCustom);
+
+                TextBox txtUrl = new TextBox();
+                txtUrl.SetBounds(44, 184, 410, 24);
+                txtUrl.Enabled = false;
+                dlg.Controls.Add(txtUrl);
+                rbCustom.CheckedChanged += delegate { txtUrl.Enabled = rbCustom.Checked; if (rbCustom.Checked) txtUrl.Focus(); };
+
+                Button ok = new Button();
+                ok.Text = "Procedi";
+                ok.SetBounds(298, 226, 80, 30);
+                dlg.Controls.Add(ok);
+
+                Button cancel = new Button();
+                cancel.Text = "Annulla";
+                cancel.DialogResult = DialogResult.Cancel;
+                cancel.SetBounds(384, 226, 80, 30);
+                dlg.Controls.Add(cancel);
+
+                dlg.AcceptButton = ok;
+                dlg.CancelButton = cancel;
+
+                string result = null;
+                ok.Click += delegate
+                {
+                    if (rbDigicert.Checked)
+                    {
+                        result = digicertUrl;
+                    }
+                    else if (rbCustom.Checked)
+                    {
+                        string u = txtUrl.Text.Trim();
+                        Uri parsed;
+                        if (u.Length == 0 || u.Length >= 256 ||
+                            !Uri.TryCreate(u, UriKind.Absolute, out parsed) ||
+                            (parsed.Scheme != Uri.UriSchemeHttp && parsed.Scheme != Uri.UriSchemeHttps))
+                        {
+                            MessageBox.Show("Inserire un URL valido che inizi con http:// o https:// (massimo 255 caratteri).", "URL non valido", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            return;
+                        }
+                        result = u;
+                    }
+                    else
+                    {
+                        result = null;
+                    }
+                    dlg.DialogResult = DialogResult.OK;
+                };
+
+                if (dlg.ShowDialog(this) != DialogResult.OK)
+                    return false;
+
+                chosenUrl = result;
+                return true;
+            }
         }
 
         private void CancelCustomizationButton_Click(object sender, EventArgs e)
@@ -2419,6 +2557,89 @@ namespace CIEID
 
             if (mainTabControl.SelectedIndex == 0 || mainTabControl.SelectedIndex == 1)
                 shouldSignWithoutCIEPairing = false;
+
+            // Uscendo dalla scelta della posizione della firma grafica si torna alle dimensioni normali
+            if (previewFullscreen && mainTabControl.SelectedIndex != 13)
+                ExitPreviewFullscreen();
+
+            // Focus automatico sulla prima casella del PIN
+            Control firstPin = null;
+            if (mainTabControl.SelectedTab == CIEPairingTabPage)
+                firstPin = PINDigit_TextBox1;
+            else if (mainTabControl.SelectedIndex == 14)
+                firstPin = signPINDigit_TextBox1;
+            if (firstPin != null)
+                BeginInvoke((MethodInvoker)delegate { firstPin.Focus(); });
+        }
+
+        private bool previewFullscreen = false;
+        private Size normalClientSize;
+
+        // Porta l'applicazione a schermo pieno e dimensiona l'anteprima del PDF sullo spazio disponibile
+        private void EnterPreviewFullscreen()
+        {
+            if (!previewFullscreen)
+            {
+                normalClientSize = this.ClientSize;
+                this.FormBorderStyle = FormBorderStyle.Sizable;
+                this.MaximizeBox = true;
+                this.WindowState = FormWindowState.Maximized;
+                previewFullscreen = true;
+            }
+
+            if (!previewLayoutHooked)
+            {
+                graphicDigitalSignatureTab.Resize += delegate { LayoutPreviewTab(); };
+                previewLayoutHooked = true;
+            }
+
+            LayoutPreviewTab();
+        }
+
+        private bool previewLayoutHooked = false;
+
+        // Disposizione della schermata di scelta della posizione della firma grafica,
+        // calcolata sulle dimensioni correnti della scheda
+        private void LayoutPreviewTab()
+        {
+            Size t = graphicDigitalSignatureTab.ClientSize;
+            if (t.Width < 200 || t.Height < 200)
+                return;
+
+            labelDigitalSignaturePlaceGraphicSignatureHeaderText.Location = new Point((t.Width - labelDigitalSignaturePlaceGraphicSignatureHeaderText.Width) / 2, 10);
+            labelDigitalSignatureDragSignatureBox.Location = new Point((t.Width - labelDigitalSignatureDragSignatureBox.Width) / 2, 52);
+
+            proceedSignPreviewButton.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            proceedSignPreviewButton.Location = new Point((t.Width - proceedSignPreviewButton.Width) / 2, t.Height - proceedSignPreviewButton.Height - 12);
+
+            panelPreviewGraphicSignature.Location = new Point(15, 82);
+            panelPreviewGraphicSignature.Size = new Size(t.Width - 30, proceedSignPreviewButton.Top - 82 - 8);
+
+            int pw = panelPreviewGraphicSignature.Width;
+            int ph = panelPreviewGraphicSignature.Height;
+
+            pictureBox22.Location = new Point(4, 2);
+            pictureBox22.Size = new Size(36, 43);
+            labelFileNamePathInDragSignatureBox.Location = new Point(48, 12);
+            labelFileNamePathInDragSignatureBox.Size = new Size(Math.Max(50, pw - 56), 24);
+
+            int top = 50;
+            panePreview.Location = new Point(4, top);
+            panePreview.Size = new Size(Math.Max(100, pw - 8 - 48), Math.Max(100, ph - top - 2));
+
+            upButton.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            downButton.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            upButton.Location = new Point(panePreview.Right + 6, top + panePreview.Height / 2 - 45);
+            downButton.Location = new Point(panePreview.Right + 6, top + panePreview.Height / 2 + 10);
+        }
+
+        private void ExitPreviewFullscreen()
+        {
+            previewFullscreen = false;
+            this.WindowState = FormWindowState.Normal;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.ClientSize = normalClientSize;
         }
 
         private void collectLogBtn_Click(object sender, EventArgs e)

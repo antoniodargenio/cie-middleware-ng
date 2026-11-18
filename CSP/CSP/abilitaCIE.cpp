@@ -27,6 +27,7 @@ using namespace CieIDLogger;
 
 #define CARD_ALREADY_ENABLED		0x000000F0;
 #define CARD_PAN_MISMATCH			(int)(0x000000F1)
+#define CARD_TSA_ERROR				(int)(0x000000F2)
 
 typedef CK_RV(*AbilitaCIEfn)(const char*  szPAN,
 	const char*  szPIN,
@@ -95,6 +96,20 @@ extern "C" {
 			strcpy_s(vInfos->cn, 512, tmpSignerInfo.szCN);
 			strcpy_s(vInfos->cadn, 512, tmpSignerInfo.szCADN);
 			strcpy_s(vInfos->signingTime, 512, tmpSignerInfo.szSigningTime);
+			if (vInfos->signingTime[0] == 0 && tmpSignerInfo.pTimeStamp != nullptr)
+			{
+				// PAdES/detached: nessun attributo signingTime, si usa l'ora della marca temporale
+				// (GeneralizedTime YYYYMMDDHHMMSS[.f]Z -> formato atteso dall'interfaccia yyMMddHHmmssZ)
+				const char* ts = ((TS_INFO*)tmpSignerInfo.pTimeStamp)->szTimestamp;
+				if (strlen(ts) >= 14)
+				{
+					char conv[16];
+					memcpy(conv, ts + 2, 12);
+					conv[12] = 'Z';
+					conv[13] = 0;
+					strcpy_s(vInfos->signingTime, 512, conv);
+				}
+			}
 			vInfos->CertRevocStatus = tmpSignerInfo.pRevocationInfo->nRevocationStatus;
 			vInfos->isCertValid = (tmpSignerInfo.bitmask & VERIFIED_CERT_GOOD) == VERIFIED_CERT_GOOD;
 			vInfos->isSignValid = (tmpSignerInfo.bitmask & VERIFIED_SIGNATURE) == VERIFIED_SIGNATURE;
@@ -273,6 +288,12 @@ extern "C" {
 				else if (ret == 0x6983)
 				{
 					return CKR_PIN_LOCKED;
+				}
+				else if (ret == 30 && tsaUrl != nullptr && tsaUrl[0] != 0)
+				{
+					// DISIGON_ERROR_TSA (BASE+30, troncato a 16 bit): marca temporale non ottenuta,
+					// l'interfaccia puo' proporre alternative
+					return CARD_TSA_ERROR;
 				}
 				else if (ret != 0)
 				{

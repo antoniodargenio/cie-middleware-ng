@@ -96,7 +96,7 @@ namespace CIEID
 
             if (s_time == "")
             {
-                s_time = "Attributo Signing Time non presente";
+                s_time = "Firma senza marca temporale";
             }
             else
             {

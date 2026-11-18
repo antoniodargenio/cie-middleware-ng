@@ -109,14 +109,15 @@ namespace CIEID
 
             Bitmap signImage;
             using (Image original = loadImageNoLock(signImagePath))
-                signImage = new Bitmap(original, 90, 27);
+                signImage = new Bitmap(original, 360, 108);
             signImage.MakeTransparent();
 
             signPicture = new MoveablePictureBox();
             signPicture.Image = signImage;
             signPicture.BackColor = Color.Transparent;
-            signPicture.Width = signImage.Width;
-            signPicture.Height = signImage.Height;
+            signPicture.SizeMode = PictureBoxSizeMode.StretchImage;
+            signPicture.Width = 90;
+            signPicture.Height = 27;
             signPicture.BringToFront();
             signPicture.BorderStyle = BorderStyle.FixedSingle;
 
@@ -128,10 +129,19 @@ namespace CIEID
             prPanel.Controls.Add(pbPdfPreview);
             freeTempFolder();
             showPreview();
+
+            // Al ridimensionamento del pannello la pagina viene ridisegnata sullo spazio disponibile
+            panelResizeHandler = delegate { if (prPanel.Width > 20 && prPanel.Height > 20) showPreview(); };
+            prPanel.Resize += panelResizeHandler;
         }
+
+        private EventHandler panelResizeHandler;
+        private double signWidthFraction = 0;
 
         public void pdfPreviewRemoveObjects()
         {
+            if (panelResizeHandler != null)
+                this.prPanel.Resize -= panelResizeHandler;
             this.signPicture.Hide();
             this.pbPdfPreview.Controls.Remove(signPicture);
             this.pbPdfPreview.Hide();
@@ -202,7 +212,7 @@ namespace CIEID
 
             if (!File.Exists(img_file_name))
             {
-                runMutool("draw", "-o", Path.Combine(tmpFolderName, "page%d.png"), filePath, pageNumber.ToString());
+                runMutool("draw", "-r", "150", "-o", Path.Combine(tmpFolderName, "page%d.png"), filePath, pageNumber.ToString());
             }
 
             bool landscape;
@@ -210,22 +220,41 @@ namespace CIEID
             using (Image img = loadImageNoLock(img_file_name))
             {
                 landscape = img.Width > img.Height;
-                if (landscape)
+
+                // Larghezza relativa della firma (modificabile dall'utente), mantenuta al cambio di dimensione
+                if (pbPdfPreview.Width > 0 && signWidthFraction > 0)
+                    signWidthFraction = (double)signPicture.Width / pbPdfPreview.Width;
+
+                // Posizione relativa della firma, mantenuta al cambio di dimensione
+                double fx = pbPdfPreview.Width > 0 ? (double)signPicture.Left / pbPdfPreview.Width : 0;
+                double fy = pbPdfPreview.Height > 0 ? (double)signPicture.Top / pbPdfPreview.Height : 0;
+
+                // La pagina viene adattata al pannello mantenendo le proporzioni e centrata
+                int availW = Math.Max(1, pbPdfPreview.Parent.Width - 10);
+                int availH = Math.Max(1, pbPdfPreview.Parent.Height);
+                double scale = Math.Min((double)availW / img.Width, (double)availH / img.Height);
+                int w = Math.Max(1, (int)(img.Width * scale));
+                int h = Math.Max(1, (int)(img.Height * scale));
+
+                pbPdfPreview.Width = w;
+                pbPdfPreview.Height = h;
+                pbPdfPreview.Left = (pbPdfPreview.Parent.Width - w) / 2;
+                pbPdfPreview.Top = (pbPdfPreview.Parent.Height - h) / 2;
+
+                croppedImage = new Bitmap(w, h);
+                using (Graphics g = Graphics.FromImage(croppedImage))
                 {
-                    pbPdfPreview.Width = pbPdfPreview.Parent.Width - 10;
-                    pbPdfPreview.Height = pbPdfPreview.Parent.Height;
-                    pbPdfPreview.Left = 5;
-                    pbPdfPreview.Top = 0;
-                }
-                else
-                {
-                    pbPdfPreview.Width = (pbPdfPreview.Parent.Width) / 2;
-                    pbPdfPreview.Height = pbPdfPreview.Parent.Height;
-                    pbPdfPreview.Left = (pbPdfPreview.Parent.Width) / 4;
-                    pbPdfPreview.Top = 0;
+                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    g.DrawImage(img, 0, 0, w, h);
                 }
 
-                croppedImage = new Bitmap(img, pbPdfPreview.Width, pbPdfPreview.Height);
+                // Dimensione della firma proporzionale alla pagina (stessa resa a qualsiasi dimensione della finestra)
+                if (signWidthFraction <= 0)
+                    signWidthFraction = landscape ? 0.23 : 0.45;
+                signPicture.Width = Math.Max(30, Math.Min(w, (int)(w * signWidthFraction)));
+                signPicture.Height = Math.Max(9, signPicture.Width * 27 / 90);
+                signPicture.Left = Math.Max(0, Math.Min((int)(fx * w), w - signPicture.Width));
+                signPicture.Top = Math.Max(0, Math.Min((int)(fy * h), h - signPicture.Height));
             }
 
             var old = pbPdfPreview.Image;
