@@ -17,8 +17,15 @@ using System.Windows.Forms;
 
 namespace CIEID
 {
+    /// <summary>
+    /// Finestra principale dell'applicazione (WinForms). Contiene tutte le schermate (schede del
+    /// controllo mainTabControl): Home con le CIE abbinate, abbinamento, cambio PIN, sblocco PIN,
+    /// firma elettronica (PAdES/CAdES), verifica firma, impostazioni, personalizzazione della firma grafica.
+    /// Le operazioni crittografiche sono delegate alla libreria nativa CIEPKI-NG.dll tramite P/Invoke.
+    /// </summary>
     public partial class mainForm : Form
     {
+        // Codici di ritorno PKCS#11 (CKR_*) e codici specifici restituiti da CIEPKI-NG.dll
         public const int CKR_OK = 0x00000000;
         public const int CKR_CANCEL = 0x00000001;
         public const int CKR_TOKEN_NOT_PRESENT = 0x000000E0;
@@ -37,10 +44,13 @@ namespace CIEID
         public const int CKR_PIN_EXPIRED = 0x000000A3;
         public const int CKR_PIN_LOCKED = 0x000000A4;
 
+        // Stato di abbinamento di una CIE
         public const int ENROLLED = 1;
         public const int NOT_ENROLLED = 0;
 
+        // Anteprima del PDF durante la scelta della posizione della firma grafica
         private PdfPreview pdfPreview = null;
+        // Operazione scelta dall'utente nella schermata di firma/verifica
         private enum OperationSelectedState
         {
             NO_OP = 0,
@@ -49,14 +59,19 @@ namespace CIEID
             VERIFY = 3,
         }
 
+        // Dimensione del carattere usata per generare la firma grafica testuale
         private int signFontSize = 120;
 
         private OperationSelectedState signOp = OperationSelectedState.NO_OP;
 
+        // Callback invocate dalla libreria nativa: avanzamento (percentuale e messaggio),
+        // completamento dell'abbinamento e completamento della firma
         delegate long ProgressCallback(int progress, string message);
         delegate long CompletedCallback(string pan, string name, string ef_seriale);
         delegate long SignCompletedCallback(int retValue);
 
+        // Funzioni esportate da CIEPKI-NG.dll (la DLL e' installata in System32).
+        // ATTENZIONE: il nome della DLL deve coincidere con quello del file installato.
         [DllImport("CIEPKI-NG.dll")]
         static extern int VerificaCIEAbilitata(string pan);
 
@@ -81,18 +96,24 @@ namespace CIEID
         [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern int estraiP7m(string inFilePath, string outFilePath);
 
+        // true se si firma con una CIE non abbinata (abbinamento 'usa e getta')
         private bool shouldSignWithoutCIEPairing = false;
 
+        // PAN della CIE usata per la firma senza abbinamento permanente
         private String PANForOneShotSigning = String.Empty;
 
+        // Elenco delle CIE abbinate e controllo carosello della Home
         private CieCollection cieColl;
 
         internal CieCollection CieColl { get => cieColl; set => cieColl = value; }
 
         private CarouselControl carouselControl;
 
+        // Logger dell'applicazione (condiviso con Program)
         private Logger Logger;
 
+        // Costruttore: inizializza le schermate, il carosello e le etichette di avviso 'versione non ufficiale'.
+        // 'arg' e' l'eventuale file passato da riga di comando (apertura per firma/verifica).
         public mainForm(string arg)
         {
             Logger = Program.Logger;
@@ -180,6 +201,7 @@ namespace CIEID
             ControlPaint.DrawBorder(e.Graphics, ((Control)sender).DisplayRectangle, Color.LightGray, ButtonBorderStyle.Solid);
         }
 
+        // Callback di avanzamento dell'abbinamento: aggiorna barra e messaggio nel thread dell'interfaccia
         long PairingProgress(int progress, string message)
         {
             this.Invoke((MethodInvoker)delegate
@@ -191,6 +213,7 @@ namespace CIEID
             return 0;
         }
 
+        // Callback di avanzamento della firma
         long SignProgress(int progress, string message)
         {
             this.Invoke((MethodInvoker)delegate
@@ -201,6 +224,7 @@ namespace CIEID
             return 0;
         }
 
+        // Percorso dell'immagine della firma grafica predefinita per la CIE con il seriale indicato
         private string getSignImagePath(string efSeriale)
         {
             Logger.Info("getSignImagePath() - Inizia funzione");
@@ -208,6 +232,7 @@ namespace CIEID
             return string.Format("{0}\\CIE-Middleware-NG\\{1}_default.png", appdataPath, efSeriale);
         }
 
+        // Callback di fine firma: mostra l'esito all'utente
         long SignCompleted(int retValue)
         {
             Logger.Info("SignCompleted() - Inizia funzione");
@@ -246,6 +271,7 @@ namespace CIEID
             return 0;
         }
 
+        // Callback di fine abbinamento: salva la CIE nell'elenco e aggiorna la Home
         long PairingCompleted(string pan, string name, string efSeriale)
         {
             Logger.Info("PairingCompleted() - Inizia funzione");
@@ -278,6 +304,7 @@ namespace CIEID
             }
         }
 
+        // Callback di avanzamento del cambio PIN
         long ChangePINProgress(int progress, string message)
         {
             this.Invoke((MethodInvoker)delegate
@@ -289,6 +316,7 @@ namespace CIEID
             return 0;
         }
 
+        // Callback di avanzamento dello sblocco PIN
         long UnlockPINProgress(int progress, string message)
         {
             this.Invoke((MethodInvoker)delegate
@@ -300,6 +328,7 @@ namespace CIEID
             return 0;
         }
 
+        // Casella del PIN a una cifra: accetta solo numeri e passa automaticamente alla successiva
         private void PINDigit_TextBox_KeyPress(object sender, KeyPressEventArgs e)
         {
             TextBox textBox = (TextBox)sender;
@@ -337,6 +366,7 @@ namespace CIEID
 
         }
 
+        // Casella del PIN nella schermata di firma: come sopra
         private void TextBoxSignPin_KeyPress(object sender, KeyPressEventArgs e)
         {
             byte numPINDigits = (byte)((shouldSignWithoutCIEPairing) ? 4 : 0);
@@ -381,6 +411,7 @@ namespace CIEID
                 textBox.Text = String.Empty;
         }
 
+        // Cerca tra i controlli quello con il Tag indicato
         private Control FindControlByTag(Control.ControlCollection controls, object tag)
         {
             Control control = null;
@@ -404,6 +435,7 @@ namespace CIEID
         }
 
 
+        // Mostra o nasconde i pulsanti della Home in base alle CIE abbinate
         private void ConfigureHomeButtons(CieCollection cieColl)
         {
             Logger.Info("configureHomeButtons() - Inizia funzione");
@@ -458,12 +490,14 @@ namespace CIEID
             }
         }
 
+        // Voce di menu 'Home'
         private void MenuHomeButton_Click(object sender, EventArgs e)
         {
             Logger.Info("MenuHomeButton_Click() - Inizia funzione");
             SelectHome();
         }
 
+        // Aggiorna la Home in base alle CIE presenti
         private void ChangeHomeObjects()
         {
             Logger.Info("ChangeHomeObjects() - Inizia funzione");
@@ -480,6 +514,7 @@ namespace CIEID
             mainTabControl.SelectedIndex = 1;
         }
 
+        // Genera le immagini associate alle CIE abbinate
         private void CreateImages(CieCollection CieColl)
         {
             Logger.Info("createImages() - Inizia funzione");
@@ -499,6 +534,7 @@ namespace CIEID
             */
         }
 
+        // Seleziona la scheda Home e la popola con le CIE abbinate
         private void SelectHome()
         {
             Logger.Info("SelectHome() - Inizia funzione");
@@ -557,6 +593,7 @@ namespace CIEID
             menuSettingsButton.BackColor = Color.Transparent;
         }
 
+        // Carica dalle risorse il carattere corsivo Allura usato per la firma grafica
         private PrivateFontCollection LoadCustomFont()
         {
             Logger.Info("loadCustomFont() - Inizia funzione");
@@ -582,6 +619,7 @@ namespace CIEID
             return pfc;
         }
 
+        // Disegna il testo con il carattere corsivo e lo salva come immagine PNG (firma grafica testuale)
         private void DrawText(String text, Color textColor, String path)
         {
             PrivateFontCollection pfc = LoadCustomFont();
@@ -629,6 +667,7 @@ namespace CIEID
             img.Dispose();
         }
 
+        // Mostra la scheda di avanzamento dell'abbinamento
         private void SelectPairingProgress()
         {
             mainTabControl.SelectedIndex = 2;
@@ -636,6 +675,7 @@ namespace CIEID
             progressBar.Maximum = 100;
         }
 
+        // Pulsante 'Abbina': valida il PIN e avvia l'abbinamento in un thread separato
         private void PairButton_Click(object sender, EventArgs e)
         {
             Logger.Info("PairButton_Click() - Inizia funzione");
@@ -684,6 +724,8 @@ namespace CIEID
             new Thread(processTaskThread).Start();
         }
 
+        // Esegue l'abbinamento tramite AbbinaCIE (libreria nativa); gestisce gli errori PKCS#11
+        // (PIN errato, carta assente, gia' abbinata, ecc.) e riporta l'esito all'utente
         private int CIEPairing(object sender, string pin, bool oneShotSignature)
         {
             int ret = -1;
@@ -756,6 +798,7 @@ namespace CIEID
             return ret;
         }
 
+        // Elimina l'immagine della firma grafica associata alla CIE
         private void RemoveExistingGraphicSignature(String serialNumber)
         {
             if (File.Exists(getSignImagePath(serialNumber)))
@@ -764,6 +807,7 @@ namespace CIEID
             }
         }
 
+        // Disabilita la CIE nella libreria nativa e, se riuscito, la rimuove dall'elenco locale
         private void RemoveCIEFromCollection(string PAN)
         {
             int ret = DisabilitaCIE(PAN);
@@ -809,6 +853,7 @@ namespace CIEID
             }
         }
 
+        // Pulsante 'Elimina': rimuove la CIE attiva dopo conferma
         private void DeleteCIEButton_Click(object sender, EventArgs e)
         {
             Logger.Info("DeleteCIEButton_Click() - Inizia funzione");
@@ -822,6 +867,7 @@ namespace CIEID
             RemoveCIEFromCollection(model.Pan);
         }
 
+        // Pulsante 'Cambia PIN': valida i campi e avvia il cambio PIN
         private void ChangePINButton_Click(object sender, EventArgs e)
         {
             Logger.Info("ChangePINButton_Click() - Inizia funzione");
@@ -942,6 +988,7 @@ namespace CIEID
             new Thread(processTaskThread).Start();
         }
 
+        // Esegue il cambio PIN tramite la libreria nativa e mostra l'esito (con i tentativi residui)
         private void ChangePIN(object sender, string pin, string newpin)
         {
             Logger.Info("ChangePIN() - Inizia funzione");
@@ -994,6 +1041,7 @@ namespace CIEID
             });
         }
 
+        // Esegue lo sblocco del PIN con il PUK tramite la libreria nativa e mostra l'esito
         private void UnlockPIN(object sender, string puk, string newpin)
         {
             Logger.Info("UnlockPIN() - Inizia funzione");
@@ -1051,12 +1099,14 @@ namespace CIEID
             });
         }
 
+        // Voce di menu 'Cambia PIN'
         private void MenuChangePINButton_Click(object sender, EventArgs e)
         {
             Logger.Info("MenuChangePINButton_Click() - Inizia funzione");
             SelectChangePIN();
         }
 
+        // Mostra la scheda di cambio PIN
         private void SelectChangePIN()
         {
             Logger.Info("SelectChangePIN() - Inizia funzione");
@@ -1073,12 +1123,14 @@ namespace CIEID
             menuSettingsButton.BackColor = Color.Transparent;
         }
 
+        // Voce di menu 'Sblocca carta'
         private void MenuUnlockPINButton_Click(object sender, EventArgs e)
         {
             Logger.Info("MenuUnlockPINButton_Click() - Inizia funzione");
             SelectUnlockPIN();
         }
 
+        // Mostra la scheda di sblocco PIN
         private void SelectUnlockPIN()
         {
             Logger.Info("SelectUnlockPIN() - Inizia funzione");
@@ -1095,6 +1147,7 @@ namespace CIEID
             menuSettingsButton.BackColor = Color.Transparent;
         }
 
+        // Pulsante 'Sblocca': valida PUK e nuovo PIN e avvia lo sblocco
         private void UnlockPINButton_Click(object sender, EventArgs e)
         {
             Logger.Info("UnlockPINButton_Click() - Inizia funzione");
@@ -1217,6 +1270,7 @@ namespace CIEID
             new Thread(processTaskThread).Start();
         }
 
+        // Voce di menu 'Tutorial'
         private void MenuTutorialButton_Click(object sender, EventArgs e)
         {
             Logger.Info("MenuTutorialButton_Click() - Inizia funzione");
@@ -1234,6 +1288,7 @@ namespace CIEID
             webBrowserTutorial.Navigate("https://idserver.servizicie.interno.gov.it/idp/tutorial_win.jsp");
         }
 
+        // Voce di menu 'Aiuto' (apre la pagina di supporto)
         private void MenuHelpButton_Click(object sender, EventArgs e)
         {
             Logger.Info("MenuHelpButton_Click() - Inizia funzione");
@@ -1252,6 +1307,7 @@ namespace CIEID
             webBrowserHelp.Navigate("https://idserver.servizicie.interno.gov.it/idp/aiuto.jsp");
         }
 
+        // Voce di menu 'Informazioni'
         private void MenuInformationButton_Click(object sender, EventArgs e)
         {
             Logger.Info("MenuInformationButton_Click() - Inizia funzione");
@@ -1270,12 +1326,14 @@ namespace CIEID
             webBrowserInfo.Navigate("https://idserver.servizicie.interno.gov.it/idp/privacy.jsp");
         }
 
+        // Alla chiusura della finestra termina l'applicazione
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             Logger.Info("MainForm_FormClosed() - Inizia funzione");
             Application.Exit();
         }
 
+        // Campi PIN/PUK: ammettono solo cifre
         private void PINTextBox_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 13) // enter
@@ -1292,12 +1350,14 @@ namespace CIEID
             }
         }
 
+        // Pulsante '+': avvia l'abbinamento di una nuova CIE
         private void AddButton_Click(object sender, EventArgs e)
         {
             Logger.Info("AddButton_Click() - Inizia funzione");
             mainTabControl.SelectedIndex = 0;
         }
 
+        // Pulsante 'Rimuovi tutte': disabilita e rimuove tutte le CIE abbinate dopo conferma
         private void RemoveAllButton_Click(object sender, EventArgs e)
         {
             Logger.Info("RemoveAllButton_Click() - Inizia funzione");
@@ -1340,6 +1400,7 @@ namespace CIEID
             SelectHome();
         }
 
+        // Scorrimento del carosello a sinistra / destra
         private void LeftButton_Click(object sender, EventArgs e)
         {
             Logger.Info("LeftButton_Click() - Inizia funzione");
@@ -1352,6 +1413,7 @@ namespace CIEID
             carouselControl.ShiftLeft();
         }
 
+        // Aggiorna lo stato dei pulsanti di scorrimento del carosello
         private void CarouselControl_ButtonsChanged(object sender, Controls.CarouselControl.ButtonsEventArgs e)
         {
             Logger.Info("CarouselControl_ButtonsChanged() - Inizia funzione");
@@ -1367,6 +1429,7 @@ namespace CIEID
             }
         }
 
+        // Mostra o nasconde un pulsante
         private void ToggleButtonVisibility(Button button, bool show)
         {
             Logger.Info("toggleButtonVisibility() - Inizia funzione");
@@ -1380,6 +1443,7 @@ namespace CIEID
             }
         }
 
+        // Pulsante 'Annulla': torna alla Home
         private void CancelButton_Click(object sender, EventArgs e)
         {
             Logger.Info("CancelButton_Click() - Inizia funzione");
@@ -1391,6 +1455,7 @@ namespace CIEID
             Logger.Info("TabPageUnlockPIN_Click() - Inizia funzione");
         }
 
+        // Disegna il bordo tratteggiato dell'area di trascinamento dei file
         private void Panel1_Paint(object sender, PaintEventArgs e)
         {
             Logger.Info("panel1_Paint() - Inizia funzione");
@@ -1404,6 +1469,7 @@ namespace CIEID
             e.Graphics.DrawLine(pen, panel.Width - 1, panel.Height - 1, panel.Width - 1, 0);
         }
 
+        // Voce di menu 'Firma Elettronica'
         private void MenuDigitalSignatureButton_Click(object sender, EventArgs e)
         {
             Logger.Info("menuDigitalSignatureButton_Click() - Inizia funzione");
@@ -1433,6 +1499,7 @@ namespace CIEID
             }
         }
 
+        // Voce di menu 'Verifica firma'
         private void MenuVerifyButton_Click(object sender, EventArgs e)
         {
             Logger.Info("menuVerifyButton_Click() - Inizia funzione");
@@ -1451,6 +1518,7 @@ namespace CIEID
             DisplayFileSelectionTab();
         }
 
+        // Link 'Personalizza firma grafica'
         private void CustomizeGraphicSignatureLabel_Click(object sender, EventArgs e)
         {
             Logger.Info("CustomizeGraphicSignatureLabel_Click() - Inizia funzione");
@@ -1521,6 +1589,7 @@ namespace CIEID
             customizeGraphicSignatureLabel.Font = new Font(customizeGraphicSignatureLabel.Font, FontStyle.Regular);
         }
 
+        // Drag & drop del documento: ingresso, uscita e rilascio del file
         void PanelChooseDoc_dragEnter(object sender, DragEventArgs e)
         {
             Logger.Info("panelChooseDoc_dragEnter() - Inizia funzione");
@@ -1537,6 +1606,7 @@ namespace CIEID
             panelChooseDoc.BackColor = Color.Transparent;
         }
 
+        // Passa alla scelta dell'operazione (firma PAdES/CAdES o verifica) per il file selezionato
         private void GoToSelectSignOp(string file_name)
         {
             Logger.Info("goToSelectSignOp() - Inizia funzione");
@@ -1562,6 +1632,7 @@ namespace CIEID
             GoToSelectSignOp(files[0]);
         }
 
+        // Pulsante 'Seleziona file': apre il selettore di file
         private void SelectDocument_Click(object sender, EventArgs e)
         {
             Logger.Info("SelectDocument_Click() - Inizia funzione");
@@ -1579,6 +1650,7 @@ namespace CIEID
             }
         }
 
+        // Mostra la scheda di scelta del formato di firma (PAdES / CAdES)
         private void DisplaySigningOperationTab()
         {
             Logger.Info("displaySigningOperationTab() - Inizia funzione");
@@ -1612,6 +1684,7 @@ namespace CIEID
             mainTabControl.SelectedIndex = 12;
         }
 
+        // Effetti di selezione/evidenziazione dei pannelli di scelta dell'operazione
         private void SignOperationOptionPanel_MouseClick(object sender, EventArgs e)
         {
             Logger.Info("signOperationOptionPanel_MouseClick() - Inizia funzione");
@@ -1628,6 +1701,7 @@ namespace CIEID
             signOptionChooserLabel.ForeColor = SystemColors.ControlDarkDark;
         }
 
+        // Scelta 'Verifica firma': verifica il file e mostra i firmatari
         private void pnVerificaOp_MouseClick(object sender, EventArgs e)
         {
             Logger.Info("pnVerificaOp_MouseClick() - Inizia funzione");
@@ -1684,12 +1758,14 @@ namespace CIEID
             verifyOptionChooserLabel.ForeColor = SystemColors.ControlDarkDark;
         }
 
+        // Annulla la scelta dell'operazione
         private void CancelOperationButton_Click(object sender, EventArgs e)
         {
             Logger.Info("CancelOperationButton_Click() - Inizia funzione");
             mainTabControl.SelectedIndex = 10;
         }
 
+        // Abilita o disabilita l'uso della firma grafica
         private void EnableGraphicSignatureCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             Logger.Info("EnableGraphicSignatureCheckBox_CheckedChanged() - Inizia funzione");
@@ -1706,6 +1782,7 @@ namespace CIEID
             }
         }
 
+        // Annulla la firma e torna alla scheda precedente
         private void CancelSigningOperationButton_Click(object sender, EventArgs e)
         {
             Logger.Info("CancelSigningOperationButton_Click() - Inizia funzione");
@@ -1727,6 +1804,7 @@ namespace CIEID
             mainTabControl.SelectedIndex = 11;
         }
 
+        // Evidenziazione dei pannelli PAdES / CAdES al passaggio del mouse
         private void PanelChoosePades_MouseEnter(object sender, EventArgs e)
         {
             panelChoosePades.BorderStyle = BorderStyle.FixedSingle;
@@ -1747,6 +1825,7 @@ namespace CIEID
             panelChooseCades.BorderStyle = BorderStyle.None;
         }
 
+        // Scelta del formato PAdES (PDF) / CAdES (.p7m)
         private void PanelChoosePades_MouseClick(object sender, EventArgs e)
         {
             Logger.Info("panelChoosePades_MouseClick() - Inizia funzione");
@@ -1783,6 +1862,7 @@ namespace CIEID
             proceedWithSignatureButton.Enabled = true;
         }
 
+        // Procede con il formato scelto: per PAdES con firma grafica passa all'anteprima, altrimenti alla richiesta del PIN
         private void ProceedWithSignatureButton_Click(object sender, EventArgs e)
         {
             Logger.Info("proceedWithSignatureButton_Click() - Inizia funzione");
@@ -1828,6 +1908,7 @@ namespace CIEID
             ChangeSignPINObjects();
         }
 
+        // Pagina precedente / successiva nell'anteprima del PDF
         private void UpButton_Click(object sender, EventArgs e)
         {
             Logger.Info("upButton_Click() - Inizia funzione");
@@ -1844,6 +1925,7 @@ namespace CIEID
         // e label ancorata al bordo inferiore, cosi' il testo non viene mai tagliato.
         private Label pairingDisclaimerLabel;
 
+        // Adatta l'altezza dell'avviso al testo e alla larghezza disponibile
         private void FitDisclaimerLabel()
         {
             FitDisclaimerLabel(unofficialDisclaimerLabel);
@@ -1864,6 +1946,7 @@ namespace CIEID
             label.SetBounds(label.Left, parent.ClientSize.Height - height - 2, width, height);
         }
 
+        // Lampeggio del messaggio 'appoggiare la CIE sul lettore' durante le operazioni con la carta
         private System.Windows.Forms.Timer placeCardBlinkTimer;
         private int placeCardBlinkTicks;
 
@@ -1888,6 +1971,7 @@ namespace CIEID
             placeCardBlinkTimer.Start();
         }
 
+        // Ferma il lampeggio del messaggio
         private void StopPlaceCardBlink()
         {
             if (placeCardBlinkTimer != null)
@@ -1899,6 +1983,7 @@ namespace CIEID
             }
         }
 
+        // Adatta la schermata di inserimento del PIN di firma (CIE abbinata o firma senza abbinamento)
         private void ChangeSignPINObjects()
         {
             Logger.Info("ChangeSignPINObjects() - Inizia funzione");
@@ -1938,6 +2023,7 @@ namespace CIEID
             signProgressBar.Hide();
         }
 
+        // Chiude la schermata corrente e torna alla Home
         private void CloseButton_Click(object sender, EventArgs e)
         {
             Logger.Info("CloseButton_Click() - Inizia funzione");
@@ -1947,6 +2033,7 @@ namespace CIEID
             MenuDigitalSignatureButton_Click(null, null);
         }
 
+        // Passa alla richiesta del PIN per firmare il file indicato
         private void GoToSignPIN(string fileToSignPath)
         {
             Logger.Info("GoToSignPIN() - Inizia funzione");
@@ -1954,12 +2041,15 @@ namespace CIEID
             mainTabControl.SelectedIndex = 14;
         }
 
+        // Conferma la posizione della firma grafica e passa alla richiesta del PIN
         private void ProceedSignPreviewButton_Click(object sender, EventArgs e)
         {
             Logger.Info("ProceedSignPreviewButton_Click() - Inizia funzione");
             GoToSignPIN(labelFileNamePathInDragSignatureBox.Text);
         }
 
+        // Pulsante 'Firma': raccoglie PIN, formato, firma grafica e marca temporale e chiama firmaConCIE
+        // (libreria nativa) in un thread separato; gestisce gli errori e il fallback della marca temporale
         private void SignButton_Click(object sender, EventArgs e)
         {
             Logger.Info("SignButton_Click() - Inizia funzione");
@@ -2340,6 +2430,7 @@ namespace CIEID
             }
         }
 
+        // Annulla la personalizzazione della firma grafica
         private void CancelCustomizationButton_Click(object sender, EventArgs e)
         {
             Logger.Info("CancelCustomizationButton_Click() - Inizia funzione");
@@ -2355,6 +2446,7 @@ namespace CIEID
             mainTabControl.SelectedIndex = 10;
         }
 
+        // Scelta del file PDF di esempio per posizionare la firma grafica
         private void SelectFileForGraphicSignatureCustomizationButton_Click(object sender, EventArgs e)
         {
             Logger.Info("SelectFileForGraphicSignatureCustomizationButton_Click() - Inizia funzione");
@@ -2393,12 +2485,14 @@ namespace CIEID
             }
         }
 
+        // Chiude la schermata di verifica
         private void CloseVerifyButton_Click(object sender, EventArgs e)
         {
             Logger.Info("CloseVerifyButton_Click() - Inizia funzione");
             mainTabControl.SelectedIndex = 10;
         }
 
+        // Mostra la scheda di selezione del file (firma o verifica)
         private void DisplayFileSelectionTab()
         {
             Logger.Info("DisplayFileSelectionTab() - Inizia funzione");
@@ -2449,6 +2543,7 @@ namespace CIEID
             mainTabControl.SelectedIndex = 10;
         }
 
+        // Sceglie la CIE con cui firmare
         private void SelectSigningCIEButton_Click(object sender, EventArgs e)
         {
             Logger.Info("SelectSigningCIEButton_Click() - Inizia funzione");
@@ -2457,6 +2552,7 @@ namespace CIEID
             DisplayFileSelectionTab();
         }
 
+        // Genera l'immagine della firma grafica personalizzata a partire dal testo
         private void GenerateCustomGraphicSignatureButton_Click(object sender, EventArgs e)
         {
             Logger.Info("GenerateCustomGraphicSignatureButton_Click() - Inizia funzione");
@@ -2497,6 +2593,7 @@ namespace CIEID
             generateCustomGraphicSignatureButton.Enabled = false;
         }
 
+        // Voce di menu 'Impostazioni': carica proxy, marca temporale e livelli di log
         private void menuSettingsButton_Click(object sender, EventArgs e)
         {
             Logger.Info("menuSettingsButton_Click() - Inizia funzione");
@@ -2563,6 +2660,7 @@ namespace CIEID
             mainTabControl.SelectedIndex = 17;
         }
 
+        // Carica nelle caselle le impostazioni del server di marca temporale (TSA)
         private void LoadTsaSettings()
         {
             txtTsaUrl.Text = Properties.Settings.Default.timestampCustomUrl;
@@ -2605,6 +2703,7 @@ namespace CIEID
             return false;
         }
 
+        // Mostra o nasconde la password digitata
         private void ShowPasswordCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             Logger.Info("ShowPasswordCheckBox_CheckedChanged() - Inizia funzione");
@@ -2618,6 +2717,7 @@ namespace CIEID
             }
         }
 
+        // Salva proxy, credenziali (cifrate), TSA e livelli di log nelle impostazioni e nel file di configurazione
         private void SaveSettingsButton_Click(object sender, EventArgs e)
         {
             Logger.Info("SaveSettingsButton_Click() - Inizia funzione");
@@ -2765,6 +2865,7 @@ namespace CIEID
             Logger.Debug("SaveSettingsButton_Click() - Configurazione salvata");
         }
 
+        // Riabilita la modifica delle impostazioni
         private void EditSettingsButton_Click(object sender, EventArgs e)
         {
             Logger.Info("editSettingsButton_Click() - Inizia funzione");
@@ -2791,6 +2892,7 @@ namespace CIEID
             editSettingsButton.Enabled = false;
         }
 
+        // La porta del proxy ammette solo cifre
         private void txtPort_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
@@ -2799,6 +2901,7 @@ namespace CIEID
             }
         }
 
+        // Estrae il documento originale da un file firmato .p7m (estraiP7m)
         private void ExtractP7MButton_Click(object sender, EventArgs e)
         {
             Logger.Info("ExtractP7MButton_Click() - Inizia funzione");
@@ -2839,6 +2942,7 @@ namespace CIEID
 
         }
 
+        // Avvia la firma con una CIE non abbinata
         private void SignWithCIEWithoutPairingButton_Click(object sender, EventArgs e)
         {
             //Enable 8 PIN digits
@@ -2847,6 +2951,7 @@ namespace CIEID
             DisplayFileSelectionTab();
         }
 
+        // Porta il focus sulla prima casella del PIN dell'abbinamento
         private void FocusPairingFirstPin()
         {
             if (!IsHandleCreated || mainTabControl.SelectedTab != CIEPairingTabPage)
@@ -2861,6 +2966,7 @@ namespace CIEID
             });
         }
 
+        // Gestione del cambio scheda: reimposta lo stato e posiziona il focus
         private void mainTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             Logger.Debug("mainTabControl_SelectedIndex: " + mainTabControl.SelectedIndex.ToString());
@@ -2882,6 +2988,7 @@ namespace CIEID
                 BeginInvoke((MethodInvoker)delegate { firstPin.Focus(); });
         }
 
+        // Modalita' a tutto schermo della scelta della posizione della firma
         private bool previewFullscreen = false;
         private Size normalClientSize;
 
@@ -2906,6 +3013,7 @@ namespace CIEID
             LayoutPreviewTab();
         }
 
+        // Disposizione dell'anteprima nella scheda
         private bool previewLayoutHooked = false;
 
         // Disposizione della schermata di scelta della posizione della firma grafica,
@@ -2943,6 +3051,7 @@ namespace CIEID
             downButton.Location = new Point(panePreview.Right + 6, top + panePreview.Height / 2 + 10);
         }
 
+        // Ripristina le dimensioni normali
         private void ExitPreviewFullscreen()
         {
             previewFullscreen = false;
@@ -2952,6 +3061,7 @@ namespace CIEID
             this.ClientSize = normalClientSize;
         }
 
+        // Raccoglie i file di log in un archivio da inviare al supporto
         private void collectLogBtn_Click(object sender, EventArgs e)
         {
             bool logFound = false;
@@ -3012,6 +3122,7 @@ namespace CIEID
             }
         }
 
+        // Elimina i file di log
         private void clearLogFolderBtn_Click(object sender, EventArgs e)
         {
             bool res = true;
@@ -3054,6 +3165,7 @@ namespace CIEID
             }
         }
 
+        // Imposta se mostrare le schermate introduttive al prossimo avvio
         private void showIntroductionScreens_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.firstTime = showIntroductionScreens.Checked;

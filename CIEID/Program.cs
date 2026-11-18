@@ -6,9 +6,12 @@ using System.Runtime.InteropServices;
 
 namespace CIEID
 {
+    /// <summary>Punto di ingresso dell'applicazione: istanza unica, configurazione dei log e avvio della prima finestra.</summary>
     static class Program
     {
+        // Mutex che garantisce una sola istanza dell'applicazione
         private static Mutex mutex = null;
+        // Chiavi del file di configurazione %PROGRAMDATA%/CIEPKI-NG/config (valori: 0=disattivato, 1=debug, 2=info, 3=errore)
         private static string LogConfigPrefixLib ="LIB_LOG_LEVEL";
         private static string LogConfigPrefixApp ="APP_LOG_LEVEL";
         // Valori di default per il logger
@@ -17,6 +20,7 @@ namespace CIEID
 
 
         [DllImport("user32.dll", SetLastError = true)]
+        // Dichiara l'applicazione sensibile al DPI per evitare sfocature sugli schermi ad alta risoluzione
         static extern bool SetProcessDPIAware();
 
         // Settings.Upgrade() ritrova solo le impostazioni della stessa cartella (stesso percorso dell'exe).
@@ -62,6 +66,7 @@ namespace CIEID
             }
         }
 
+        // Legge l'impostazione 'cieList' da un file user.config; restituisce null se assente o vuota
         private static string LeggiElencoCie(string file)
         {
             try
@@ -79,12 +84,15 @@ namespace CIEID
             catch { }
             return null;
         }
+        // Logger globale dell'applicazione
         static public Logger Logger;
 
         /// <summary>
         /// Punto di ingresso principale dell'applicazione.
         /// </summary>
         [STAThread]
+        // Inizializza il logger, applica i livelli di log del file di configurazione, impedisce
+        // una seconda istanza e avvia la schermata iniziale (primo avvio) o la finestra principale.
         static void Main(string[] args)
         {
             const string appName = "CIEID";
@@ -130,6 +138,8 @@ namespace CIEID
 
         }
 
+        // Legge il file di configurazione dei log; se manca o contiene valori non validi usa i
+        // valori predefiniti e lo (ri)scrive. Restituisce {livello app, livello libreria}.
         static LogLevel[] LoadLogConfigFromFile()
         {
             LogLevel logLevelApp = Logger.DefaultLogLevel;
@@ -223,6 +233,7 @@ namespace CIEID
             return new LogLevel[] {logLevelApp, logLevelLib};
         }
 
+        // Imposta i livelli di log correnti (applicazione e libreria)
         public static void SetLogConfig(LogLevel logLevelApp, LogLevel logLevelLib)
         {
             Logger.Info("SetLogConfig() - Inizia funzione");
@@ -233,12 +244,14 @@ namespace CIEID
             Logger.Level = LogLevelApp;
         }
 
+        // Salva su file i livelli di log correnti
         public static void SaveLogConfigToFile()
         {
             Logger.Info("SaveLogConfigToFile() - Inizia funzione");
             SaveLogConfigToFile(LogLevelApp, LogLevelLib);
         }
 
+        // Scrive le due righe LIB_LOG_LEVEL e APP_LOG_LEVEL nel file di configurazione
         static void SaveLogConfigToFile(LogLevel logLevelApp, LogLevel logLevelLib)
         {
             Logger.Info("SaveLogConfigToFile(LogLevel, LogLevel) - Inizia funzione");

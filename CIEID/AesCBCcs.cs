@@ -8,9 +8,16 @@ using System.Threading.Tasks;
 
 namespace CIEID
 {
+    /// <summary>
+    /// Cifratura/decifratura simmetrica AES-256 in modalita' CBC con padding PKCS7.
+    /// Usata per proteggere localmente le credenziali del proxy (vedi ProxyInfoManager).
+    /// Input/output cifrati sono stringhe Base64.
+    /// </summary>
     class AesCBCcs
     {
+        // Chiave simmetrica (32 byte)
         private byte[] key;
+        // Vettore di inizializzazione (16 byte)
         private byte[] IV;
 
 
@@ -20,8 +27,10 @@ namespace CIEID
             this.IV = IV;
         }
 
+        /// <summary>Decifra una stringa Base64 e restituisce il testo in chiaro.</summary>
         public string DecryptStringFromBytes_Aes(string Text)
         {
+            // Controllo dei parametri obbligatori
             if (Text == null || Text.Length <= 0)
                 throw new ArgumentNullException("cipherText");
             if (this.key == null || this.key.Length <= 0)
@@ -30,6 +39,7 @@ namespace CIEID
                 throw new ArgumentNullException("IV");
 
             string plaintext = null;
+            // Alcuni trasporti sostituiscono '+' con spazio: lo ripristiniamo prima della decodifica Base64
             byte[] cipherText = Convert.FromBase64String(Text.Replace(' ', '+'));
 
             using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
@@ -55,6 +65,7 @@ namespace CIEID
             return plaintext;
         }
 
+        /// <summary>Cifra il testo in chiaro e restituisce il risultato codificato in Base64.</summary>
         public string EncryptStringToBytes_Aes(string plainText)
         {
             if (plainText == null || plainText.Length <= 0)

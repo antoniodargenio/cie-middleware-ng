@@ -8,23 +8,30 @@ namespace CIEID
     // proporzioni dell'immagine mantenute) all'interno del controllo padre.
     public class MoveablePictureBox : PictureBox
     {
+        // Lato (px) della maniglia di ridimensionamento
         private const int GripSize = 14;
+        // Larghezza minima consentita (px)
         private const int MinWidth = 40;
 
+        // Punto del click iniziale, usato per calcolare lo spostamento
         private Point BoxLocation;
+        // true mentre si sta ridimensionando con la maniglia
         private bool resizing = false;
         private double aspect = 3.0; // larghezza / altezza
 
+        // Ridisegna il controllo a ogni ridimensionamento
         public MoveablePictureBox()
         {
             this.SetStyle(ControlStyles.ResizeRedraw, true);
         }
 
+        // Vero se il punto e' sopra la maniglia
         private bool InGrip(Point p)
         {
             return p.X >= this.Width - GripSize && p.Y >= this.Height - GripSize;
         }
 
+        // Inizio trascinamento o ridimensionamento
         protected override void OnMouseDown(MouseEventArgs e)
         {
             BoxLocation = e.Location;
@@ -37,12 +44,15 @@ namespace CIEID
             base.OnMouseDown(e);
         }
 
+        // Fine dell'operazione
         protected override void OnMouseUp(MouseEventArgs e)
         {
             resizing = false;
             base.OnMouseUp(e);
         }
 
+        // Ridimensiona (mantenendo le proporzioni), sposta entro i limiti del contenitore,
+        // oppure aggiorna il cursore a seconda della posizione del mouse
         protected override void OnMouseMove(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left && resizing && this.Parent != null)
@@ -54,6 +64,7 @@ namespace CIEID
             }
             else if (e.Button == MouseButtons.Left)
             {
+                // Limita la nuova posizione ai bordi del contenitore
                 int tempLeft = this.Left + (e.X - BoxLocation.X);
                 int tempTop = this.Top + (e.Y - BoxLocation.Y);
 

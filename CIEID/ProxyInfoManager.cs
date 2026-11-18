@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace CIEID
 {
+    /// <summary>
+    /// Cifra e decifra le credenziali del proxy con una chiave derivata dall'identificativo
+    /// del processore della macchina: i dati cifrati non sono quindi portabili su altri PC.
+    /// </summary>
     class ProxyInfoManager
     {
         private AesCBCcs aesCipher;
@@ -16,6 +20,7 @@ namespace CIEID
 
         public ProxyInfoManager()
         {
+            // Il seed e' il ProcessorId del primo processore (WMI)
             ManagementClass managClass = new ManagementClass("win32_processor");
             ManagementObjectCollection managCollec = managClass.GetInstances();
             string seed = "";
@@ -26,6 +31,7 @@ namespace CIEID
                 break;
             }
 
+            // Chiave AES-256 = SHA-256 del seed; IV fisso
             SHA256 hash = SHA256.Create();
 
             this.key = hash.ComputeHash(Encoding.UTF8.GetBytes(seed));
@@ -34,11 +40,13 @@ namespace CIEID
             aesCipher =  new AesCBCcs(key, IV);
         }
 
+        // Cifra le credenziali (risultato in Base64)
         public string getEncryptedCredentials(string credentials)
         {
             return aesCipher.EncryptStringToBytes_Aes(credentials);
         }
 
+        // Decifra le credenziali precedentemente cifrate
         public string getDecryptedCredentials(string encryptedCredentials)
         {
             return aesCipher.DecryptStringFromBytes_Aes(encryptedCredentials);

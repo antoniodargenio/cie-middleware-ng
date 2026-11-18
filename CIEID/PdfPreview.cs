@@ -8,18 +8,25 @@ using System.Windows.Forms;
 
 namespace CIEID
 {
+    /// <summary>
+    /// Anteprima del PDF da firmare: renderizza la pagina corrente in PNG tramite mutool (incorporato
+    /// come risorsa) e mostra sopra di essa l'immagine della firma grafica, trascinabile e ridimensionabile.
+    /// </summary>
     class PdfPreview
     {
+        // Pannello ospite, file PDF, cartella temporanea per i PNG, immagine della firma ed eseguibile mutool
         private Panel prPanel;
         private string filePath;
         private string tmpFolderName;
         private string signImagePath;
         private string mutoolPath;
+        // Pagina corrente (da 1) e numero totale di pagine
         private int pageNumber;
         private int pdfNumPages;
         private PictureBox pbPdfPreview;
         private MoveablePictureBox signPicture;
 
+        // Tempo massimo (ms) concesso a mutool per ogni esecuzione
         private const int MutoolTimeoutMs = 30000;
 
         // Esegue mutool passando gli argomenti come lista (nessun problema di quoting/injection),
@@ -54,8 +61,10 @@ namespace CIEID
             }
         }
 
+        // Estrae il numero di pagine dall'output di 'mutool info'
         private static readonly Regex pagesRegex = new Regex(@"Pages: (\d+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        // Restituisce il numero di pagine del PDF (0 se non determinabile)
         private int getPdfNumPages(string fileName)
         {
             string output = runMutool("info", fileName);
@@ -68,6 +77,7 @@ namespace CIEID
             return pdf_page_number;
         }
 
+        // Accessori: numero di pagine, percorso della firma, pagina corrente
         public int getPdfPages()
         {
             return this.pdfNumPages;
@@ -83,6 +93,7 @@ namespace CIEID
             return this.pageNumber;
         }
 
+        // Prepara la cartella temporanea e mutool, carica l'immagine della firma e mostra la prima pagina
         public PdfPreview(Panel previewPanel, string pdfPath, string imagePath)
         {
             this.prPanel = previewPanel;
@@ -135,9 +146,11 @@ namespace CIEID
             prPanel.Resize += panelResizeHandler;
         }
 
+        // Gestore del ridimensionamento del pannello e larghezza della firma relativa alla pagina
         private EventHandler panelResizeHandler;
         private double signWidthFraction = 0;
 
+        // Rimuove dal pannello i controlli dell'anteprima e scollega il gestore di ridimensionamento
         public void pdfPreviewRemoveObjects()
         {
             if (panelResizeHandler != null)
@@ -148,6 +161,8 @@ namespace CIEID
             this.prPanel.Controls.Remove(pbPdfPreview);
         }
 
+        // Restituisce posizione e dimensione della firma in frazioni della pagina (x, y, w, h)
+        // e il numero di pagina (da 0) su cui apporla
         public Dictionary<string,float> getSignImageInfos()
         {
             Dictionary<string, float> signImageInfo = new Dictionary<string, float>();
@@ -169,6 +184,7 @@ namespace CIEID
             return signImageInfo;
         }
 
+        // Pagina precedente
         public void pageUp()
         {
             if (pageNumber - 1 >= 1)
@@ -179,6 +195,7 @@ namespace CIEID
             showPreview();
         }
 
+        // Pagina successiva
         public void pageDown()
         {
             if (this.pdfNumPages >= pageNumber + 1)
@@ -189,6 +206,7 @@ namespace CIEID
             showPreview();
         }
 
+        // Elimina i PNG temporanei delle pagine gia' renderizzate
         public void freeTempFolder()
         {
             foreach (string file in Directory.GetFiles(tmpFolderName, "*.png"))
@@ -206,6 +224,7 @@ namespace CIEID
                 return new Bitmap(tmp);
         }
 
+        // Renderizza (se non gia' in cache) e disegna la pagina corrente adattata al pannello
         public void showPreview()
         {
             string img_file_name = Path.Combine(tmpFolderName, string.Format("page{0}.png", pageNumber));

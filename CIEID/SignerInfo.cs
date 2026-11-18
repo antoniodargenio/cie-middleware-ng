@@ -10,13 +10,19 @@ using System.Windows.Forms;
 
 namespace CIEID
 {
+    /// <summary>
+    /// Verifica di un file firmato (PAdES/CAdES) tramite la libreria nativa e creazione dei riquadri
+    /// grafici con l'esito per ciascun firmatario (validita' della firma, del certificato, revoca).
+    /// </summary>
     class SignerInfo
     {
 
+        // Pannello in cui aggiungere i riquadri dei firmatari, file da verificare ed esiti restituiti dalla libreria
         private FlowLayoutPanel verifyPanel;
         private string filePath;
         private verifyInfo_t[] vInfos;
 
+        // Stato di revoca del certificato (valori restituiti dalla libreria nativa)
         private enum revStatus
         {
             REVOCATION_STATUS_GOOD  = 0,
@@ -26,6 +32,7 @@ namespace CIEID
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+        // Esito della verifica di un singolo firmatario; deve corrispondere alla struct nativa di CIEPKI-NG.dll
         public struct verifyInfo_t
         {
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
@@ -46,17 +53,22 @@ namespace CIEID
         };
 
 
+        // Funzioni esportate da CIEPKI-NG.dll: verifica del file (restituisce il numero di firme)
+        // e lettura dell'esito del firmatario di indice 'index'
         [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern long verificaConCIE(string filePath, string proxyAddress, int proxyPort, string usrPass);
         [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
         static extern long getVerifyInfo(int index, ref verifyInfo_t vInfo);
 
+        // filePath: file firmato da verificare; verifyPanel: pannello dove mostrare i risultati
         public SignerInfo(string filePath, FlowLayoutPanel verifyPanel)
         {
             this.verifyPanel = verifyPanel;
             this.filePath = filePath;
         }
 
+        // Costruisce il riquadro grafico (nome, data, validita' firma e certificato, revoca, ente emittente)
+        // per un firmatario, con icone verdi/arancioni secondo l'esito
         public System.Windows.Forms.TableLayoutPanel createTable(verifyInfo_t vInfo)
         {
 
@@ -91,6 +103,7 @@ namespace CIEID
             pbCn = new System.Windows.Forms.PictureBox();
 
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form));
+            // Testi e icone da mostrare in base all'esito della verifica
             string name = vInfo.name + " " + vInfo.surname + '\n' + vInfo.cn;
             string s_time = vInfo.signingTime;
 
@@ -340,6 +353,7 @@ namespace CIEID
         }
 
 
+        // Esegue la verifica del file (con eventuale proxy) e crea un riquadro per ciascun firmatario
         public int verify()
         {
             string proxyAddress = null;

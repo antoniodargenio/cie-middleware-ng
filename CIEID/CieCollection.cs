@@ -7,8 +7,13 @@ using Newtonsoft.Json;
 
 namespace CIEID
 {
+    /// <summary>
+    /// Insieme delle CIE abbinate, indicizzate per PAN. Viene serializzato/deserializzato in JSON
+    /// (Newtonsoft.Json) per essere salvato nelle impostazioni dell'applicazione.
+    /// </summary>
     class CieCollection
     {
+        // PAN della CIE -> dati della CIE
         private Dictionary<string, CieModel> mydictionary;
 
 
@@ -17,6 +22,7 @@ namespace CIEID
             mydictionary = new Dictionary<string, CieModel>();
         }
 
+        // Costruisce la collezione a partire dal JSON salvato (stringa vuota = nessuna CIE)
         public CieCollection(string collectionString)
         {
             if(collectionString.Equals(""))
@@ -35,18 +41,21 @@ namespace CIEID
             set { mydictionary = value; }
         }
 
+        // Aggiunge (o aggiorna) una CIE
         public void addCie(String pan, CieModel cieModel)
         {
             if (mydictionary != null)
                 mydictionary[pan] = cieModel; // idempotente: sovrascrive se la CIE e' gia' presente
         }
 
+        // Rimuove la CIE con il PAN indicato
         public void removeCie(String pan)
         {
             if (mydictionary != null)
                 mydictionary.Remove(pan);
         }
 
+        // Rimuove tutte le CIE abbinate
         public void removeAllCie()
         {
             if (mydictionary != null)

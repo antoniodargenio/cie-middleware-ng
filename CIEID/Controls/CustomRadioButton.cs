@@ -9,17 +9,22 @@ using System.Drawing.Drawing2D;
 
 namespace CIEID.Controls
 {
+    /// <summary>Radio button disegnato a mano: cerchietto verde, pieno quando selezionato.</summary>
     class CustomRadioButton : RadioButton
     {
+        // Colore del pallino quando e' selezionato
         private Color onColor = Color.FromArgb(0, 168, 107);
+        // Colore del bordo
         private Color offColor = Color.FromArgb(0, 168, 107);
 
         public CustomRadioButton()
         {
+            // Sfondo trasparente per integrarsi con il controllo contenitore
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             BackColor = Color.Transparent;
         }
 
+        // Disegno personalizzato: bordo circolare e, se selezionato, riempimento
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);

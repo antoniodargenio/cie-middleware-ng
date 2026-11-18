@@ -3,6 +3,7 @@ using System.IO;
 
 namespace CIEID
 {
+    // Livelli di log: NONE = disattivato, poi in ordine di gravita' crescente
     public enum LogLevel
     {
         NONE = 0,
@@ -13,6 +14,7 @@ namespace CIEID
 
     public class Logger
     {
+        // Livello predefinito (impostato in avvio da APP_LOG_LEVEL del file di configurazione)
         public static LogLevel DefaultLogLevel = LogLevel.NONE;
         private LogLevel _level;
         public LogLevel Level
@@ -21,14 +23,15 @@ namespace CIEID
             set => _level = value;
         }
 
-        // The default argument value should be `Logger.DefaultLogLevel`
-        // rather than an explicit LogLevel enum value.
+        // Nota: il valore predefinito dell'argomento dovrebbe essere Logger.DefaultLogLevel
+        // invece di un valore esplicito dell'enum LogLevel.
         public Logger(LogLevel logLevel = LogLevel.NONE)
         {
             Info($"Init della classe Logger, livello di log {logLevel}");
             Level = logLevel;
         }
 
+        // Funzioni pubbliche per i vari livelli di log
         // Public functions
         public void Debug(string message)
         {
@@ -45,6 +48,7 @@ namespace CIEID
             Log($"[E] {message}", LogLevel.ERROR);
         }
 
+        // Scrive il messaggio solo se il log e' attivo e il livello del messaggio e' sufficiente
         public void Log(string message, LogLevel messageLevel)
         {
             if (Level > 0 && Level <= messageLevel)
@@ -53,6 +57,8 @@ namespace CIEID
             }
         }
 
+        // Accoda il messaggio a %PROGRAMDATA%/CIEPKI-NG/CIE-Middleware-NG_<data>.log;
+        // se la scrittura fallisce ripiega sulla console
         private void Write(string message)
         {
             string programDataDir = System.Environment.GetEnvironmentVariable("PROGRAMDATA");

@@ -4,11 +4,18 @@ using System.Windows.Forms;
 
 namespace CIEID.Controls
 {
+    /// <summary>
+    /// Logica del carosello delle CIE abbinate: mostra al massimo tre carte (precedente, attiva, successiva)
+    /// usando una lista circolare, e gestisce i pallini di navigazione e i pulsanti di scorrimento.
+    /// L'elemento attivo e' sempre Items[1].
+    /// </summary>
     class CarouselControl
     {
 
+        // Diametro (px) dei pallini di navigazione
         private const int DOT_SIZE = 10;
 
+        // Argomenti dell'evento che abilita/mostra i pulsanti di scorrimento sinistro/destro
         public class ButtonsEventArgs : EventArgs
         {
             public bool IsRightButton { get; set; }
@@ -26,6 +33,7 @@ namespace CIEID.Controls
             }
         }
 
+        // Evento sollevato quando lo stato dei pulsanti di scorrimento deve cambiare
         private EventHandler<ButtonsEventArgs> onButtonsChanged;
 
         public event EventHandler<ButtonsEventArgs> ButtonsChanged
@@ -40,6 +48,8 @@ namespace CIEID.Controls
             }
         }
 
+        // Elenco circolare delle CIE. In scrittura aggiunge elementi vuoti di riempimento
+        // (con 1 o 2 carte) per avere sempre tre posizioni visualizzabili.
         public CircularViewList Items
         {
             get
@@ -77,6 +87,7 @@ namespace CIEID.Controls
             }
         }
 
+        // Numero di CIE reali (esclusi i segnaposto vuoti)
         public int CarouselItemsCount
         {
             get
@@ -85,6 +96,7 @@ namespace CIEID.Controls
             }
         }
 
+        // CIE attualmente al centro del carosello
         public CieModel ActiveCieModel
         {
             get
@@ -93,6 +105,7 @@ namespace CIEID.Controls
             }
         }
 
+        // Stato interno: lista circolare, contenitori grafici e indice del pallino attivo
         private CircularViewList circularList;
         private FlowLayoutPanel dotsGroup;
         private TableLayoutPanel mainContainer;
@@ -100,18 +113,22 @@ namespace CIEID.Controls
         private int activeItemIndex { get; set; }
         private bool dotsCreated = false;
 
+        // mainContainer contiene le tre schede; dotsGroup i pallini di navigazione
         public CarouselControl(TableLayoutPanel mainContainer, FlowLayoutPanel dotsGroup)
         {
             this.mainContainer = mainContainer;
             this.dotsGroup = dotsGroup;
         }
 
+        // Carica le CIE dalla collezione e forza la ricreazione dei pallini
         public void LoadData(CieCollection cieCollection)
         {
             Items = new CircularViewList(cieCollection.MyDictionary.Values);
             dotsCreated = false;
         }
 
+        // Con piu' di 2 carte entrambi i pulsanti sono attivi; con 2 solo quello utile;
+        // con meno di 2 vengono nascosti
         private void UpdateButtons()
         {
             if (CarouselItemsCount > 2)
@@ -132,6 +149,7 @@ namespace CIEID.Controls
             }
         }
 
+        // Fa scorrere il carosello verso sinistra di 'steps' posizioni
         public void ShiftLeft(int steps = 1)
         {
             while (steps-- > 0)
@@ -149,6 +167,7 @@ namespace CIEID.Controls
             UpdateDots();
         }
 
+        // Fa scorrere il carosello verso destra di 'steps' posizioni
         public void ShiftRight(int steps = 1)
         {
             while (steps-- > 0)
@@ -166,6 +185,7 @@ namespace CIEID.Controls
             UpdateDots();
         }
 
+        // Seleziona il pallino corrispondente alla carta attiva senza riattivare il gestore dell'evento
         private void UpdateDots()
         {
             var radioButton = (RadioButton)this.dotsGroup.Controls[activeItemIndex];
@@ -175,6 +195,7 @@ namespace CIEID.Controls
             radioButton.CheckedChanged += dot_CheckedChanged;
         }
 
+        // Ricrea i pallini di navigazione (uno per ciascuna CIE reale)
         public void CreateDots()
         {
             this.dotsGroup.Controls.Clear();
@@ -212,6 +233,7 @@ namespace CIEID.Controls
             dotsCreated = true;
         }
 
+        // Click su un pallino: scorre fino alla carta corrispondente
         private void dot_CheckedChanged(object sender, EventArgs e)
         {
             var radioButton = (RadioButton)sender;
@@ -234,6 +256,7 @@ namespace CIEID.Controls
             }
         }
 
+        // Aggiorna le tre schede visibili con i dati delle prime tre voci della lista
         public void UpdateLayout()
         {
             if (circularList != null && circularList.Count > 0)
@@ -252,6 +275,7 @@ namespace CIEID.Controls
                 CreateDots();
         }
 
+        // Mostra numero di serie e intestatario nella scheda 'index', oppure la nasconde se vuota
         private void UpdateCarouselItem(int index, CieModel model)
         {
             var carouselItem = mainContainer.Controls.Find(String.Format("carouselItem{0}", index), false).FirstOrDefault();

@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace CIEID.Controls
 {
+    /// <summary>Lista circolare di CIE: lo scorrimento sposta gli elementi da un'estremita' all'altra (usata dal carosello).</summary>
     class CircularViewList : List<CieModel>
     {
         public CircularViewList()
@@ -14,6 +15,7 @@ namespace CIEID.Controls
             AddRange(controls);
         }
 
+        // Sposta il primo elemento in coda
         public void ShiftLeft()
         {
             var model = this.FirstOrDefault();
@@ -24,6 +26,7 @@ namespace CIEID.Controls
             this.Add(model);
         }
 
+        // Sposta l'ultimo elemento in testa
         public void ShiftRight()
         {
             var model = this.LastOrDefault();
