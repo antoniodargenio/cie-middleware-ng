@@ -2,7 +2,7 @@
 !include "x64.nsh"
 !include "Library.nsh"
 
-!define PRODUCT_VERSION "2.0.0.30"
+!define PRODUCT_VERSION "2.0.0.31"
 
 ;--------------------------------
 ;General
@@ -138,6 +138,12 @@ Section "Install"
 	File "..\x64\${Config}\CIE-Middleware-NG.runtimeconfig.json"
 	File "..\x64\${Config}\Newtonsoft.Json.dll"
 	File "..\x64\${Config}\System.Management.dll"
+
+  ; modulo PowerShell (visibile a Windows PowerShell 5.1 e a PowerShell 7)
+  SetOutPath "$PROGRAMFILES64\WindowsPowerShell\Modules\CIE-Middleware-NG"
+	File "..\PowerShell\CIE-Middleware-NG\CIE-Middleware-NG.psd1"
+	File "..\PowerShell\CIE-Middleware-NG\CIE-Middleware-NG.psm1"
+  SetOutPath $INSTDIR
 		
   SetOutPath $SYSDIR
 	
@@ -210,6 +216,9 @@ Section "Uninstall"
   Delete "$INSTDIR\Newtonsoft.Json.dll"
   Delete "$INSTDIR\System.Management.dll"
   Delete "$INSTDIR\UpdateTask.xml"
+  Delete "$PROGRAMFILES64\WindowsPowerShell\Modules\CIE-Middleware-NG\CIE-Middleware-NG.psd1"
+  Delete "$PROGRAMFILES64\WindowsPowerShell\Modules\CIE-Middleware-NG\CIE-Middleware-NG.psm1"
+  RMDir "$PROGRAMFILES64\WindowsPowerShell\Modules\CIE-Middleware-NG"
   ; file di versioni precedenti dell'installer
   Delete "$INSTDIR\CIE-Middleware-NG.exe.config"
   Delete "$INSTDIR\Newtonsoft.Json.xml"

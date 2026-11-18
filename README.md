@@ -51,12 +51,39 @@ Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware]
 - Verifica dei certificati TLS e gestione più prudente delle credenziali eventualmente configurate (proxy, TSA).
 - Log strutturato nell'applicazione `CIEID`.
 
+## Modulo PowerShell
+
+Il modulo `CIE-Middleware-NG` (cartella `PowerShell/`) offre da riga di comando le stesse operazioni dell'applicazione; l'installer lo copia in `Program Files\WindowsPowerShell\Modules`, quindi è disponibile sia in Windows PowerShell 5.1 sia in PowerShell 7 (64 bit). Richiede `CIEPKI-NG.dll` installata e, per le operazioni sulla carta, un lettore con la CIE inserita.
+
+| Comando | Funzione |
+|---|---|
+| `Get-Cie` | elenca le CIE abbinate (con quelle abbinate dall'applicazione) |
+| `Register-Cie` | abbina la CIE sul lettore (PIN a 8 cifre) |
+| `Unregister-Cie` | disabilita l'abbinamento di una CIE |
+| `Set-CiePin` / `Unlock-CiePin` | cambio PIN / sblocco con PUK |
+| `Add-CieSignature` | firma PAdES (PDF) o CAdES (.p7m), con marca temporale opzionale e firma grafica |
+| `Test-CieSignature` | verifica le firme di un file |
+| `Export-CieSignedContent` | estrae il documento originale da un .p7m |
+
+Esempi:
+
+```powershell
+Get-Cie
+Add-CieSignature .\contratto.pdf          # chiede il PIN (ultime 4 cifre) senza eco
+Add-CieSignature .tto.docx -NoTimestamp  # produce atto.docx.p7m
+Test-CieSignature .\contratto-signed.pdf | Format-List
+Export-CieSignedContent .tto.docx.p7m
+```
+
+I PIN sono `SecureString` e, se omessi, vengono richiesti senza eco. Aiuto: `Get-Help Add-CieSignature -Full`.
+
 ## Sviluppo
 
 ### Struttura della soluzione
 `CIE-Middleware-NG.sln` contiene:
 - `CSP` — libreria nativa `CIEPKI-NG.dll` (minidriver CSP + modulo PKCS#11 + funzioni di abbinamento, firma e cambio/sblocco PIN usate da CIEID);
 - `CIEID` — applicazione WinForms .NET 10 (eseguibile `CIE-Middleware-NG.exe`, namespace `CIEID`), chiama la DLL via P/Invoke;
+- `PowerShell` — modulo `CIE-Middleware-NG` (stesse operazioni di CIEID da riga di comando, stessa DLL);
 - `CacheLib`, `cie_sign_sdk` (terze parti, non modificare), `PKCS11`, `Setup` (installer NSIS), `EsempioCSP`, `EsempioPCSC`, `EsempioPKCS11`.
 
 Il codice del fork (CIEID, CSP, CacheLib) è commentato in italiano. Attenzione: il nome della DLL nei `DllImport` di `CIEID/MainForm.cs` deve coincidere con il file installato (`CIEPKI-NG.dll`), altrimenti l'abbinamento si blocca.
