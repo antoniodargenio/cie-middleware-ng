@@ -1892,7 +1892,7 @@ namespace CIEID
                 PIN += txtField.Text;
             }
 
-            if (PIN.Length != numDigitsPIN)
+            if (PIN.Length != numDigitsPIN || System.Text.RegularExpressions.Regex.IsMatch(PIN, "[^0-9]"))
             {
                 MessageBox.Show("Inserire le " + ((numDigitsPIN == 4) ? "ultime 4": "8") + " cifre del PIN", "PIN non corretto", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
@@ -2070,6 +2070,11 @@ namespace CIEID
 
                         case CKR_PIN_INCORRECT:
                             MessageBox.Show(String.Format("Il PIN digitato è errato."), "PIN non corretto", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                            ChangeSignPINObjects();
+                            break;
+
+                        case CKR_PIN_LEN_RANGE:
+                            MessageBox.Show("Il PIN deve essere composto da cifre numeriche (le ultime 4 cifre).", "PIN non corretto", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             ChangeSignPINObjects();
                             break;
 

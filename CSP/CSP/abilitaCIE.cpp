@@ -178,6 +178,13 @@ extern "C" {
 		if (!inFilePath || !type || !pin || !pan || !outFilePath || !progressCallBack || !completedCallBack)
 			return CKR_ARGUMENTS_BAD;
 
+		// Le ultime 4 cifre del PIN devono essere esattamente 4 cifre numeriche
+		if (strlen(pin) != 4 || strspn(pin, "0123456789") != 4)
+		{
+			LOG_ERROR("firmaConCIE - PIN non valido (devono essere 4 cifre)");
+			return CKR_PIN_LEN_RANGE;
+		}
+
 		try
 		{
 			SCARDCONTEXT hSC = 0;
@@ -269,7 +276,7 @@ extern "C" {
 				SecureWipeGuard wipeFull(FullPIN.data(), FullPIN.size());
 				ias->token.Reset();
 
-				if (FullPIN.size() < 8)
+				if (FullPIN.size() != 8)
 				{
 					LOG_ERROR("firmaConCIE - PIN troppo corto");
 					return CKR_PIN_LEN_RANGE;
