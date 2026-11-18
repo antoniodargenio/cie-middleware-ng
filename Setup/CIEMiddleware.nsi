@@ -2,7 +2,7 @@
 !include "x64.nsh"
 !include "Library.nsh"
 
-!define PRODUCT_VERSION "2.0.0.6"
+!define PRODUCT_VERSION "2.0.0.7"
 
 ;--------------------------------
 ;General
@@ -204,8 +204,12 @@ Section "Uninstall"
   
   ;!echo $%LOCALAPPDATA%
 
-  ; I dati dell'utente (elenco CIE in %LOCALAPPDATA%\IPZS e cache in %PROGRAMDATA%\CIEPKI) vengono conservati,
-  ; cosi' una reinstallazione non obbliga a riabbinare la carta.
+  ; La disinstallazione ripulisce tutto, compresi i dati dell'utente (elenco CIE e cache).
+  RMDir /r "$LOCALAPPDATA\IPZS"
+  ReadEnvStr $0 PROGRAMDATA
+  ${If} $0 != ""
+    RMDir /r "$0\CIEPKI"
+  ${EndIf}
   Delete "$INSTDIR\CIEID.exe"
   Delete "$INSTDIR\CIEID.dll"
   Delete "$INSTDIR\CIEID.dll.config"
