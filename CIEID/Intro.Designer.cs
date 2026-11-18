@@ -221,7 +221,7 @@
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Intro";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "CIE ID [build non ufficiale]";
+            this.Text = "CIE ID – AVVISO – VERSIONE NON UFFICIALE";
             this.tabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();

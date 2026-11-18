@@ -120,9 +120,9 @@ extern "C" {
 
 	CK_RV CK_ENTRY __stdcall verificaConCIE(const char* inFilePath, const char* proxyAddress, int proxyPort, const char* usrPass)
 	{
-		CIEVerify* verifier = new CIEVerify();
+		CIEVerify verifier;
 
-		verifier->verify(inFilePath, (VERIFY_RESULT*)&verifyResult, proxyAddress, proxyPort, usrPass);
+		verifier.verify(inFilePath, (VERIFY_RESULT*)&verifyResult, proxyAddress, proxyPort, usrPass);
 
 		if (verifyResult.nErrorCode == 0)
 		{
@@ -139,9 +139,9 @@ extern "C" {
 
 	CK_RV CK_ENTRY __stdcall estraiP7m(const char* inFilePath, const char* outFilePath) {
 
-		CIEVerify* verifier = new CIEVerify();
+		CIEVerify verifier;
 
-		long res = verifier->get_file_from_p7m(inFilePath, outFilePath);
+		long res = verifier.get_file_from_p7m(inFilePath, outFilePath);
 
 		return res;
 

@@ -51,3 +51,7 @@ Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware]
 - `PdfPreview`: `mutool` eseguito con `ArgumentList` e timeout, risorse rilasciate, nessun blocco dei file immagine.
 - `TSAClient`: copie di stringhe con limiti, timeout (10 s connessione, 30 s totali), solo HTTP/HTTPS anche nei redirect, limite di 1 MB alla risposta, controllo dello stato HTTP e rilascio dell'handle curl anche in caso di errore. La verifica del certificato TLS resta disattivata (libcurl 7.64.1 senza bundle di CA); la marca temporale è comunque firmata dalla TSA.
 - `CIEID`: log strutturato (`Logger`) al posto di `Console.WriteLine` e dei `catch` vuoti.
+
+## Disclaimer
+
+Questa è una versione **non ufficiale**, a scopo didattico e di studio open source, utilizzata a rischio dell'utente. Vedere [DISCLAIMER.md](DISCLAIMER.md).

@@ -258,6 +258,7 @@ namespace CIEID
             this.rbLoggingAppInfo = new System.Windows.Forms.RadioButton();
             this.rbLoggingAppNone = new System.Windows.Forms.RadioButton();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.unofficialDisclaimerLabel = new System.Windows.Forms.Label();
             this.tabConfigTimestamp = new System.Windows.Forms.TabPage();
             this.labelTsaHeader = new System.Windows.Forms.Label();
             this.labelTsaDescription = new System.Windows.Forms.Label();
@@ -615,6 +616,7 @@ namespace CIEID
             this.CIEPickerTabPage.Controls.Add(this.deleteCIEButton);
             this.CIEPickerTabPage.Controls.Add(this.CIESuccessfullyPairedLabel);
             this.CIEPickerTabPage.Controls.Add(this.appNameCIEPickerHeaderTextLabel);
+            this.CIEPickerTabPage.Controls.Add(this.unofficialDisclaimerLabel);
             this.CIEPickerTabPage.Location = new System.Drawing.Point(4, 9);
             this.CIEPickerTabPage.Margin = new System.Windows.Forms.Padding(2);
             this.CIEPickerTabPage.Name = "CIEPickerTabPage";
@@ -628,7 +630,7 @@ namespace CIEID
             this.signWithCIEWithoutPairingButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.signWithCIEWithoutPairingButton.FlatAppearance.BorderSize = 0;
             this.signWithCIEWithoutPairingButton.ForeColor = System.Drawing.Color.White;
-            this.signWithCIEWithoutPairingButton.Location = new System.Drawing.Point(338, 502);
+            this.signWithCIEWithoutPairingButton.Location = new System.Drawing.Point(338, 462);
             this.signWithCIEWithoutPairingButton.Margin = new System.Windows.Forms.Padding(2);
             this.signWithCIEWithoutPairingButton.Name = "signWithCIEWithoutPairingButton";
             this.signWithCIEWithoutPairingButton.Size = new System.Drawing.Size(200, 28);
@@ -644,7 +646,7 @@ namespace CIEID
             this.selectSigningCIEButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.selectSigningCIEButton.FlatAppearance.BorderSize = 0;
             this.selectSigningCIEButton.ForeColor = System.Drawing.Color.White;
-            this.selectSigningCIEButton.Location = new System.Drawing.Point(122, 502);
+            this.selectSigningCIEButton.Location = new System.Drawing.Point(122, 462);
             this.selectSigningCIEButton.Margin = new System.Windows.Forms.Padding(2);
             this.selectSigningCIEButton.Name = "selectSigningCIEButton";
             this.selectSigningCIEButton.Size = new System.Drawing.Size(200, 28);
@@ -673,7 +675,7 @@ namespace CIEID
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(643, 392);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(643, 352);
             this.tableLayoutPanel1.TabIndex = 21;
             // 
             // rightButton
@@ -953,7 +955,7 @@ namespace CIEID
             this.removeAllButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.removeAllButton.FlatAppearance.BorderSize = 0;
             this.removeAllButton.ForeColor = System.Drawing.Color.White;
-            this.removeAllButton.Location = new System.Drawing.Point(239, 502);
+            this.removeAllButton.Location = new System.Drawing.Point(239, 462);
             this.removeAllButton.Margin = new System.Windows.Forms.Padding(2);
             this.removeAllButton.Name = "removeAllButton";
             this.removeAllButton.Size = new System.Drawing.Size(157, 28);
@@ -968,7 +970,7 @@ namespace CIEID
             this.addButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.addButton.FlatAppearance.BorderSize = 0;
             this.addButton.ForeColor = System.Drawing.Color.White;
-            this.addButton.Location = new System.Drawing.Point(435, 502);
+            this.addButton.Location = new System.Drawing.Point(435, 462);
             this.addButton.Margin = new System.Windows.Forms.Padding(2);
             this.addButton.Name = "addButton";
             this.addButton.Size = new System.Drawing.Size(157, 28);
@@ -983,7 +985,7 @@ namespace CIEID
             this.deleteCIEButton.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.deleteCIEButton.FlatAppearance.BorderSize = 0;
             this.deleteCIEButton.ForeColor = System.Drawing.Color.White;
-            this.deleteCIEButton.Location = new System.Drawing.Point(58, 502);
+            this.deleteCIEButton.Location = new System.Drawing.Point(58, 462);
             this.deleteCIEButton.Margin = new System.Windows.Forms.Padding(2);
             this.deleteCIEButton.Name = "deleteCIEButton";
             this.deleteCIEButton.Size = new System.Drawing.Size(157, 28);
@@ -3177,6 +3179,17 @@ namespace CIEID
             this.rbLoggingAppNone.Text = "Nessuno";
             this.rbLoggingAppNone.UseVisualStyleBackColor = true;
             // 
+            // unofficialDisclaimerLabel
+            // 
+            this.unofficialDisclaimerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold);
+            this.unofficialDisclaimerLabel.ForeColor = System.Drawing.Color.Red;
+            this.unofficialDisclaimerLabel.Location = new System.Drawing.Point(9, 496);
+            this.unofficialDisclaimerLabel.Name = "unofficialDisclaimerLabel";
+            this.unofficialDisclaimerLabel.Size = new System.Drawing.Size(631, 36);
+            this.unofficialDisclaimerLabel.TabIndex = 20;
+            this.unofficialDisclaimerLabel.Text = "AVVISO – VERSIONE NON UFFICIALE. Questo software è un derivato (fork) dell\'applicazione originale, con modifiche alla sicurezza e alle funzionalità, realizzato a scopo didattico e di studio open source. Non è la versione ufficiale IPZS. L\'utilizzo è a esclusivo rischio dell\'utente; lo sviluppatore declina ogni responsabilità.";
+            this.unofficialDisclaimerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // tabConfigTimestamp
             //
             this.tabConfigTimestamp.Controls.Add(this.labelTsaHeader);
@@ -3603,7 +3616,7 @@ namespace CIEID
             this.MaximizeBox = false;
             this.Name = "mainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "CIE ID [build non ufficiale]";
+            this.Text = "CIE ID – AVVISO – VERSIONE NON UFFICIALE";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.mainTabControl.ResumeLayout(false);
             this.CIEPairingTabPage.ResumeLayout(false);
@@ -3955,6 +3968,7 @@ namespace CIEID
         private Button collectLogBtn;
         private Button clearLogFolderBtn;
         private TabPage tabPage1;
+        private Label unofficialDisclaimerLabel;
         private TabPage tabConfigTimestamp;
         private Label labelTsaHeader;
         private Label labelTsaDescription;
