@@ -93,7 +93,14 @@ Section "Install"
     ; installata, cosi' una ricompilazione con la stessa versione viene comunque installata.
     ${DisableX64FSRedirection}
     ExecWait '"$SYSDIR\regsvr32.exe" /u /s "$SYSDIR\CIEPKI.dll"'
-    Delete /REBOOTOK "$SYSDIR\CIEPKI.dll"
+    Delete "$SYSDIR\CIEPKI.dll"
+    ${If} ${FileExists} "$SYSDIR\CIEPKI.dll"
+      ; DLL caricata da un altro processo: si puo' rinominare ma non cancellare.
+      ; Il vecchio file viene eliminato al prossimo riavvio, la nuova DLL e' installata subito.
+      Delete "$SYSDIR\CIEPKI.dll.old"
+      Rename "$SYSDIR\CIEPKI.dll" "$SYSDIR\CIEPKI.dll.old"
+      Delete /REBOOTOK "$SYSDIR\CIEPKI.dll.old"
+    ${EndIf}
     ${EnableX64FSRedirection}
     !define LIBRARY_X64
 	!echo ${Config}
