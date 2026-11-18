@@ -400,8 +400,6 @@ extern "C" {
 
 				ias.SetCardContext(&conn);
 
-				foundCIE = false;
-
 				ias.token.Reset();
 				ias.SelectAID_IAS();
 				ias.ReadPAN();
@@ -417,8 +415,10 @@ extern "C" {
 
 				if (ias.IsEnrolled())
 				{
-					LOG_ERROR("AbbinaCIE - CIE already enabled. Serial number: %s\n", IdServizi.data());
-					return CARD_ALREADY_ENABLED;
+					// Build non ufficiale: la CIE risulta gia' registrata in cache (es. da un'altra
+					// versione del middleware). Invece di rifiutare, si prosegue: PIN, certificato e
+					// cache vengono riletti dalla carta e la CIE viene aggiunta all'elenco locale.
+					LOG_INFO("AbbinaCIE - CIE already enrolled (cache found), re-reading it. Serial number: %s\n", IdServizi.data());
 				}
 
 				progressCallBack(15, "Lettura dati dalla CIE");
@@ -553,6 +553,9 @@ extern "C" {
 
 				SCardEndTransaction(conn.hCard, SCARD_RESET_CARD);
 
+				// CIE abbinata: non interrogare gli altri lettori (es. token USB/YubiKey),
+				// che farebbero fallire l'operazione con un errore generico.
+				break;
 			}
 
 			if (!foundCIE) {

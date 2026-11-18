@@ -186,23 +186,32 @@ namespace CIEID
         {
             Logger.Info("PairingCompleted() - Inizia funzione");
 
-            string defaultSignImagePath = getSignImagePath(efSeriale);
-            CieColl.addCie(pan, new CieModel(efSeriale, name, pan));
+            // Un'eccezione managed non deve attraversare il confine nativo (il chiamante la vedrebbe come errore generico).
+            try
+            {
+                string defaultSignImagePath = getSignImagePath(efSeriale);
+                CieColl.addCie(pan, new CieModel(efSeriale, name, pan));
 
-            if (shouldSignWithoutCIEPairing)
-                PANForOneShotSigning = pan;
+                if (shouldSignWithoutCIEPairing)
+                    PANForOneShotSigning = pan;
 
-            Properties.Settings.Default.cieList = JsonConvert.SerializeObject(CieColl.MyDictionary);
-            Properties.Settings.Default.Save();
+                Properties.Settings.Default.cieList = JsonConvert.SerializeObject(CieColl.MyDictionary);
+                Properties.Settings.Default.Save();
 
-            Console.WriteLine("Immagine firma salvata in: {0}", defaultSignImagePath);
+                Console.WriteLine("Immagine firma salvata in: {0}", defaultSignImagePath);
 
-            TextInfo nameInfo = new CultureInfo("it-IT", false).TextInfo;
-            DrawText(nameInfo.ToTitleCase(name.ToLower()), Color.Black, defaultSignImagePath);
+                TextInfo nameInfo = new CultureInfo("it-IT", false).TextInfo;
+                DrawText(nameInfo.ToTitleCase(name.ToLower()), Color.Black, defaultSignImagePath);
 
-            Console.WriteLine("CIE abbinate dopo aggiunta: " + Properties.Settings.Default.cieList);
+                Console.WriteLine("CIE abbinate dopo aggiunta: " + Properties.Settings.Default.cieList);
 
-            return 0;
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("PairingCompleted() - Errore: " + ex);
+                return -1;
+            }
         }
 
         long ChangePINProgress(int progress, string message)

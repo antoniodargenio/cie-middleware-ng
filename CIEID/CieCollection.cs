@@ -38,7 +38,7 @@ namespace CIEID
         public void addCie(String pan, CieModel cieModel)
         {
             if (mydictionary != null)
-                mydictionary.Add(pan, cieModel);
+                mydictionary[pan] = cieModel; // idempotente: sovrascrive se la CIE e' gia' presente
         }
 
         public void removeCie(String pan)
