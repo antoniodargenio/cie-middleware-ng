@@ -2,7 +2,7 @@
 !include "x64.nsh"
 !include "Library.nsh"
 
-!define PRODUCT_VERSION "2.0.0.27"
+!define PRODUCT_VERSION "2.0.0.28"
 
 ;--------------------------------
 ;General

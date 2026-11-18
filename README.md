@@ -43,8 +43,7 @@ Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware]
 - Nelle firme PAdES, che non hanno l'attributo *signing time*, l'ora di firma è quella della marca temporale. Senza marca viene mostrato "Firma senza marca temporale".
 
 ### Abbinamento CIE
-- Una CIE già presente in cache non viene più rifiutata (`CARD_ALREADY_ENABLED`): PIN e certificato vengono riletti e la cache riscritta.
-- L'abbinamento si ferma al primo lettore riuscito, evitando `CKR_GENERAL_ERROR` con altri lettori (ad esempio YubiKey).
+- Gestione più tollerante delle CIE già abbinate e dei diversi lettori collegati al computer.
 - Supporto a CIE già registrate da altre versioni.
 
 ### Sicurezza e robustezza
