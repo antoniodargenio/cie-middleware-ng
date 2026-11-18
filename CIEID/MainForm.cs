@@ -166,7 +166,7 @@ namespace CIEID
         {
             Logger.Info("getSignImagePath() - Inizia funzione");
             string appdataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            return string.Format("{0}\\IPZS-NG\\{1}_default.png", appdataPath, efSeriale);
+            return string.Format("{0}\\CIE-Middleware-NG\\{1}_default.png", appdataPath, efSeriale);
         }
 
         long SignCompleted(int retValue)

@@ -21,7 +21,7 @@ namespace CIEID
 
         // Settings.Upgrade() ritrova solo le impostazioni della stessa cartella (stesso percorso dell'exe).
         // Se l'elenco delle CIE abbinate è vuoto, lo recupera dall'installazione precedente più recente
-        // (altro percorso, es. Program Files (x86)) cercando i user.config in %LOCALAPPDATA%\IPZS-NG.
+        // (altro percorso, es. Program Files (x86)) cercando i user.config in %LOCALAPPDATA%\CIE-Middleware-NG.
         private static void MigraElencoCie()
         {
             try
@@ -29,7 +29,7 @@ namespace CIEID
                 if (!string.IsNullOrEmpty(Properties.Settings.Default.cieList) && Properties.Settings.Default.cieList != "0")
                     return;
 
-                string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "IPZS-NG");
+                string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CIE-Middleware-NG");
                 if (!Directory.Exists(root))
                     return;
 

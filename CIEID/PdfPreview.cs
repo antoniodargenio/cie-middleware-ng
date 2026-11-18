@@ -88,7 +88,7 @@ namespace CIEID
             this.prPanel = previewPanel;
             this.filePath = pdfPath;
             this.signImagePath = imagePath;
-            this.tmpFolderName = Path.GetTempPath() + "IPZS-NG";
+            this.tmpFolderName = Path.GetTempPath() + "CIE-Middleware-NG";
             this.pageNumber = 1;
 
             if (!System.IO.Directory.Exists(tmpFolderName))

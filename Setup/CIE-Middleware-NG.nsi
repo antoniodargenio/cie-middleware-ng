@@ -2,7 +2,7 @@
 !include "x64.nsh"
 !include "Library.nsh"
 
-!define PRODUCT_VERSION "2.0.0.11"
+!define PRODUCT_VERSION "2.0.0.12"
 
 ;--------------------------------
 ;General
@@ -197,7 +197,7 @@ Section "Uninstall"
   ;!echo $%LOCALAPPDATA%
 
   ; La disinstallazione ripulisce tutto, compresi i dati dell'utente (elenco CIE e cache).
-  RMDir /r "$LOCALAPPDATA\IPZS-NG"
+  RMDir /r "$LOCALAPPDATA\CIE-Middleware-NG"
   ReadEnvStr $0 PROGRAMDATA
   ${If} $0 != ""
     RMDir /r "$0\CIEPKI-NG"
