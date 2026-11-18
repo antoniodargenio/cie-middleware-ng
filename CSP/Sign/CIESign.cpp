@@ -7,9 +7,9 @@ CIESign::CIESign(IAS *ias){
 	this->ias = ias;
 }
 
-uint16_t CIESign::sign(const char* inFilePath, const char* type, const char* pin, int page, float x, float y, float w, float h, const char* imagePathFile,const char* outFilePath, const char* tsaUrl, const char* tsaUsername, const char* tsaPassword)
+uint32_t CIESign::sign(const char* inFilePath, const char* type, const char* pin, int page, float x, float y, float w, float h, const char* imagePathFile,const char* outFilePath, const char* tsaUrl, const char* tsaUsername, const char* tsaPassword)
 {
-	uint16_t response;
+	uint32_t response;
 
 	DISIGON_CTX ctx = NULL;
 	long ret = 0;
@@ -179,7 +179,7 @@ uint16_t CIESign::sign(const char* inFilePath, const char* type, const char* pin
 		}
 	}
 	catch (long err) {
-		LOG_ERROR("CIESign::sign - Error %d", err);;
+		LOG_ERROR("CIESign::sign - Error 0x%lx", (unsigned long)err);
 	}
 	catch (...)
 	{
@@ -192,7 +192,7 @@ uint16_t CIESign::sign(const char* inFilePath, const char* type, const char* pin
 	if (ctx)
 		disigon_sign_cleanup(ctx);
 
-	response = ret;
+	response = (uint32_t)ret;
 
 	return response;
 

@@ -2130,7 +2130,7 @@ namespace CIEID
                 Label info = new Label();
                 info.AutoSize = false;
                 info.SetBounds(16, 12, 448, 52);
-                info.Text = "Il server di marca temporale non ha risposto" +
+                info.Text = "La marca temporale non è stata ottenuta (server non raggiungibile, certificato non valido, credenziali rifiutate o URL non valido)" +
                             (string.IsNullOrEmpty(failedUrl) ? "." : " (" + failedUrl + ").") +
                             "\nCome vuoi procedere?";
                 dlg.Controls.Add(info);

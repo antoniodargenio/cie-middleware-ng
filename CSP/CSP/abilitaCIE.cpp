@@ -6,6 +6,7 @@
 #include "../UI/Pin.h"
 #include "../UI/Verifica.h"
 #include "../crypto/SHA256.h"
+#include "../Sign/disigonsdk.h"
 #include "../crypto/sha512.h"
 #include <functional>
 #include "../crypto/ASNParser.h"
@@ -284,9 +285,9 @@ extern "C" {
 
 				std::unique_ptr<CIESign> cieSign(new CIESign(ias.get()));
 
-				uint16_t ret = cieSign->sign(inFilePath, type, fullPinCStr, page, x, y, w, h, imagePathFile, outFilePath, tsaUrl, tsaUsername, tsaPassword);
+				uint32_t ret = cieSign->sign(inFilePath, type, fullPinCStr, page, x, y, w, h, imagePathFile, outFilePath, tsaUrl, tsaUsername, tsaPassword);
 
-				if ((ret & (0x63C0)) == 0x63C0)
+				if (ret <= 0xFFFF && (ret & 0xFFF0) == 0x63C0)
 				{
 					return CKR_PIN_INCORRECT;
 				}
@@ -294,22 +295,23 @@ extern "C" {
 				{
 					return CKR_PIN_LOCKED;
 				}
-				else if (ret == 30 && tsaUrl != nullptr && tsaUrl[0] != 0)
+				else if (ret == (uint32_t)DISIGON_ERROR_TSA && tsaUrl != nullptr && tsaUrl[0] != 0)
 				{
-					// DISIGON_ERROR_TSA (BASE+30, troncato a 16 bit): marca temporale non ottenuta,
+					// DISIGON_ERROR_TSA (codice a 32 bit, non piu' troncato): marca temporale non ottenuta,
 					// l'interfaccia puo' proporre alternative
 					return CARD_TSA_ERROR;
 				}
 				else if (ret != 0)
 				{
+					LOG_ERROR("firmaConCIE - firma fallita, codice 0x%lx", (unsigned long)ret);
 					return CKR_GENERAL_ERROR;
 				}
 
 				progressCallBack(100, "");
 
-				LOG_DEBUG("firmaConCIE - cie_sign_sdk sign return: %d", ret);
+				LOG_DEBUG("firmaConCIE - cie_sign_sdk sign return: 0x%lx", (unsigned long)ret);
 
-				completedCallBack(ret);
+				completedCallBack((int)ret);
 				break; // firma completata: non interrogare gli altri lettori
 			}
 
