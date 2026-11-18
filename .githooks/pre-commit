@@ -10,5 +10,6 @@ new="$base.$((rev + 1))"
 printf '%s\n' "$new" > version.txt
 sed -b -i "s/\(Assembly\(File\)\?Version(\"\)[0-9.]*\(\")\)/\1$new\3/" CIEID/Properties/AssemblyInfo.cs
 sed -b -i "s/\(PRODUCT_VERSION \"\)[0-9.]*\(\"\)/\1$new\2/" Setup/CIEMiddleware.nsi
-git add version.txt CIEID/Properties/AssemblyInfo.cs Setup/CIEMiddleware.nsi
+python .githooks/set-rc-version.py "$new" || python3 .githooks/set-rc-version.py "$new"
+git add CSP/res/CIEPKI.rc version.txt CIEID/Properties/AssemblyInfo.cs Setup/CIEMiddleware.nsi
 echo "Versione: $cur -> $new"
