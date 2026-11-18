@@ -50,10 +50,10 @@
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     <GenerateManifest>false</GenerateManifest>
     <IncludePath>$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\cryptopp\x64\debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)\cryptopp\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -71,21 +71,21 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CSP_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CSP_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CSP_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CSP_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)CSP\Sign;$(SolutionDir)CSP;$(SolutionDir)PKCS11</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)CSP\Sign;$(SolutionDir)CSP;$(SolutionDir)PKCS11;$(SolutionDir)LOGGER</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cryptlib.lib;Urlmon.lib;bcrypt.lib;version.lib;Crypt32.lib;shlwapi.lib;winscard.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;cryptlib.lib;Urlmon.lib;bcrypt.lib;version.lib;Crypt32.lib;shlwapi.lib;winscard.lib;zlib.lib;podofo.lib;freetype.lib;libpng16.lib;bz2.lib;cie_sign_sdk.lib;libcurl.lib;libcrypto.lib;libssl.lib;libxml2_a.lib;iconv.lib;charset.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <AdditionalDependencies>cryptlib.lib;Urlmon.lib;bcrypt.lib;version.lib;Crypt32.lib;shlwapi.lib;winscard.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)CSP\cryptopp\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ws2_32.lib;cryptlib.lib;Urlmon.lib;bcrypt.lib;version.lib;Crypt32.lib;shlwapi.lib;winscard.lib;zlib.lib;podofo.lib;freetype.lib;libpng16.lib;bz2.lib;cie_sign_sdk.lib;libcurl.lib;libcrypto.lib;libssl.lib;libxml2_a.lib;iconv.lib;charset.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\cie_sign_sdk\Dependencies\libcurl\;$(SolutionDir)CSP\Sign;$(SolutionDir)CSP\cryptopp\x64;$(SolutionDir)\cie_sign_sdk\Dependencies\podofo\;$(SolutionDir)\cie_sign_sdk\Dependencies\zlib;$(SolutionDir)\cie_sign_sdk\Dependencies\freetype\;$(SolutionDir)\cie_sign_sdk\Dependencies\openssl;$(SolutionDir)\cie_sign_sdk\Dependencies\libpng\;$(SolutionDir)\cie_sign_sdk\Dependencies\bzip;$(SolutionDir)\cie_sign_sdk\Dependencies\libxml2;$(SolutionDir)\cie_sign_sdk\Dependencies\libiconv;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>custom.manifest</AdditionalManifestFiles>
@@ -273,4 +273,4 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-</Project>
+</Project>
