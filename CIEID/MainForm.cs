@@ -99,6 +99,7 @@ namespace CIEID
             Logger.Info("Inizializzo form principale");
 
             InitializeComponent();
+            Text += " – v" + typeof(Program).Assembly.GetName().Version;
             unofficialDisclaimerLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pairingDisclaimerLabel = new Label();
             pairingDisclaimerLabel.Name = "pairingDisclaimerLabel";

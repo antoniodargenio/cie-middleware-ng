@@ -8,6 +8,7 @@ namespace CIEID
         public Intro()
         {
             InitializeComponent();
+            Text += " – v" + typeof(Program).Assembly.GetName().Version;
             AddDisclaimer(tabPage1);
             AddDisclaimer(tabPage2);
         }

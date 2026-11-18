@@ -17,6 +17,7 @@ namespace CIEID
         public PINNotice()
         {
             InitializeComponent();
+            Text += " – v" + typeof(Program).Assembly.GetName().Version;
             buttonOK.Text = "OK (" + timerCountdown + ")";
             countdownTimer.Start();
         }
