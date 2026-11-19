@@ -118,6 +118,7 @@ I PIN sono `SecureString` e, se omessi, vengono richiesti senza eco. Aiuto: `Get
 - `CSP` — libreria nativa `CIEPKI-NG.dll` (minidriver CSP + modulo PKCS#11 + funzioni di abbinamento, firma e cambio/sblocco PIN usate dall'applicazione grafica);
 - `CIEID.Core` — libreria .NET 10 senza interfaccia (P/Invoke verso la DLL, impostazioni, log, servizi);
 - `CIEID.Wpf` — interfaccia grafica WPF/MVVM .NET 10 (eseguibile `CIE-Middleware-NG.exe`), interamente riscritta: non usa loghi, marchi né grafica istituzionale;
+- `CIEID.Legacy` — la vecchia interfaccia WinForms, mantenuta funzionante sopra `CIEID.Core` (eseguibile `CIE-Middleware-NG-Legacy.exe`, non inclusa nell'installer); l'interfaccia principale resta quella WPF;
 - `PowerShell` — modulo `CIE-Middleware-NG` (stesse operazioni dell'applicazione grafica da riga di comando, stessa DLL);
 - `CacheLib`, `cie_sign_sdk` (terze parti, non modificare), `PKCS11`, `Setup` (installer NSIS), `EsempioCSP`, `EsempioPCSC`, `EsempioPKCS11`.
 
