@@ -123,7 +123,13 @@ namespace CIEID
             //Properties.Settings.Default.cardHolder = "";
             //Properties.Settings.Default.Save();
 
-            Properties.Settings.Default.Upgrade();
+            // Upgrade() solo una volta per versione: se fosse chiamato a ogni avvio, rileggerebbe
+            // le impostazioni della versione precedente sovrascrivendo quelle appena salvate
+            if (Properties.Settings.Default.upgradeRequired)
+            {
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.upgradeRequired = false;
+            }
             MigraElencoCie();
             Properties.Settings.Default.Save();
 

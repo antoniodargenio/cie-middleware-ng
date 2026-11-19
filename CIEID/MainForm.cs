@@ -3169,6 +3169,7 @@ namespace CIEID
         private void showIntroductionScreens_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.firstTime = showIntroductionScreens.Checked;
+            Properties.Settings.Default.Save();
         }
     }
 }
