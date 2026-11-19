@@ -59,3 +59,18 @@ Se l'abbinamento risponde "CIE non presente sul lettore" la carta non è stata r
 | "CIE non presente sul lettore" | Carta mal posizionata, lettore senza interfaccia contactless, ATR non riconosciuto |
 | Errori casuali durante la firma | Carta spostata durante l'operazione: tenerla ferma finché non termina |
 | Più lettori collegati | Il middleware cerca la CIE su tutti i lettori e usa il primo che ne ha una valida |
+
+## Discussioni e supporto
+
+Per domande, esperienze con i lettori e segnalazioni usa le [Discussions](https://github.com/antoniodargenio/cie-middleware-ng/discussions) del progetto. Non scrivere mai PIN o PUK, nemmeno parziali.
+
+| Categoria | Per cosa |
+|---|---|
+| [Hardware](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/hardware) | Lettori NFC e smart card: modelli che funzionano o danno problemi, driver, ATR non riconosciuti |
+| [Installazione e aggiornamenti](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/installazione-e-aggiornamenti) | Installer, disinstallazione, convivenza con il middleware originale, aggiornamenti |
+| [Firma e verifica](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/firma-e-verifica) | Firma PAdES/CAdES, marca temporale, firma grafica, verifica dei file firmati |
+| [Modulo PowerShell](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/modulo-powershell) | Cmdlet, script, automazione, errori `CIE_0x…` |
+| [PIN, PUK e abbinamento](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/pin-puk-e-abbinamento) | Abbinamento della CIE, cambio e sblocco del PIN |
+| [Compatibilità](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/compatibilita) | Versioni di Windows, antivirus, browser e applicazioni di terze parti |
+
+Un problema del programma (non una domanda) va aperto come [Issue](https://github.com/antoniodargenio/cie-middleware-ng/issues).
