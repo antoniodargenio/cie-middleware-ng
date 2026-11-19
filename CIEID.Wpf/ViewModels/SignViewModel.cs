@@ -144,8 +144,8 @@ namespace CIEID.Wpf.ViewModels
             if (SelectedCard == null) { MessageBox.Show("Nessuna carta abbinata: vai alla pagina Carte.", "Firma", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
             if (Pin == null || !Regex.IsMatch(Pin, "^[0-9]{4}$|^[0-9]{8}$")) { MessageBox.Show("Inserisci le ultime 4 cifre del PIN.", "PIN non valido", MessageBoxButton.OK, MessageBoxImage.Exclamation); return; }
 
-            string ext = Pades ? "-signed.pdf" : ".p7m";
-            string suggested = Pades ? Path.GetFileNameWithoutExtension(FilePath) + ext : Path.GetFileName(FilePath) + ext;
+            string ext = Pades ? ".pdf" : ".p7m";
+            string suggested = Pades ? "signed-" + Path.GetFileNameWithoutExtension(FilePath) + ext : Path.GetFileName(FilePath) + ext;
             SaveFileDialog sd = new SaveFileDialog
             {
                 FileName = suggested,
