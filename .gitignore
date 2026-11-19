@@ -76,3 +76,8 @@ CSP/CIEPKI/
 CacheLib/CacheLib/
 Setup/Debug/
 Setup/Redist/
+
+CIEID.Core/obj/
+CIEID.Core/bin/
+CIEID.Wpf/obj/
+CIEID.Wpf/bin/

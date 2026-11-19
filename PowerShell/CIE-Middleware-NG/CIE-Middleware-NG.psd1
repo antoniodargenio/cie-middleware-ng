@@ -1,6 +1,6 @@
 ﻿@{
     RootModule           = 'CIE-Middleware-NG.psm1'
-    ModuleVersion        = '2.0.0.43'
+    ModuleVersion        = '2.0.0.44'
     GUID                 = '6b0f6d0e-3a52-4c0e-9f3e-5a0d6c1f7e21'
     Author               = 'CIE Middleware NG'
     CompanyName          = 'CIE Middleware NG'

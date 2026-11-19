@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIEID", "CIEID\CIEID.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIEID.Core", "CIEID.Core\CIEID.Core.csproj", "{96FE8346-E654-4FEA-BDEC-47FE5C6AC303}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIEID.Wpf", "CIEID.Wpf\CIEID.Wpf.csproj", "{B1A742DB-4998-485D-93CE-AE9885B971AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +133,18 @@ Global
 		{96FE8346-E654-4FEA-BDEC-47FE5C6AC303}.Release|x64.Build.0 = Release|Any CPU
 		{96FE8346-E654-4FEA-BDEC-47FE5C6AC303}.Release|x86.ActiveCfg = Release|Any CPU
 		{96FE8346-E654-4FEA-BDEC-47FE5C6AC303}.Release|x86.Build.0 = Release|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Debug|x64.Build.0 = Debug|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Debug|x86.Build.0 = Debug|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Release|x64.ActiveCfg = Release|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Release|x64.Build.0 = Release|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Release|x86.ActiveCfg = Release|Any CPU
+		{B1A742DB-4998-485D-93CE-AE9885B971AF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

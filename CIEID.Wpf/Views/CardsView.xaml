@@ -1,0 +1,76 @@
+<UserControl x:Class="CIEID.Wpf.Views.CardsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,12,0">
+            <TextBlock Style="{StaticResource Title}" Text="Carte"/>
+            <TextBlock Style="{StaticResource Subtitle}" Text="{Binding ReaderInfo}" Margin="0,0,0,12"/>
+            <Button Content="Aggiorna" Command="{Binding RefreshReadersCommand}" HorizontalAlignment="Left" Margin="0,0,0,12"/>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Label}" Text="Carte abbinate"/>
+                    <TextBlock Text="Nessuna carta abbinata. Abbina la tua CIE qui sotto." Foreground="{StaticResource InkSoft}" Margin="0,6,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Cards.Count}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <ItemsControl ItemsSource="{Binding Cards}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Owner}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding SerialNumber}" Foreground="{StaticResource InkSoft}"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="Rimuovi" Style="{StaticResource DangerButton}"
+                                            Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Label}" Text="Abbina una nuova carta"/>
+                    <TextBlock Text="Inserisci il PIN (8 cifre) e appoggia la CIE sul lettore." Foreground="{StaticResource InkSoft}" Margin="0,4,0,8"/>
+                    <PasswordBox x:Name="PinBox" Width="220" HorizontalAlignment="Left" PasswordChanged="PinBox_Changed"/>
+                    <Button Content="Abbina" Style="{StaticResource PrimaryButton}" Command="{Binding PairCommand}" HorizontalAlignment="Left" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Expander Header="PIN e PUK" Margin="0,0,0,12">
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Label}" Text="Cambio PIN (usa il PIN attuale inserito sopra)"/>
+                        <PasswordBox x:Name="NewPinBox" Width="220" HorizontalAlignment="Left" Margin="0,6,0,0" PasswordChanged="NewPin_Changed" ToolTip="Nuovo PIN"/>
+                        <PasswordBox x:Name="NewPin2Box" Width="220" HorizontalAlignment="Left" Margin="0,6,0,0" PasswordChanged="NewPin2_Changed" ToolTip="Ripeti il nuovo PIN"/>
+                        <Button Content="Cambia PIN" Command="{Binding ChangePinCommand}" HorizontalAlignment="Left" Margin="0,8,0,16"/>
+                        <TextBlock Style="{StaticResource Label}" Text="Sblocco con PUK (usa il nuovo PIN sopra)"/>
+                        <PasswordBox x:Name="PukBox" Width="220" HorizontalAlignment="Left" Margin="0,6,0,0" PasswordChanged="Puk_Changed" ToolTip="PUK"/>
+                        <Button Content="Sblocca" Command="{Binding UnlockPinCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Expander>
+
+            <StackPanel Visibility="{Binding Busy, Converter={StaticResource BoolToVis}}">
+                <ProgressBar Value="{Binding Progress}" Maximum="100" Height="8"/>
+                <TextBlock Text="{Binding Message}" Margin="0,6,0,0"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
