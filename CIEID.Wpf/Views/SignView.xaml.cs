@@ -55,6 +55,7 @@ namespace CIEID.Wpf.Views
             SignViewModel vm = VM;
             double w = Overlay.ActualWidth, h = Overlay.ActualHeight;
             if (vm == null || w <= 0 || h <= 0) return;
+            vm.BoxH = vm.BoxW * w / 3.0 / h; // rapporto 3:1 dell'immagine della firma
             Box.Width = vm.BoxW * w;
             Box.Height = vm.BoxH * h;
             Canvas.SetLeft(Box, vm.BoxX * w);
@@ -79,6 +80,24 @@ namespace CIEID.Wpf.Views
             Canvas.SetTop(Box, top);
             VM.BoxX = left / w;
             VM.BoxY = top / h;
+        }
+
+        // ridimensiona dall'angolo in basso a destra mantenendo il rapporto 3:1 dell'immagine della firma
+        private void Grip_Delta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            if (VM == null) return;
+            double w = Overlay.ActualWidth, h = Overlay.ActualHeight;
+            if (w <= 0 || h <= 0) return;
+            double left = Canvas.GetLeft(Box), top = Canvas.GetTop(Box);
+            double nw = Box.Width + e.HorizontalChange;
+            nw = Math.Max(60, Math.Min(nw, w - left));
+            double nh = nw / 3.0;
+            if (top + nh > h) { nh = h - top; nw = nh * 3.0; }
+            Box.Width = nw;
+            Box.Height = nh;
+            VM.BoxW = nw / w;
+            VM.BoxH = nh / h;
+            e.Handled = true;
         }
 
         private void Box_Up(object sender, MouseButtonEventArgs e)

@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using CIEID.Core;
 using CIEID.Wpf.Services;
+using CIEID.Wpf.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
@@ -22,7 +23,7 @@ namespace CIEID.Wpf.ViewModels
             get
             {
                 return "1. Scegli il file da firmare.\n2. Seleziona la carta abbinata.\n3. Scegli il formato: PAdES per i PDF (firma visibile nel documento), CAdES (.p7m) per qualsiasi file.\n" +
-                       "4. Per la firma grafica trascina il riquadro verde nel punto desiderato della pagina.\n5. Inserisci le ultime 4 cifre del PIN e appoggia la carta sul lettore.\n\n" +
+                       "4. Per la firma grafica trascina il riquadro nel punto desiderato e ridimensionalo dall'angolo; nel riquadro «La tua firma grafica» puoi creare una firma (testo o disegno a mano), caricare un'immagine oppure ripristinare quella predefinita.\n5. Inserisci le ultime 4 cifre del PIN e appoggia la carta sul lettore.\n\n" +
                        "Il file firmato viene salvato con un nuovo nome: l'originale non viene modificato.";
             }
         }
@@ -37,6 +38,7 @@ namespace CIEID.Wpf.ViewModels
         [ObservableProperty] private int pageCount;
         [ObservableProperty] private int page = 1;
         [ObservableProperty] private BitmapSource pageImage;
+        [ObservableProperty] private BitmapSource signatureImage;
         [ObservableProperty] private bool busy;
         [ObservableProperty] private int progress;
         [ObservableProperty] private string message;
@@ -57,6 +59,43 @@ namespace CIEID.Wpf.ViewModels
             Cards.Clear();
             foreach (CieModel c in App.Cards.Cards) Cards.Add(c);
             if (SelectedCard == null && Cards.Count > 0) SelectedCard = Cards[0];
+        }
+
+        partial void OnSelectedCardChanged(CieModel value) { RefreshSignature(); }
+
+        private void RefreshSignature()
+        {
+            if (SelectedCard == null) { SignatureImage = null; return; }
+            try { SignatureImage = SignatureImageRenderer.Load(SignatureImageRenderer.Ensure(SelectedCard.Owner, SelectedCard.SerialNumber)); }
+            catch (Exception ex) { App.Log.Error("Immagine firma: " + ex); SignatureImage = null; }
+        }
+
+        [RelayCommand]
+        private void ImportSignature()
+        {
+            if (SelectedCard == null) return;
+            OpenFileDialog d = new OpenFileDialog { Filter = "Immagini (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp" };
+            if (d.ShowDialog() != true) return;
+            try { SignatureImageRenderer.Import(d.FileName, SelectedCard.SerialNumber); RefreshSignature(); }
+            catch (Exception ex) { MessageBox.Show("Immagine non valida: " + ex.Message, "Firma grafica", MessageBoxButton.OK, MessageBoxImage.Warning); }
+        }
+
+        [RelayCommand]
+        private void CreateSignature()
+        {
+            if (SelectedCard == null) return;
+            SignatureEditorDialog dlg = new SignatureEditorDialog(SelectedCard.Owner) { Owner = Application.Current.MainWindow };
+            if (dlg.ShowDialog() != true || dlg.Result == null) return;
+            try { SignatureImageRenderer.Save(dlg.Result, SignatureImageRenderer.PathFor(SelectedCard.SerialNumber)); RefreshSignature(); }
+            catch (Exception ex) { MessageBox.Show("Impossibile salvare la firma: " + ex.Message, "Firma grafica", MessageBoxButton.OK, MessageBoxImage.Warning); }
+        }
+
+        [RelayCommand]
+        private void ResetSignature()
+        {
+            if (SelectedCard == null) return;
+            SignatureImageRenderer.Reset(SelectedCard.Owner, SelectedCard.SerialNumber);
+            RefreshSignature();
         }
 
         partial void OnPageChanged(int value) { LoadPreview(); }
@@ -118,12 +157,13 @@ namespace CIEID.Wpf.ViewModels
             GraphicSignature g = null;
             if (Pades && Graphic && PageImage != null)
             {
-                string img = SignatureImageRenderer.Render(SelectedCard.Owner, SelectedCard.SerialNumber);
+                string img = SignatureImageRenderer.Ensure(SelectedCard.Owner, SelectedCard.SerialNumber);
                 g = new GraphicSignature
                 {
                     Page = Page - 1,
                     X = (float)BoxX,
-                    Y = (float)(1.0 - (BoxY + BoxH)),
+                    // la DLL nativa vuole la frazione dall'alto del bordo INFERIORE del riquadro
+                    Y = (float)(BoxY + BoxH),
                     W = (float)BoxW,
                     H = (float)BoxH,
                     ImagePath = img

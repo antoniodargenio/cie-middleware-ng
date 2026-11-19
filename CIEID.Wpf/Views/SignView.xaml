@@ -33,6 +33,20 @@
 
                 <Border Style="{StaticResource Card}" Margin="0,12,0,0">
                     <StackPanel>
+                        <TextBlock Style="{StaticResource Label}" Text="La tua firma grafica"/>
+                        <Border BorderBrush="{StaticResource Line}" BorderThickness="1" Background="White" Height="70" Margin="0,6,0,0">
+                            <Image Source="{Binding SignatureImage}" Stretch="Uniform" Margin="4"/>
+                        </Border>
+                        <WrapPanel Margin="0,8,0,0">
+                            <Button Content="Crea o disegna…" Command="{Binding CreateSignatureCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,4"/>
+                            <Button Content="Carica immagine…" Command="{Binding ImportSignatureCommand}" Margin="0,0,8,4"/>
+                            <Button Content="Ripristina" Command="{Binding ResetSignatureCommand}" Margin="0,0,0,4"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                    <StackPanel>
                         <TextBlock Style="{StaticResource Label}" Text="PIN (ultime 4 cifre)"/>
                         <PasswordBox x:Name="PinBox" MaxLength="8" PasswordChanged="PinBox_Changed" Margin="0,6,0,0"/>
                         <Button Content="Firma" Style="{StaticResource PrimaryButton}" Command="{Binding SignCommand}" Margin="0,12,0,0"/>
@@ -60,7 +74,7 @@
                         <Run Text="{Binding Page, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding PageCount, Mode=OneWay}"/>
                     </TextBlock>
                     <Button Content="›" Click="NextPage" Padding="10,2"/>
-                    <TextBlock Text="Trascina il riquadro verde nel punto desiderato" Foreground="{StaticResource InkSoft}" VerticalAlignment="Center" Margin="16,0,0,0"/>
+                    <TextBlock Text="Trascina il riquadro per spostarlo, usa l'angolo per ridimensionarlo" Foreground="{StaticResource InkSoft}" VerticalAlignment="Center" Margin="16,0,0,0"/>
                 </StackPanel>
                 <Viewbox Grid.Row="1" Stretch="Uniform">
                     <Grid x:Name="PageHost">
@@ -70,7 +84,17 @@
                                 HorizontalAlignment="Left" VerticalAlignment="Top">
                             <Border x:Name="Box" BorderBrush="{StaticResource Primary}" BorderThickness="2" Background="#331F7A4D" Cursor="SizeAll"
                                     MouseLeftButtonDown="Box_Down" MouseMove="Box_Move" MouseLeftButtonUp="Box_Up">
-                                <TextBlock Text="Firma" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource PrimaryDark}"/>
+                                <Grid>
+                                    <Image Source="{Binding SignatureImage}" Stretch="Fill" IsHitTestVisible="False"/>
+                                    <Thumb x:Name="Grip" Width="14" Height="14" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                           Cursor="SizeNWSE" DragDelta="Grip_Delta">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="{StaticResource Primary}"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Grid>
                             </Border>
                         </Canvas>
                     </Grid>

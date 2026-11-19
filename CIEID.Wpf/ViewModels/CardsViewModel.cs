@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using CIEID.Core;
+using CIEID.Wpf.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -94,7 +95,9 @@ namespace CIEID.Wpf.ViewModels
             if (MessageBox.Show("Rimuovere l'abbinamento della carta di " + card.Owner + "?\nAppoggia la carta sul lettore.", "Rimuovi carta",
                 MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) return;
             string pan = card.Pan;
+            string serial = card.SerialNumber;
             await Run(() => App.Cards.RemoveAsync(pan), "Abbinamento rimosso.");
+            SignatureImageRenderer.Delete(serial);
         }
 
         [RelayCommand]
