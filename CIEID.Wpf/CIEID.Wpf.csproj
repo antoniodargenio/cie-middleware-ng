@@ -4,7 +4,8 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <RootNamespace>CIEID.Wpf</RootNamespace>
-    <AssemblyName>CIE-Middleware-NG-Wpf</AssemblyName>
+    <AssemblyName>CIE-Middleware-NG</AssemblyName>
+    <ApplicationIcon>Assets/app.ico</ApplicationIcon>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Deterministic>true</Deterministic>
@@ -28,8 +29,9 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Strumenti e font condivisi con la GUI precedente (non duplicati nel repository) -->
-    <Content Include="..\CIEID\Resources\mutool.exe" Link="Tools\mutool.exe" CopyToOutputDirectory="PreserveNewest" />
-    <Resource Include="..\CIEID\Resources\Allura-Regular.ttf" Link="Assets\Allura-Regular.ttf" />
+    <!-- Strumento di anteprima PDF (MuPDF, vedi THIRD-PARTY-NOTICES.md) e font della firma grafica -->
+    <Content Include="Tools\mutool.exe" CopyToOutputDirectory="PreserveNewest" />
+    <Resource Include="Assets\Allura-Regular.ttf" />
+    <Resource Include="Assets/app.ico" />
   </ItemGroup>
 </Project>

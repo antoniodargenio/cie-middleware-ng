@@ -6,6 +6,10 @@ Questo repository è un **fork non ufficiale** del middleware CIE originale (pro
 
 **Questo software NON è la versione ufficiale distribuita dall'Istituto Poligrafico e Zecca dello Stato (IPZS)** e non è approvato, certificato, supportato né collegato in alcun modo all'IPZS, al Ministero dell'Interno o ad altre amministrazioni. Marchi e denominazioni appartengono ai rispettivi titolari.
 
+## Interfaccia grafica
+
+L'interfaccia grafica di questo fork (`CIEID.Wpf`) è stata **riscritta da zero** e non riutilizza il codice, i loghi, le immagini, i testi né la grafica dell'applicazione originale. Non è presente alcun marchio, logo o elemento grafico istituzionale. Restano invariati, e sono soggetti alla licenza BSD 3-Clause, i componenti nativi del progetto originale. I componenti di terze parti sono elencati in `THIRD-PARTY-NOTICES.md`.
+
 ## Supporto
 
 Questa versione non è ufficialmente supportata dall'IPZS. Essendo un fork pubblico, riceve supporto dagli sviluppatori su GitHub (issue e pull request del repository del progetto).

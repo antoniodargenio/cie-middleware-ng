@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # Pacchetti NuGet dei progetti C# (CIEID usa PackageReference)
+  # Pacchetti NuGet dei progetti C# (CIEID.Core e CIEID.Wpf usano PackageReference)
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:

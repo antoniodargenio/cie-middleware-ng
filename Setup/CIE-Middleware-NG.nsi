@@ -2,7 +2,7 @@
 !include "x64.nsh"
 !include "Library.nsh"
 
-!define PRODUCT_VERSION "2.0.0.44"
+!define PRODUCT_VERSION "2.0.0.45"
 
 ;--------------------------------
 ;General
@@ -11,7 +11,7 @@
   Name "CIE-Middleware-NG"
   OutFile "${Config}\CIE-Middleware-NG.exe"
 
-  !define MUI_ICON "..\CSP\res\CIE.ico"
+  !define MUI_ICON "..\CIEID.Wpf\Assets\app.ico"
   !define PRODUCT_UNINST_ROOT_KEY "HKLM"
   !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\CIEPKI-NG"
   
@@ -61,7 +61,7 @@ VIProductVersion "${PRODUCT_VERSION}"
 
 ; Runtime opzionali: se i redistributable sono presenti in Setup\Redist vengono inclusi nell'installer.
 ; - vc_redist.x64.exe: Microsoft Visual C++ Redistributable 2015-2022 x64 (richiesto da CIEPKI-NG.dll)
-; - windowsdesktop-runtime-win-x64.exe: .NET Desktop Runtime 10 x64 (richiesto da CIEID)
+; - windowsdesktop-runtime-win-x64.exe: .NET Desktop Runtime 10 x64 (richiesto da CIE Middleware NG)
 !define VCREDIST_FILE "${__FILEDIR__}\Redist\vc_redist.x64.exe"
 !define DOTNET_FILE "${__FILEDIR__}\Redist\windowsdesktop-runtime-win-x64.exe"
 
@@ -133,12 +133,15 @@ Section "Install"
 	
 	File "..\x64\${Config}\CIE-Middleware-NG.exe"
 	File "..\x64\${Config}\CIE-Middleware-NG.dll"
-	File "..\x64\${Config}\CIE-Middleware-NG.dll.config"
 	File "..\x64\${Config}\CIE-Middleware-NG.deps.json"
 	File "..\x64\${Config}\CIE-Middleware-NG.runtimeconfig.json"
+	File "..\x64\${Config}\CommunityToolkit.Mvvm.dll"
 	File "..\x64\${Config}\CIEID.Core.dll"
 	File "..\x64\${Config}\Newtonsoft.Json.dll"
 	File "..\x64\${Config}\System.Management.dll"
+	SetOutPath "$INSTDIR\Tools"
+	File "..\x64\${Config}\Tools\mutool.exe"
+	SetOutPath $INSTDIR
 
   ; modulo PowerShell (visibile a Windows PowerShell 5.1 e a PowerShell 7)
   SetOutPath "$PROGRAMFILES64\WindowsPowerShell\Modules\CIE-Middleware-NG"
@@ -214,6 +217,9 @@ Section "Uninstall"
   Delete "$INSTDIR\CIE-Middleware-NG.dll.config"
   Delete "$INSTDIR\CIE-Middleware-NG.deps.json"
   Delete "$INSTDIR\CIE-Middleware-NG.runtimeconfig.json"
+  Delete "$INSTDIR\CommunityToolkit.Mvvm.dll"
+  Delete "$INSTDIR\Tools\mutool.exe"
+  RMDir "$INSTDIR\Tools"
   Delete "$INSTDIR\CIEID.Core.dll"
   Delete "$INSTDIR\Newtonsoft.Json.dll"
   Delete "$INSTDIR\System.Management.dll"
@@ -222,6 +228,7 @@ Section "Uninstall"
   Delete "$PROGRAMFILES64\WindowsPowerShell\Modules\CIE-Middleware-NG\CIE-Middleware-NG.psm1"
   RMDir "$PROGRAMFILES64\WindowsPowerShell\Modules\CIE-Middleware-NG"
   ; file di versioni precedenti dell'installer
+  Delete "$INSTDIR\CIE-Middleware-NG.dll.config"
   Delete "$INSTDIR\CIE-Middleware-NG.exe.config"
   Delete "$INSTDIR\Newtonsoft.Json.xml"
   Delete "$INSTDIR\Uninstall.exe"

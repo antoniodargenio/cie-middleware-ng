@@ -6,7 +6,7 @@
 Il middleware CIE è una libreria software che implementa le interfacce crittografiche standard **PKCS#11** e **CSP**. Esso consente agli applicativi integranti di utilizzare il certificato di autenticazione e la relativa chiave privata memorizzati sul chip della CIE astraendo dalle modalità di comunicazione di basso livello. 
 
 ## ARCHITETTURA
-La libreria è sviluppata in C++ su Visual Studio 2022 o successivo (toolset v145); l'applicazione **CIEID** è in C# su .NET 10 (WinForms); per compilare il modulo di installazione (progetto **Setup**) è inoltre necessario [NSIS](https://nsis.sourceforge.io/). Allo stato attuale è utilizzabile esclusivamente in ambiente Windows. Entrambe le interfacce sono esposte della stessa libreria (CIEPKI-NG.dll), che viene compilata dal progetto CSP. La libreria viene compilata sia in versione a 32 bit che a 64 bit.
+La libreria è sviluppata in C++ su Visual Studio 2022 o successivo (toolset v145); l'applicazione grafica **CIE Middleware NG** (progetti **CIEID.Wpf** e **CIEID.Core**) è in C# su .NET 10 (WPF, MVVM); per compilare il modulo di installazione (progetto **Setup**) è inoltre necessario [NSIS](https://nsis.sourceforge.io/). Allo stato attuale è utilizzabile esclusivamente in ambiente Windows. Entrambe le interfacce sono esposte della stessa libreria (CIEPKI-NG.dll), che viene compilata dal progetto CSP. La libreria viene compilata sia in versione a 32 bit che a 64 bit.
 
 L’interfaccia CSP è conforme alla versione 7 delle specifiche dei Minidriver pubblicate da Microsoft a [questo](http://download.microsoft.com/download/7/E/7/7E7662CF-CBEA-470B-A97E-CE7CE0D98DC2/sc-minidriver_specs_V7.docx) indirizzo.
 L’interfaccia PKCS11 è conforme alla specifica [RSA 2.11](https://www.cryptsoft.com/pkcs11doc/v211/).
@@ -29,7 +29,7 @@ Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware]
 
 ### Build e piattaforma
 - Toolset C++ v145 e Windows SDK 10.0.26100.0.
-- `CIEID` ed `EsempioCSP` migrati a progetti SDK-style per **.NET 10** (`net10.0-windows`); Newtonsoft.Json tramite `PackageReference`, `packages.config` rimosso.
+- `CIEID.Core`, `CIEID.Wpf` ed `EsempioCSP` migrati a progetti SDK-style per **.NET 10** (`net10.0-windows`); Newtonsoft.Json tramite `PackageReference`, `packages.config` rimosso.
 - Rimossa la firma del codice dalla build (post-build di `CSP` e passi NSIS di `Setup`).
 
 ### Firma
@@ -49,7 +49,7 @@ Questa è una build non ufficiale, derivata dal progetto [italia/cie-middleware]
 ### Sicurezza e robustezza
 - Revisione generale del codice di abbinamento, firma, cache e comunicazione con i server di marca temporale, con maggiore robustezza nella gestione degli input, delle risorse e degli errori.
 - Verifica dei certificati TLS e gestione più prudente delle credenziali eventualmente configurate (proxy, TSA).
-- Log strutturato nell'applicazione `CIEID`.
+- Log strutturato nell'applicazione grafica.
 
 ## Modulo PowerShell
 
@@ -115,12 +115,13 @@ I PIN sono `SecureString` e, se omessi, vengono richiesti senza eco. Aiuto: `Get
 
 ### Struttura della soluzione
 `CIE-Middleware-NG.sln` contiene:
-- `CSP` — libreria nativa `CIEPKI-NG.dll` (minidriver CSP + modulo PKCS#11 + funzioni di abbinamento, firma e cambio/sblocco PIN usate da CIEID);
-- `CIEID` — applicazione WinForms .NET 10 (eseguibile `CIE-Middleware-NG.exe`, namespace `CIEID`), chiama la DLL via P/Invoke;
-- `PowerShell` — modulo `CIE-Middleware-NG` (stesse operazioni di CIEID da riga di comando, stessa DLL);
+- `CSP` — libreria nativa `CIEPKI-NG.dll` (minidriver CSP + modulo PKCS#11 + funzioni di abbinamento, firma e cambio/sblocco PIN usate dall'applicazione grafica);
+- `CIEID.Core` — libreria .NET 10 senza interfaccia (P/Invoke verso la DLL, impostazioni, log, servizi);
+- `CIEID.Wpf` — interfaccia grafica WPF/MVVM .NET 10 (eseguibile `CIE-Middleware-NG.exe`), interamente riscritta: non usa loghi, marchi né grafica istituzionale;
+- `PowerShell` — modulo `CIE-Middleware-NG` (stesse operazioni dell'applicazione grafica da riga di comando, stessa DLL);
 - `CacheLib`, `cie_sign_sdk` (terze parti, non modificare), `PKCS11`, `Setup` (installer NSIS), `EsempioCSP`, `EsempioPCSC`, `EsempioPKCS11`.
 
-Il codice del fork (CIEID, CSP, CacheLib) è commentato in italiano. Attenzione: il nome della DLL nei `DllImport` di `CIEID/MainForm.cs` deve coincidere con il file installato (`CIEPKI-NG.dll`), altrimenti l'abbinamento si blocca.
+Il codice del fork (CIEID.Core, CIEID.Wpf, CSP, CacheLib) è commentato in italiano. Attenzione: il nome della DLL nei `DllImport` di `CIEID.Core/Native` deve coincidere con il file installato (`CIEPKI-NG.dll`), altrimenti l'abbinamento si blocca.
 
 ### Compilazione
 ```
