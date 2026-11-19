@@ -1,0 +1,36 @@
+name: Controllo aggiornamenti Crypto++
+
+# Crypto++ è incluso come sorgenti in CSP/cryptopp (non è gestito da Dependabot):
+# confronta la versione inclusa con l'ultima release e apre una issue se è più vecchia.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Confronta le versioni
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # CRYPTOPP_VERSION è maggiore*100 + minore*10 + patch (es. 890 = 8.9.0)
+          current=$(grep -oE 'define CRYPTOPP_VERSION +[0-9]+' CSP/cryptopp/config_ver.h | grep -oE '[0-9]+$')
+          tag=$(gh api repos/weidai11/cryptopp/releases/latest --jq .tag_name)   # es. CRYPTOPP_8_9_0
+          IFS=_ read -r _ maj min pat <<< "$tag"
+          latest=$((maj * 100 + min * 10 + pat))
+          echo "Inclusa: $current - ultima release: $latest ($tag)"
+          if [ "$latest" -gt "$current" ]; then
+            title="Crypto++ aggiornato: disponibile $tag"
+            if [ -z "$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[].number')" ]; then
+              gh issue create --title "$title" \
+                --body "La versione inclusa in \`CSP/cryptopp\` è $current; l'ultima release è **$tag**: https://github.com/weidai11/cryptopp/releases/tag/$tag"
+            fi
+          fi
