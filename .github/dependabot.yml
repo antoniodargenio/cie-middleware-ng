@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # Pacchetti NuGet dei progetti C# (CIEID usa PackageReference)
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
