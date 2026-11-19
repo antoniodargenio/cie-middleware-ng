@@ -84,3 +84,5 @@ CIEID.Wpf/bin/
 
 CIEID.Legacy/obj/
 CIEID.Legacy/bin/
+*.vcxproj.user
+Setup/Debug/
