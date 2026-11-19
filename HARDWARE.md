@@ -66,11 +66,11 @@ Per domande, esperienze con i lettori e segnalazioni usa le [Discussions](https:
 
 | Categoria | Per cosa |
 |---|---|
-| [Hardware](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/hardware) | Lettori NFC e smart card: modelli che funzionano o danno problemi, driver, ATR non riconosciuti |
-| [Installazione e aggiornamenti](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/installazione-e-aggiornamenti) | Installer, disinstallazione, convivenza con il middleware originale, aggiornamenti |
-| [Firma e verifica](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/firma-e-verifica) | Firma PAdES/CAdES, marca temporale, firma grafica, verifica dei file firmati |
-| [Modulo PowerShell](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/modulo-powershell) | Cmdlet, script, automazione, errori `CIE_0x…` |
-| [PIN, PUK e abbinamento](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/pin-puk-e-abbinamento) | Abbinamento della CIE, cambio e sblocco del PIN |
-| [Compatibilità](https://github.com/antoniodargenio/cie-middleware-ng/discussions/categories/compatibilita) | Versioni di Windows, antivirus, browser e applicazioni di terze parti |
+| [Hardware](https://github.com/antoniodargenio/cie-middleware-ng/discussions) | Lettori NFC e smart card: modelli che funzionano o danno problemi, driver, ATR non riconosciuti |
+| [Installazione e aggiornamenti](https://github.com/antoniodargenio/cie-middleware-ng/discussions) | Installer, disinstallazione, convivenza con il middleware originale, aggiornamenti |
+| [Firma e verifica](https://github.com/antoniodargenio/cie-middleware-ng/discussions) | Firma PAdES/CAdES, marca temporale, firma grafica, verifica dei file firmati |
+| [Modulo PowerShell](https://github.com/antoniodargenio/cie-middleware-ng/discussions) | Cmdlet, script, automazione, errori `CIE_0x…` |
+| [PIN, PUK e abbinamento](https://github.com/antoniodargenio/cie-middleware-ng/discussions) | Abbinamento della CIE, cambio e sblocco del PIN |
+| [Compatibilità](https://github.com/antoniodargenio/cie-middleware-ng/discussions) | Versioni di Windows, antivirus, browser e applicazioni di terze parti |
 
 Un problema del programma (non una domanda) va aperto come [Issue](https://github.com/antoniodargenio/cie-middleware-ng/issues).
