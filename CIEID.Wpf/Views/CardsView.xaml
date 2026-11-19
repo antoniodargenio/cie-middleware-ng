@@ -32,7 +32,9 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="{Binding Owner}" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding SerialNumber}" Foreground="{StaticResource InkSoft}"/>
+                                        <TextBox Text="{Binding SerialNumber, Mode=OneWay}" IsReadOnly="True" BorderThickness="0"
+                                                 Background="Transparent" Padding="0" Foreground="{StaticResource InkSoft}"
+                                                 ToolTip="Doppio clic per selezionare il numero" MouseDoubleClick="Serial_DoubleClick"/>
                                     </StackPanel>
                                     <Button Grid.Column="1" Content="Rimuovi" Style="{StaticResource DangerButton}"
                                             Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
