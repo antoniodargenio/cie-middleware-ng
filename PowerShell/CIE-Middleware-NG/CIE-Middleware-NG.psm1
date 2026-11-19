@@ -478,7 +478,7 @@ function Add-CieSignature {
 
         if (-not $OutFile) {
             $dir = [IO.Path]::GetDirectoryName($in); $base = [IO.Path]::GetFileNameWithoutExtension($in)
-            $OutFile = if ($Format -eq 'Pades') { Join-Path $dir "$base-signed.pdf" } else { "$in.p7m" }
+            $OutFile = if ($Format -eq 'Pades') { Join-Path $dir "signed-$base.pdf" } else { "$in.p7m" }
         }
         $out = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($OutFile)
         if ((Test-Path -LiteralPath $out) -and -not $Force) { throw "Il file di destinazione esiste già: $out (usare -Force per sovrascriverlo)." }
@@ -520,7 +520,7 @@ function Test-CieSignature {
     Restituisce un oggetto per ogni firmatario con validità di firma e certificato e stato di revoca.
     Non serve il lettore di smart card. -ProxyUrl/-ProxyPort/-ProxyCredential per accedere alla rete tramite proxy.
 .EXAMPLE
-    Test-CieSignature .\contratto-signed.pdf | Format-List
+    Test-CieSignature .\signed-contratto.pdf | Format-List
 #>
     [CmdletBinding()]
     param(

@@ -71,7 +71,7 @@ Esempi:
 Get-Cie
 Add-CieSignature .\contratto.pdf          # chiede il PIN (ultime 4 cifre) senza eco
 Add-CieSignature .\atto.docx -NoTimestamp  # produce atto.docx.p7m
-Test-CieSignature .\contratto-signed.pdf | Format-List
+Test-CieSignature .\signed-contratto.pdf | Format-List
 Export-CieSignedContent .\atto.docx.p7m
 ```
 
@@ -100,7 +100,7 @@ I PIN sono `SecureString` e, se omessi, vengono richiesti senza eco. Aiuto: `Get
 - Formato: `Pades` per i `.pdf`, `Cades` per ogni altro file (si può forzare con `-Format`; PAdES su un non-PDF è un errore).
 - CIE: `-Pan`, oppure l'unica CIE abbinata; se ce n'è più di una `-Pan` è obbligatorio.
 - PIN: si possono indicare le sole ultime 4 cifre o il PIN intero (ne vengono usate le ultime 4).
-- Uscita predefinita: `<nome>-signed.pdf` per PAdES, `<file>.p7m` per CAdES; un file esistente non viene sovrascritto senza `-Force`.
+- Uscita predefinita: `signed-<nome>.pdf` per PAdES, `<file>.p7m` per CAdES; un file esistente non viene sovrascritto senza `-Force`.
 - Marca temporale: attiva di default (`http://timestamp.actalis.it`, come l'applicazione); `-NoTimestamp` la disattiva, `-TimestampUrl` indica un altro server, `-TimestampCredential` le credenziali.
 - Firma grafica (solo PAdES, con `-SignatureImage`): `-Page` parte da 1; `-X`, `-Y`, `-Width`, `-Height` sono frazioni della pagina (0-1) con origine in alto a sinistra; `-Y` è il bordo inferiore dell'immagine. Valori predefiniti: 0.55, 0.95, 0.40, 0.10.
 - Restituisce il `FileInfo` del file prodotto.

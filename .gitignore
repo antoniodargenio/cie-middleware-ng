@@ -81,3 +81,6 @@ CIEID.Core/obj/
 CIEID.Core/bin/
 CIEID.Wpf/obj/
 CIEID.Wpf/bin/
+
+CIEID.Legacy/obj/
+CIEID.Legacy/bin/
