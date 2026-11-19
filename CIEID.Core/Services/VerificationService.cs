@@ -42,7 +42,9 @@ namespace CIEID.Core
                     string u, p;
                     if (CredentialHelper.TryDecrypt(settings.ProxyCredentials, out u, out p))
                         cred = u + ":" + p;
-                    long n = NativeMethods.verificaConCIE(path, settings.ProxyUrl, settings.ProxyPort, cred);
+                    // La libreria nativa considera "proxy configurato" qualsiasi puntatore non nullo: senza proxy va passato null
+                    bool useProxy = !string.IsNullOrWhiteSpace(settings.ProxyUrl) && settings.ProxyPort > 0;
+                    long n = NativeMethods.verificaConCIE(path, useProxy ? settings.ProxyUrl : null, useProxy ? settings.ProxyPort : 0, useProxy ? cred : null);
                     if ((uint)n == NativeCodes.INVALID_FILE_TYPE) { r.Error = "Il file non è valido: si possono verificare solo file .p7m o .pdf."; return r; }
                     if (n < 0) { r.Error = "Errore durante la verifica del file."; return r; }
                     r.Count = (int)n;
