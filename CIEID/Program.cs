@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CIEID.Core;
+using System;
 using System.IO;
 using System.Windows.Forms;
 using System.Threading;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CIEID.Core;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -21,44 +22,6 @@ namespace CIEID
         private FlowLayoutPanel verifyPanel;
         private string filePath;
         private verifyInfo_t[] vInfos;
-
-        // Stato di revoca del certificato (valori restituiti dalla libreria nativa)
-        private enum revStatus
-        {
-            REVOCATION_STATUS_GOOD  = 0,
-            REVOCATION_STATUS_REVOKED  = 1,
-            REVOCATION_STATUS_SUSPENDED = 2,
-            REVOCATION_STATUS_UNKNOWN  = 3
-        }
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        // Esito della verifica di un singolo firmatario; deve corrispondere alla struct nativa di CIEPKI-NG.dll
-        public struct verifyInfo_t
-        {
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-            public string name;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-            public string surname;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-            public string cn;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-            public string signingTime;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-            public string cadn;
-            public int CertRevocStatus;
-            [MarshalAs(UnmanagedType.U1)]
-            public bool isSignValid;
-            [MarshalAs(UnmanagedType.U1)]
-            public bool isCertValid;
-        };
-
-
-        // Funzioni esportate da CIEPKI-NG.dll: verifica del file (restituisce il numero di firme)
-        // e lettura dell'esito del firmatario di indice 'index'
-        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
-        static extern long verificaConCIE(string filePath, string proxyAddress, int proxyPort, string usrPass);
-        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
-        static extern long getVerifyInfo(int index, ref verifyInfo_t vInfo);
 
         // filePath: file firmato da verificare; verifyPanel: pannello dove mostrare i risultati
         public SignerInfo(string filePath, FlowLayoutPanel verifyPanel)
@@ -143,19 +106,19 @@ namespace CIEID
             string s_revoc = "Servizio di revoca non raggiungibile";
             pbCertRev.Image = CIEID.Properties.Resources.orange_checkbox;
 
-            if (vInfo.CertRevocStatus == (int)revStatus.REVOCATION_STATUS_GOOD)
+            if (vInfo.CertRevocStatus == (int)RevocationStatus.Good)
             {
                 s_revoc = "Il certificato non è revocato";
                 pbCertRev.Image = CIEID.Properties.Resources.green_checkbox;
             }
-            else if (vInfo.CertRevocStatus == (int)revStatus.REVOCATION_STATUS_REVOKED)
+            else if (vInfo.CertRevocStatus == (int)RevocationStatus.Revoked)
             {
                 s_revoc = "Il certificato è revocato";
             }
-            else if (vInfo.CertRevocStatus == (int)revStatus.REVOCATION_STATUS_SUSPENDED)
+            else if (vInfo.CertRevocStatus == (int)RevocationStatus.Suspended)
             {
                 s_revoc = "Il certificato è sospeso";
-            }else if (vInfo.CertRevocStatus == (int)revStatus.REVOCATION_STATUS_UNKNOWN)
+            }else if (vInfo.CertRevocStatus == (int)RevocationStatus.Unknown)
             {
                 s_cert = "Certificato non verificato";
             }
@@ -387,7 +350,7 @@ namespace CIEID
 
             //Console.WriteLine("Verifica con CIE - Url: {0}, Port: {1}, credentials: {2}", proxyAddress, proxyPort, proxyCredentials);
 
-            int n_sign = (int)verificaConCIE(filePath, proxyAddress, proxyPort, proxyCredentials);
+            int n_sign = (int)NativeMethods.verificaConCIE(filePath, proxyAddress, proxyPort, proxyCredentials);
 
             Program.Logger.Debug(string.Format("n_sign: {0}", (UInt32) n_sign));
             if (n_sign <= 0)
@@ -399,7 +362,7 @@ namespace CIEID
 
             for (int i = 0; i<n_sign; i++)
             {
-                getVerifyInfo(i, ref vInfos[i]);
+                NativeMethods.getVerifyInfo(i, ref vInfos[i]);
                 verifyPanel.Controls.Add(createTable(vInfos[i]));
             }
 

@@ -1,4 +1,6 @@
 ﻿using CIEID.Controls;
+using CIEID.Core;
+using static CIEID.Core.NativeCodes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -25,29 +27,6 @@ namespace CIEID
     /// </summary>
     public partial class mainForm : Form
     {
-        // Codici di ritorno PKCS#11 (CKR_*) e codici specifici restituiti da CIEPKI-NG.dll
-        public const int CKR_OK = 0x00000000;
-        public const int CKR_CANCEL = 0x00000001;
-        public const int CKR_TOKEN_NOT_PRESENT = 0x000000E0;
-        public const int CKR_TOKEN_NOT_RECOGNIZED = 0x000000E1;
-        public const int CKR_DEVICE_ERROR = 0x00000030;
-        public const int CKR_GENERAL_ERROR = 0x00000005;
-        public const int CKR_PIN_INCORRECT = 0x000000A0;
-        public const int CKR_PIN_INVALID = 0x000000A1;
-        public const int CKR_PIN_LEN_RANGE = 0x000000A2;
-        public const int CARD_ALREADY_ENABLED = 0x000000F0;
-        public const int CARD_PAN_MISMATCH = 0x000000F1;
-        public const int CARD_TSA_ERROR = 0x000000F2;
-        public const UInt32 INVALID_FILE_TYPE = 0x84000005;
-
-        /* CKR_PIN_EXPIRED and CKR_PIN_LOCKED are new for v2.0 */
-        public const int CKR_PIN_EXPIRED = 0x000000A3;
-        public const int CKR_PIN_LOCKED = 0x000000A4;
-
-        // Stato di abbinamento di una CIE
-        public const int ENROLLED = 1;
-        public const int NOT_ENROLLED = 0;
-
         // Anteprima del PDF durante la scelta della posizione della firma grafica
         private PdfPreview pdfPreview = null;
         // Operazione scelta dall'utente nella schermata di firma/verifica
@@ -63,38 +42,6 @@ namespace CIEID
         private int signFontSize = 120;
 
         private OperationSelectedState signOp = OperationSelectedState.NO_OP;
-
-        // Callback invocate dalla libreria nativa: avanzamento (percentuale e messaggio),
-        // completamento dell'abbinamento e completamento della firma
-        delegate long ProgressCallback(int progress, string message);
-        delegate long CompletedCallback(string pan, string name, string ef_seriale);
-        delegate long SignCompletedCallback(int retValue);
-
-        // Funzioni esportate da CIEPKI-NG.dll (la DLL e' installata in System32).
-        // ATTENZIONE: il nome della DLL deve coincidere con quello del file installato.
-        [DllImport("CIEPKI-NG.dll")]
-        static extern int VerificaCIEAbilitata(string pan);
-
-        [DllImport("CIEPKI-NG.dll")]
-        static extern int DisabilitaCIE(string pan);
-
-        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
-        static extern int isCIEEnrolled(StringBuilder pan);
-
-        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
-        static extern int AbbinaCIE(string szPAN, string szPIN, int[] attempts, ProgressCallback progressCallBack, CompletedCallback completedCallBack);
-
-        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
-        static extern int ChangePIN(string szPIN, string szNewPIN, int[] attempts, ProgressCallback progressCallBack);
-
-        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
-        static extern int UnlockPIN(string szPUK, string szNewPIN, int[] attempts, ProgressCallback progressCallBack);
-
-        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
-        static extern int firmaConCIE(string inFilePath, string type, string pin, string pan, int page, float x, float y, float w, float h, string imagePathFile, string outFilePath, ProgressCallback progressCallBack, SignCompletedCallback signCompletedCallBack, string tsaUrl, string tsaUsername, string tsaPassword);
-
-        [DllImport("CIEPKI-NG.dll", CallingConvention = CallingConvention.StdCall)]
-        static extern int estraiP7m(string inFilePath, string outFilePath);
 
         // true se si firma con una CIE non abbinata (abbinamento 'usa e getta')
         private bool shouldSignWithoutCIEPairing = false;
@@ -735,7 +682,7 @@ namespace CIEID
             {
                 int[] attempts = new int[1];
 
-                ret = AbbinaCIE(null, pin, attempts, new ProgressCallback(PairingProgress), new CompletedCallback(PairingCompleted));
+                ret = NativeMethods.AbbinaCIE(null, pin, attempts, new ProgressCallback(PairingProgress), new CompletedCallback(PairingCompleted));
 
                 this.Invoke((MethodInvoker)delegate
                 {
@@ -810,7 +757,7 @@ namespace CIEID
         // Disabilita la CIE nella libreria nativa e, se riuscito, la rimuove dall'elenco locale
         private void RemoveCIEFromCollection(string PAN)
         {
-            int ret = DisabilitaCIE(PAN);
+            int ret = NativeMethods.DisabilitaCIE(PAN);
 
             switch (ret)
             {
@@ -994,7 +941,7 @@ namespace CIEID
             Logger.Info("ChangePIN() - Inizia funzione");
             int[] attempts = new int[1];
 
-            int ret = ChangePIN(pin, newpin, attempts, ChangePINProgress);
+            int ret = NativeMethods.ChangePIN(pin, newpin, attempts, ChangePINProgress);
 
             this.Invoke((MethodInvoker)delegate
             {
@@ -1047,7 +994,7 @@ namespace CIEID
             Logger.Info("UnlockPIN() - Inizia funzione");
             int[] attempts = new int[1];
 
-            long ret = UnlockPIN(puk, newpin, attempts, UnlockPINProgress);
+            long ret = NativeMethods.UnlockPIN(puk, newpin, attempts, UnlockPINProgress);
 
             this.Invoke((MethodInvoker)delegate
             {
@@ -1375,7 +1322,7 @@ namespace CIEID
             for (int i = 0; i < arrayCIE.Count(); i++)
             {
 
-                int ret = DisabilitaCIE(arrayCIE[i]);
+                int ret = NativeMethods.DisabilitaCIE(arrayCIE[i]);
 
                 if (ret != CKR_OK)
                 {
@@ -2177,18 +2124,18 @@ namespace CIEID
                     if (withGraphic)
                     {
                         Logger.Debug("Pades con grafica");
-                        return firmaConCIE(inputPath, "pdf", PIN, pan, (int)graphicInfo["pageNumber"], graphicInfo["x"], graphicInfo["y"], graphicInfo["w"], graphicInfo["h"],
+                        return NativeMethods.firmaConCIE(inputPath, "pdf", PIN, pan, (int)graphicInfo["pageNumber"], graphicInfo["x"], graphicInfo["y"], graphicInfo["w"], graphicInfo["h"],
                                           graphicImagePath, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url, tsaUser, tsaPass);
                     }
                     else if (signOp == OperationSelectedState.PADES_SIGNATURE)
                     {
                         Logger.Debug("Pades senza grafica");
-                        return firmaConCIE(inputPath, "pdf", PIN, pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url, tsaUser, tsaPass);
+                        return NativeMethods.firmaConCIE(inputPath, "pdf", PIN, pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url, tsaUser, tsaPass);
                     }
                     else if (signOp == OperationSelectedState.CADES_SIGNATURE)
                     {
                         Logger.Debug("Cades");
-                        return firmaConCIE(inputPath, "p7m", PIN, pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url, tsaUser, tsaPass);
+                        return NativeMethods.firmaConCIE(inputPath, "p7m", PIN, pan, 0, 0.0f, 0.0f, 0.0f, 0.0f, null, pathToSaveFile, new ProgressCallback(SignProgress), new SignCompletedCallback(SignCompleted), url, tsaUser, tsaPass);
                     }
                     return 0;
                 };
@@ -2677,30 +2624,7 @@ namespace CIEID
         // Legge le credenziali TSA salvate (cifrate come quelle del proxy). Formato: cred=user:pass
         private bool TryGetSavedTsaCredentials(out string user, out string pass)
         {
-            user = null;
-            pass = null;
-            string enc = Properties.Settings.Default.timestampCredentials;
-            if (string.IsNullOrEmpty(enc))
-                return false;
-            try
-            {
-                string cred = new ProxyInfoManager().getDecryptedCredentials(enc);
-                if (cred != null && cred.StartsWith("cred="))
-                {
-                    string[] infos = cred.Substring(5).Split(new char[] { ':' }, 2);
-                    if (infos.Length == 2 && infos[0].Length > 0)
-                    {
-                        user = infos[0];
-                        pass = infos[1];
-                        return true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Credenziali TSA salvate non leggibili: " + ex.Message);
-            }
-            return false;
+            return CredentialHelper.TryDecrypt(Properties.Settings.Default.timestampCredentials, out user, out pass);
         }
 
         // Mostra o nasconde la password digitata
@@ -2923,7 +2847,7 @@ namespace CIEID
                 pathToSaveFile = Path.GetFullPath(saveFileDialog1.FileName);
 
                 Logger.Debug(string.Format("File extension: {0}", fileExt));
-                long res = estraiP7m(fileNamePathVerifyLabel.Text, pathToSaveFile);
+                long res = NativeMethods.estraiP7m(fileNamePathVerifyLabel.Text, pathToSaveFile);
                 Logger.Debug(string.Format("Res: {0}", (UInt32)res));
 
                 if (res == 0)
@@ -3074,27 +2998,7 @@ namespace CIEID
             {
                 try
                 {
-                    using (FileStream fileStream = new FileStream(saveFileDialog.FileName, FileMode.Create))
-                    {
-                        using (ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Create, true))
-                        {
-                            String[] files = Directory.GetFiles(@"C:\ProgramData\CIEPKI-NG");
-
-                            foreach (string fileName in files)
-                            {
-                                if (Path.GetExtension(fileName).ToLower() == @".log")
-                                {
-                                    logFound = true;
-                                    ZipArchiveEntry zipArchiveEntry = archive.CreateEntry(Path.GetFileName(fileName), CompressionLevel.Optimal);
-                                    using (Stream zipStream = zipArchiveEntry.Open())
-                                    {
-                                        Byte[] logData = File.ReadAllBytes(fileName);
-                                        zipStream.Write(logData, 0, logData.Length);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    logFound = LogFileService.CollectToZip(saveFileDialog.FileName);
 
                     if (logFound)
                     {
@@ -3109,8 +3013,6 @@ namespace CIEID
                                         "l'operazione di raccolta dei log.", "Raccolta log", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         Logger.Info("[INFO] CollectLogBtn_Click() - Non sono presenti file di log nella cartella del programma.");
 
-                        if (File.Exists(saveFileDialog.FileName))
-                            File.Delete(saveFileDialog.FileName);
                     }
                 }
 
@@ -3130,22 +3032,7 @@ namespace CIEID
             if(MessageBox.Show("Avanzando con l'operazione, verranno eliminati tutti i file di log generati dal software CIE ID. Confermi di voler procedere?",
                                "Eliminazione log", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
             {
-                String[] files = Directory.GetFiles(@"C:\ProgramData\CIEPKI-NG");
-
-                foreach (string fileName in files)
-                {
-                    try
-                    {
-                        if (Path.GetExtension(fileName).ToLower() == @".log")
-                            File.Delete(fileName);
-                    }
-
-                    catch(Exception ex)
-                    {
-                        Logger.Error("[ERROR] ClearLogFolderBtn_Click() - Si è verificato un errore durante l'operazione: " + ex.Message);
-                        res = false;
-                    }
-                }
+                res = LogFileService.ClearAll(msg => Logger.Error("[ERROR] ClearLogFolderBtn_Click() - Si è verificato un errore durante l'operazione: " + msg));
 
                 if (res)
                 {

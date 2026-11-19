@@ -2,7 +2,7 @@
 !include "x64.nsh"
 !include "Library.nsh"
 
-!define PRODUCT_VERSION "2.0.0.42"
+!define PRODUCT_VERSION "2.0.0.43"
 
 ;--------------------------------
 ;General
@@ -136,6 +136,7 @@ Section "Install"
 	File "..\x64\${Config}\CIE-Middleware-NG.dll.config"
 	File "..\x64\${Config}\CIE-Middleware-NG.deps.json"
 	File "..\x64\${Config}\CIE-Middleware-NG.runtimeconfig.json"
+	File "..\x64\${Config}\CIEID.Core.dll"
 	File "..\x64\${Config}\Newtonsoft.Json.dll"
 	File "..\x64\${Config}\System.Management.dll"
 
@@ -213,6 +214,7 @@ Section "Uninstall"
   Delete "$INSTDIR\CIE-Middleware-NG.dll.config"
   Delete "$INSTDIR\CIE-Middleware-NG.deps.json"
   Delete "$INSTDIR\CIE-Middleware-NG.runtimeconfig.json"
+  Delete "$INSTDIR\CIEID.Core.dll"
   Delete "$INSTDIR\Newtonsoft.Json.dll"
   Delete "$INSTDIR\System.Management.dll"
   Delete "$INSTDIR\UpdateTask.xml"

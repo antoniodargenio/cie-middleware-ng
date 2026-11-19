@@ -6,14 +6,14 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CIEID
+namespace CIEID.Core
 {
     /// <summary>
     /// Cifratura/decifratura simmetrica AES-256 in modalita' CBC con padding PKCS7.
     /// Usata per proteggere localmente le credenziali del proxy (vedi ProxyInfoManager).
     /// Input/output cifrati sono stringhe Base64.
     /// </summary>
-    class AesCBCcs
+    public class AesCbc
     {
         // Chiave simmetrica (32 byte)
         private byte[] key;
@@ -21,7 +21,7 @@ namespace CIEID
         private byte[] IV;
 
 
-        public AesCBCcs(byte[] key, byte[] IV)
+        public AesCbc(byte[] key, byte[] IV)
         {
             this.key = key;
             this.IV = IV;

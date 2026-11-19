@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CIEID
+namespace CIEID.Core
 {
     /// <summary>Dati di una CIE abbinata all'applicazione.</summary>
-    class CieModel
+    public class CieModel
     {
         // Numero seriale della carta
         public String SerialNumber { get; set; }

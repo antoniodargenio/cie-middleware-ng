@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace CIEID
+namespace CIEID.Core
 {
     /// <summary>
     /// Insieme delle CIE abbinate, indicizzate per PAN. Viene serializzato/deserializzato in JSON
     /// (Newtonsoft.Json) per essere salvato nelle impostazioni dell'applicazione.
     /// </summary>
-    class CieCollection
+    public class CieCollection
     {
         // PAN della CIE -> dati della CIE
         private Dictionary<string, CieModel> mydictionary;

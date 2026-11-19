@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace CIEID
+namespace CIEID.Core
 {
     // Livelli di log: NONE = disattivato, poi in ordine di gravita' crescente
     public enum LogLevel

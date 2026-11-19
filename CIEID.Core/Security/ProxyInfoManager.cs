@@ -6,15 +6,15 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CIEID
+namespace CIEID.Core
 {
     /// <summary>
     /// Cifra e decifra le credenziali del proxy con una chiave derivata dall'identificativo
     /// del processore della macchina: i dati cifrati non sono quindi portabili su altri PC.
     /// </summary>
-    class ProxyInfoManager
+    public class ProxyInfoManager
     {
-        private AesCBCcs aesCipher;
+        private AesCbc aesCipher;
         private byte[] key;
         private byte[] IV;
 
@@ -37,7 +37,7 @@ namespace CIEID
             this.key = hash.ComputeHash(Encoding.UTF8.GetBytes(seed));
             this.IV = Encoding.ASCII.GetBytes(@"9/\~V).A,lY&=t2b");
 
-            aesCipher =  new AesCBCcs(key, IV);
+            aesCipher =  new AesCbc(key, IV);
         }
 
         // Cifra le credenziali (risultato in Base64)
